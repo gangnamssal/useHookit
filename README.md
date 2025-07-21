@@ -65,6 +65,21 @@ import { useEventListener } from 'use-hookit/ui';
 useEventListener('click', handleClick, element);
 ```
 
+#### `useIntersectionObserver`
+
+Detects when an element enters or leaves the viewport using Intersection Observer API.
+
+```typescript
+import { useIntersectionObserver } from 'use-hookit/ui';
+
+const { isIntersecting, ref } = useIntersectionObserver({
+	threshold: 0.5,
+	rootMargin: '50px',
+});
+
+return <div ref={ref}>{isIntersecting ? '보임!' : '안 보임'}</div>;
+```
+
 ### Utility Hooks
 
 #### `useMediaQuery`

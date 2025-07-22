@@ -80,23 +80,32 @@ export function useSessionStorage<T>(
 	const { serializer = JSON.stringify, deserializer = JSON.parse } = options;
 
 	/**
-	 * sessionStorage에서 값을 읽어오는 함수
-	 * @returns {T}
+	 * 환경 체크 및 sessionStorage 접근 가능 여부 확인
 	 */
-	const getStoredValue = useCallback((): T => {
-		// SSR 환경 체크
+	const checkEnvironment = useCallback((): boolean => {
 		if (typeof window === 'undefined') {
 			if (typeof console !== 'undefined' && console.warn) {
 				console.warn('useSessionStorage: window is not available (SSR environment)');
 			}
-			return initialValue;
+			return false;
 		}
 
-		// sessionStorage 지원 여부 체크
 		if (!window.sessionStorage) {
 			if (typeof console !== 'undefined' && console.warn) {
 				console.warn('useSessionStorage: sessionStorage is not supported in this browser');
 			}
+			return false;
+		}
+
+		return true;
+	}, []);
+
+	/**
+	 * sessionStorage에서 값을 읽어오는 함수
+	 * @returns {T}
+	 */
+	const getStoredValue = useCallback((): T => {
+		if (!checkEnvironment()) {
 			return initialValue;
 		}
 
@@ -109,7 +118,7 @@ export function useSessionStorage<T>(
 			}
 			return initialValue;
 		}
-	}, [key, initialValue, deserializer]);
+	}, [key, initialValue, deserializer, checkEnvironment]);
 
 	const [storedValue, setStoredValue] = useState<T>(getStoredValue);
 
@@ -119,19 +128,7 @@ export function useSessionStorage<T>(
 	 */
 	const setValue = useCallback(
 		(value: T | ((val: T) => T)) => {
-			// SSR 환경 체크
-			if (typeof window === 'undefined') {
-				if (typeof console !== 'undefined' && console.warn) {
-					console.warn('useSessionStorage: Cannot set value in SSR environment');
-				}
-				return;
-			}
-
-			// sessionStorage 지원 여부 체크
-			if (!window.sessionStorage) {
-				if (typeof console !== 'undefined' && console.warn) {
-					console.warn('useSessionStorage: Cannot set value - sessionStorage not supported');
-				}
+			if (!checkEnvironment()) {
 				return;
 			}
 
@@ -145,26 +142,14 @@ export function useSessionStorage<T>(
 				}
 			}
 		},
-		[key, storedValue, serializer],
+		[key, storedValue, serializer, checkEnvironment],
 	);
 
 	/**
 	 * sessionStorage에서 값을 제거하고 상태를 초기화합니다.
 	 */
 	const removeValue = useCallback(() => {
-		// SSR 환경 체크
-		if (typeof window === 'undefined') {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useSessionStorage: Cannot remove value in SSR environment');
-			}
-			return;
-		}
-
-		// sessionStorage 지원 여부 체크
-		if (!window.sessionStorage) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useSessionStorage: Cannot remove value - sessionStorage not supported');
-			}
+		if (!checkEnvironment()) {
 			return;
 		}
 
@@ -176,7 +161,7 @@ export function useSessionStorage<T>(
 				console.warn(`Error removing sessionStorage key "${key}":`, error);
 			}
 		}
-	}, [key, initialValue]);
+	}, [key, initialValue, checkEnvironment]);
 
 	// 다른 탭에서 sessionStorage가 변경될 때 동기화
 	useEffect(() => {

@@ -87,14 +87,11 @@ export function useSafeState<T>(initialValue: T): [T, (value: T | ((val: T) => T
 	const [state, setState] = useState<T>(initialValue);
 	const isMounted = useIsMounted();
 
-	const safeSetState = useCallback(
-		(value: T | ((val: T) => T)) => {
-			if (isMounted) {
-				setState(value);
-			}
-		},
-		[isMounted],
-	);
+	const safeSetState = (value: T | ((val: T) => T)) => {
+		if (isMounted) {
+			setState(value);
+		}
+	};
 
 	return [state, safeSetState];
 }

@@ -120,15 +120,6 @@ export function useCopyToClipboard(options: UseCopyToClipboardOptions = {}): {
 	 */
 	const copyToClipboard = useCallback(
 		async (text: string): Promise<boolean> => {
-			// SSR 환경 체크
-			if (typeof window === 'undefined') {
-				if (typeof console !== 'undefined' && console.warn) {
-					console.warn('useCopyToClipboard: window is not available (SSR environment)');
-				}
-				setMessage(errorMessage);
-				return false;
-			}
-
 			// navigator.clipboard 지원 여부 체크
 			if (!navigator.clipboard) {
 				if (typeof console !== 'undefined' && console.warn) {

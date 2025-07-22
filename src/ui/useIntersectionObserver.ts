@@ -133,27 +133,59 @@ export function useIntersectionObserver(
 
 	// Observer 생성
 	useEffect(() => {
-		if (typeof window === 'undefined' || !window.IntersectionObserver) {
-			console.warn('IntersectionObserver is not supported in this environment');
+		// SSR 환경 체크
+		if (typeof window === 'undefined') {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useIntersectionObserver: window is not available (SSR environment)');
+			}
 			return;
 		}
 
-		const observer = new IntersectionObserver(handleIntersection, {
-			root,
-			rootMargin,
-			threshold,
-		});
-
-		setObserver(observer);
-
-		// 현재 요소가 있다면 observe 시작
-		if (elementRef.current) {
-			observer.observe(elementRef.current);
+		// IntersectionObserver 지원 여부 체크
+		if (!window.IntersectionObserver) {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn(
+					'useIntersectionObserver: IntersectionObserver is not supported in this browser',
+				);
+			}
+			return;
 		}
 
-		return () => {
-			observer.disconnect();
-		};
+		// 옵션 유효성 검사
+		if (
+			threshold !== undefined &&
+			(Array.isArray(threshold)
+				? threshold.some((t) => t < 0 || t > 1)
+				: threshold < 0 || threshold > 1)
+		) {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useIntersectionObserver: threshold must be between 0 and 1');
+			}
+			return;
+		}
+
+		try {
+			const observer = new IntersectionObserver(handleIntersection, {
+				root,
+				rootMargin,
+				threshold,
+			});
+
+			setObserver(observer);
+
+			// 현재 요소가 있다면 observe 시작
+			if (elementRef.current) {
+				observer.observe(elementRef.current);
+			}
+
+			return () => {
+				observer.disconnect();
+			};
+		} catch (error) {
+			if (typeof console !== 'undefined' && console.error) {
+				console.error('useIntersectionObserver: Failed to create IntersectionObserver:', error);
+			}
+		}
 	}, [root, rootMargin, threshold, handleIntersection]);
 
 	// ref 콜백

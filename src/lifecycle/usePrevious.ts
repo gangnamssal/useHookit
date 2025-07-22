@@ -5,19 +5,13 @@ interface UsePreviousOptions<T> {
 }
 
 /**
- *
  * 이전 렌더링에서의 값을 반환하는 훅입니다.
- *
  * A hook that returns the value from the previous render.
  *
  * @template T - 추적할 값의 타입 / Type of the value to track
- *
  * @param {T} value - 추적할 현재 값 / Current value to track
- *
  * @param {UsePreviousOptions<T>} options - 옵션 설정 / Options configuration
- *
  * @param {T} options.initialValue - 초기값 (첫 번째 렌더링에서 반환될 값) / Initial value (returned on first render)
- *
  * @returns {T | undefined} 이전 렌더링의 값 / Value from previous render
  *
  * @example
@@ -55,7 +49,6 @@ interface UsePreviousOptions<T> {
  *   }
  * }, [isVisible, prevIsVisible]);
  * ```
- *
  */
 export function usePrevious<T>(value: T, options: UsePreviousOptions<T> = {}): T | undefined {
 	const { initialValue } = options;
@@ -63,7 +56,10 @@ export function usePrevious<T>(value: T, options: UsePreviousOptions<T> = {}): T
 	const ref = useRef<T | undefined>(initialValue);
 
 	useEffect(() => {
-		ref.current = value;
+		// 값이 실제로 변경된 경우에만 업데이트
+		if (value !== ref.current) {
+			ref.current = value;
+		}
 	}, [value]);
 
 	return ref.current;

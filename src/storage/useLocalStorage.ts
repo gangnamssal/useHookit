@@ -88,11 +88,29 @@ export function useLocalStorage<T>(
 	 * @returns {T}
 	 */
 	const getStoredValue = useCallback((): T => {
+		// SSR 환경 체크
+		if (typeof window === 'undefined') {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useLocalStorage: window is not available (SSR environment)');
+			}
+			return initialValue;
+		}
+
+		// localStorage 지원 여부 체크
+		if (!window.localStorage) {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useLocalStorage: localStorage is not supported in this browser');
+			}
+			return initialValue;
+		}
+
 		try {
 			const item = window.localStorage.getItem(key);
 			return item ? deserializer(item) : initialValue;
 		} catch (error) {
-			console.warn(`Error reading localStorage key "${key}":`, error);
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn(`Error reading localStorage key "${key}":`, error);
+			}
 			return initialValue;
 		}
 	}, [key, initialValue, deserializer]);
@@ -105,12 +123,30 @@ export function useLocalStorage<T>(
 	 */
 	const setValue = useCallback(
 		(value: T | ((val: T) => T)) => {
+			// SSR 환경 체크
+			if (typeof window === 'undefined') {
+				if (typeof console !== 'undefined' && console.warn) {
+					console.warn('useLocalStorage: Cannot set value in SSR environment');
+				}
+				return;
+			}
+
+			// localStorage 지원 여부 체크
+			if (!window.localStorage) {
+				if (typeof console !== 'undefined' && console.warn) {
+					console.warn('useLocalStorage: Cannot set value - localStorage not supported');
+				}
+				return;
+			}
+
 			try {
 				const valueToStore = value instanceof Function ? value(storedValue) : value;
 				setStoredValue(valueToStore);
 				window.localStorage.setItem(key, serializer(valueToStore));
 			} catch (error) {
-				console.warn(`Error setting localStorage key "${key}":`, error);
+				if (typeof console !== 'undefined' && console.warn) {
+					console.warn(`Error setting localStorage key "${key}":`, error);
+				}
 			}
 		},
 		[key, storedValue, serializer],
@@ -120,11 +156,29 @@ export function useLocalStorage<T>(
 	 * localStorage에서 값을 제거하고 상태를 초기화하는 함수
 	 */
 	const removeValue = useCallback(() => {
+		// SSR 환경 체크
+		if (typeof window === 'undefined') {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useLocalStorage: Cannot remove value in SSR environment');
+			}
+			return;
+		}
+
+		// localStorage 지원 여부 체크
+		if (!window.localStorage) {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useLocalStorage: Cannot remove value - localStorage not supported');
+			}
+			return;
+		}
+
 		try {
 			setStoredValue(initialValue);
 			window.localStorage.removeItem(key);
 		} catch (error) {
-			console.warn(`Error removing localStorage key "${key}":`, error);
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn(`Error removing localStorage key "${key}":`, error);
+			}
 		}
 	}, [key, initialValue]);
 

@@ -115,7 +115,7 @@ describe('useIntersectionObserver', () => {
 		renderHook(() => useIntersectionObserver());
 
 		expect(consoleSpy).toHaveBeenCalledWith(
-			'IntersectionObserver is not supported in this environment',
+			'useIntersectionObserver: IntersectionObserver is not supported in this browser',
 		);
 
 		consoleSpy.mockRestore();

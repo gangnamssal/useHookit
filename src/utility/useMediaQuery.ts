@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 
 /**
- *
  * 주어진 미디어 쿼리 문자열에 대한 일치 여부를 반환하는 커스텀 훅입니다.
  *
  * A custom hook that returns whether a given media query string matches the current environment.
  *
- * @param {string} query - CSS 미디어 쿼리 문자열 (예: '(max-width: 767px)', '(orientation: portrait)') / CSS media query string (e.g., '(max-width: 767px)', '(orientation: portrait)')
+ * @param {string} query - 유효한 CSS 미디어 쿼리 문자열 (예: '(max-width: 767px)', '(orientation: portrait)') / Valid CSS media query string (e.g., '(max-width: 767px)', '(orientation: portrait)')
  *
  * @returns {boolean} 미디어 쿼리가 현재 환경에 일치하면 true, 아니면 false / Returns true if the media query matches the current environment, false otherwise
  *
@@ -30,29 +29,52 @@ import { useState, useEffect } from 'react';
  * const [screenSize, setScreenSize] = useState('(max-width: 768px)');
  * const matches = useMediaQuery(screenSize);
  * ```
- *
  */
 export function useMediaQuery(query: string): boolean {
 	const [matches, setMatches] = useState(false);
 
 	useEffect(() => {
-		const media = window.matchMedia(query);
+		// SSR 환경 체크
+		if (typeof window === 'undefined') {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useMediaQuery: window is not available (SSR environment)');
+			}
+			return;
+		}
 
-		// 초기값 설정
-		setMatches(media.matches);
+		// matchMedia 지원 여부 체크
+		if (!window.matchMedia) {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useMediaQuery: matchMedia is not supported in this browser');
+			}
+			return;
+		}
 
-		// 이벤트 리스너 생성
-		const listener = (event: MediaQueryListEvent) => {
-			setMatches(event.matches);
-		};
+		// 쿼리 유효성 검사
+		if (!query || typeof query !== 'string') {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useMediaQuery: query must be a non-empty string');
+			}
+			return;
+		}
 
-		// 이벤트 리스너 등록
-		media.addEventListener('change', listener);
+		try {
+			const media = window.matchMedia(query);
+			setMatches(media.matches);
 
-		// 클린업
-		return () => {
-			media.removeEventListener('change', listener);
-		};
+			const listener = (event: MediaQueryListEvent) => {
+				setMatches(event.matches);
+			};
+
+			media.addEventListener('change', listener);
+			return () => {
+				media.removeEventListener('change', listener);
+			};
+		} catch (error) {
+			if (typeof console !== 'undefined' && console.error) {
+				console.error('useMediaQuery: Failed to create media query:', error);
+			}
+		}
 	}, [query]);
 
 	return matches;

@@ -207,11 +207,12 @@ describe('useLocalStorage', () => {
 
 	it('storage 이벤트 파싱 오류 시 콘솔에 경고가 출력된다', () => {
 		const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-		const { result } = renderHook(() => useLocalStorage('test-key', 'initial-value'));
+
+		renderHook(() => useLocalStorage('test-key', 'initial-value'));
 
 		const storageEvent = new StorageEvent('storage', {
 			key: 'test-key',
-			newValue: 'invalid-json',
+			newValue: '{"name": "test", "invalid": }',
 			oldValue: null,
 		});
 

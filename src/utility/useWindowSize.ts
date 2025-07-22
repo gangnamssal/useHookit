@@ -100,7 +100,27 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize & 
 	const throttleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	useEffect(() => {
+		// SSR 환경 체크
 		if (typeof window === 'undefined') {
+			// 테스트 환경에서는 경고를 출력하지 않음
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useWindowSize: window is not available (SSR environment)');
+			}
+			return;
+		}
+
+		// 옵션 유효성 검사
+		if (debounceMs < 0) {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useWindowSize: debounceMs must be non-negative');
+			}
+			return;
+		}
+
+		if (throttleMs < 0) {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useWindowSize: throttleMs must be non-negative');
+			}
 			return;
 		}
 
@@ -147,19 +167,24 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize & 
 			}
 		};
 
-		updateWindowSize();
-		window.addEventListener('resize', handleResize, listenerOptions);
+		try {
+			updateWindowSize();
+			window.addEventListener('resize', handleResize, listenerOptions);
 
-		return () => {
-			window.removeEventListener('resize', handleResize, listenerOptions);
-
-			if (debounceTimerRef.current) {
-				clearTimeout(debounceTimerRef.current);
+			return () => {
+				window.removeEventListener('resize', handleResize, listenerOptions);
+				if (debounceTimerRef.current) {
+					clearTimeout(debounceTimerRef.current);
+				}
+				if (throttleTimerRef.current) {
+					clearTimeout(throttleTimerRef.current);
+				}
+			};
+		} catch (error) {
+			if (typeof console !== 'undefined' && console.error) {
+				console.error('useWindowSize: Failed to add resize event listener:', error);
 			}
-			if (throttleTimerRef.current) {
-				clearTimeout(throttleTimerRef.current);
-			}
-		};
+		}
 	}, [debounceMs, throttleMs]);
 
 	const { width, height } = windowSize;

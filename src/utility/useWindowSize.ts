@@ -10,8 +10,6 @@ export interface UseWindowSizeOptions {
 	initialSize?: WindowSize;
 	/** 리사이즈 이벤트의 디바운스 시간 (ms, 기본값: 100) */
 	debounceMs?: number;
-	/** 리사이즈 이벤트의 throttle 시간 (ms, 기본값: 0 - throttle 사용 안함) */
-	throttleMs?: number;
 	/** 리사이즈 이벤트 리스너 옵션 (기본값: { passive: true }) */
 	listenerOptions?: AddEventListenerOptions;
 }
@@ -80,7 +78,6 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize & 
 	const {
 		initialSize = { width: 0, height: 0 },
 		debounceMs = 100,
-		throttleMs = 0,
 		listenerOptions = { passive: true },
 	} = options;
 
@@ -96,8 +93,6 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize & 
 	});
 
 	const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-	const lastRunRef = useRef<number>(0);
-	const throttleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	useEffect(() => {
 		// SSR 환경 체크
@@ -117,13 +112,6 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize & 
 			return;
 		}
 
-		if (throttleMs < 0) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useWindowSize: throttleMs must be non-negative');
-			}
-			return;
-		}
-
 		const updateWindowSize = () => {
 			setWindowSize({
 				width: window.innerWidth,
@@ -139,28 +127,8 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize & 
 			debounceTimerRef.current = setTimeout(updateWindowSize, debounceMs);
 		};
 
-		const throttledUpdate = () => {
-			const now = Date.now();
-
-			if (lastRunRef.current && now - lastRunRef.current < throttleMs) {
-				if (throttleTimerRef.current) {
-					clearTimeout(throttleTimerRef.current);
-				}
-
-				throttleTimerRef.current = setTimeout(() => {
-					lastRunRef.current = now;
-					updateWindowSize();
-				}, throttleMs - (now - lastRunRef.current));
-			} else {
-				lastRunRef.current = now;
-				updateWindowSize();
-			}
-		};
-
 		const handleResize = () => {
-			if (throttleMs > 0) {
-				throttledUpdate();
-			} else if (debounceMs > 0) {
+			if (debounceMs > 0) {
 				debouncedUpdate();
 			} else {
 				updateWindowSize();
@@ -176,16 +144,13 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize & 
 				if (debounceTimerRef.current) {
 					clearTimeout(debounceTimerRef.current);
 				}
-				if (throttleTimerRef.current) {
-					clearTimeout(throttleTimerRef.current);
-				}
 			};
 		} catch (error) {
 			if (typeof console !== 'undefined' && console.error) {
 				console.error('useWindowSize: Failed to add resize event listener:', error);
 			}
 		}
-	}, [debounceMs, throttleMs]);
+	}, [debounceMs]);
 
 	const { width, height } = windowSize;
 

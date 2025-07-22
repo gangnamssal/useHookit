@@ -66,20 +66,66 @@ export function useEventListener<T extends EventTarget>(
 	}, [handler]);
 
 	useEffect(() => {
+		// 입력값 유효성 검사
+		if (!eventName || typeof eventName !== 'string') {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useEventListener: eventName must be a non-empty string');
+			}
+			return;
+		}
+
+		if (typeof handler !== 'function') {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useEventListener: handler must be a function');
+			}
+			return;
+		}
+
 		const targetElement = element || window;
 
+		// SSR 환경 체크
+		if (typeof window === 'undefined') {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useEventListener: window is not available (SSR environment)');
+			}
+			return;
+		}
+
+		// addEventListener 지원 여부 체크
 		if (!targetElement || !targetElement.addEventListener) {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useEventListener: target element does not support addEventListener');
+			}
 			return;
 		}
 
 		const eventListener = (event: Event) => {
-			savedHandler.current(event);
+			try {
+				savedHandler.current(event);
+			} catch (error) {
+				if (typeof console !== 'undefined' && console.error) {
+					console.error('useEventListener: Error in event handler:', error);
+				}
+			}
 		};
 
-		targetElement.addEventListener(eventName, eventListener, options);
+		try {
+			targetElement.addEventListener(eventName, eventListener, options);
+		} catch (error) {
+			if (typeof console !== 'undefined' && console.error) {
+				console.error('useEventListener: Failed to add event listener:', error);
+			}
+			return;
+		}
 
 		return () => {
-			targetElement.removeEventListener(eventName, eventListener, options);
+			try {
+				targetElement.removeEventListener(eventName, eventListener, options);
+			} catch (error) {
+				if (typeof console !== 'undefined' && console.error) {
+					console.error('useEventListener: Failed to remove event listener:', error);
+				}
+			}
 		};
 	}, [eventName, element, options]);
 }

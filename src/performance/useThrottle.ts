@@ -47,20 +47,6 @@ export function useThrottle<T extends (...args: any[]) => any>(callback: T, dela
 		if (typeof console !== 'undefined' && console.warn) {
 			console.warn('useThrottle: delay must be non-negative');
 		}
-		// 음수 delay의 경우 즉시 실행되는 throttle 함수 반환
-		return useCallback(
-			((...args: Parameters<T>) => {
-				callback(...args);
-			}) as T,
-			[callback],
-		);
-	}
-
-	if (!Number.isFinite(delay)) {
-		if (typeof console !== 'undefined' && console.warn) {
-			console.warn('useThrottle: delay must be a finite number');
-		}
-		// 무한대 delay의 경우 즉시 실행되는 throttle 함수 반환
 		return useCallback(
 			((...args: Parameters<T>) => {
 				callback(...args);
@@ -79,16 +65,10 @@ export function useThrottle<T extends (...args: any[]) => any>(callback: T, dela
 					clearTimeout(timeoutRef.current);
 				}
 
-				try {
-					timeoutRef.current = setTimeout(() => {
-						lastRun.current = now;
-						callback(...args);
-					}, delay - (now - lastRun.current));
-				} catch (error) {
-					if (typeof console !== 'undefined' && console.error) {
-						console.error('useThrottle: Failed to create timeout:', error);
-					}
-				}
+				timeoutRef.current = setTimeout(() => {
+					lastRun.current = now;
+					callback(...args);
+				}, delay - (now - lastRun.current));
 			} else {
 				// throttle 시간이 지났으면 즉시 실행
 				lastRun.current = now;

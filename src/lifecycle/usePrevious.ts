@@ -56,10 +56,7 @@ export function usePrevious<T>(value: T, options: UsePreviousOptions<T> = {}): T
 	const ref = useRef<T | undefined>(initialValue);
 
 	useEffect(() => {
-		// 값이 실제로 변경된 경우에만 업데이트
-		if (value !== ref.current) {
-			ref.current = value;
-		}
+		ref.current = value;
 	}, [value]);
 
 	return ref.current;

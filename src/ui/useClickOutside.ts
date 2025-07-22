@@ -52,14 +52,6 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
 	const ref = useRef<T>(null);
 
 	useEffect(() => {
-		// SSR 환경 체크
-		if (typeof window === 'undefined') {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useClickOutside: window is not available (SSR environment)');
-			}
-			return;
-		}
-
 		// document 지원 여부 체크
 		if (!document || !document.addEventListener) {
 			if (typeof console !== 'undefined' && console.warn) {

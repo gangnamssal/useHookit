@@ -84,23 +84,32 @@ export function useLocalStorage<T>(
 	const { serializer = JSON.stringify, deserializer = JSON.parse } = options;
 
 	/**
-	 * localStorage에서 값을 읽어오는 함수
-	 * @returns {T}
+	 * 환경 체크 및 localStorage 접근 가능 여부 확인
 	 */
-	const getStoredValue = useCallback((): T => {
-		// SSR 환경 체크
+	const checkEnvironment = useCallback((): boolean => {
 		if (typeof window === 'undefined') {
 			if (typeof console !== 'undefined' && console.warn) {
 				console.warn('useLocalStorage: window is not available (SSR environment)');
 			}
-			return initialValue;
+			return false;
 		}
 
-		// localStorage 지원 여부 체크
 		if (!window.localStorage) {
 			if (typeof console !== 'undefined' && console.warn) {
 				console.warn('useLocalStorage: localStorage is not supported in this browser');
 			}
+			return false;
+		}
+
+		return true;
+	}, []);
+
+	/**
+	 * localStorage에서 값을 읽어오는 함수
+	 * @returns {T}
+	 */
+	const getStoredValue = useCallback((): T => {
+		if (!checkEnvironment()) {
 			return initialValue;
 		}
 
@@ -113,7 +122,7 @@ export function useLocalStorage<T>(
 			}
 			return initialValue;
 		}
-	}, [key, initialValue, deserializer]);
+	}, [key, initialValue, deserializer, checkEnvironment]);
 
 	const [storedValue, setStoredValue] = useState<T>(getStoredValue);
 
@@ -123,19 +132,7 @@ export function useLocalStorage<T>(
 	 */
 	const setValue = useCallback(
 		(value: T | ((val: T) => T)) => {
-			// SSR 환경 체크
-			if (typeof window === 'undefined') {
-				if (typeof console !== 'undefined' && console.warn) {
-					console.warn('useLocalStorage: Cannot set value in SSR environment');
-				}
-				return;
-			}
-
-			// localStorage 지원 여부 체크
-			if (!window.localStorage) {
-				if (typeof console !== 'undefined' && console.warn) {
-					console.warn('useLocalStorage: Cannot set value - localStorage not supported');
-				}
+			if (!checkEnvironment()) {
 				return;
 			}
 
@@ -149,26 +146,14 @@ export function useLocalStorage<T>(
 				}
 			}
 		},
-		[key, storedValue, serializer],
+		[key, storedValue, serializer, checkEnvironment],
 	);
 
 	/**
 	 * localStorage에서 값을 제거하고 상태를 초기화하는 함수
 	 */
 	const removeValue = useCallback(() => {
-		// SSR 환경 체크
-		if (typeof window === 'undefined') {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useLocalStorage: Cannot remove value in SSR environment');
-			}
-			return;
-		}
-
-		// localStorage 지원 여부 체크
-		if (!window.localStorage) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useLocalStorage: Cannot remove value - localStorage not supported');
-			}
+		if (!checkEnvironment()) {
 			return;
 		}
 
@@ -180,7 +165,7 @@ export function useLocalStorage<T>(
 				console.warn(`Error removing localStorage key "${key}":`, error);
 			}
 		}
-	}, [key, initialValue]);
+	}, [key, initialValue, checkEnvironment]);
 
 	// 다른 탭에서 localStorage가 변경될 때 동기화
 	useEffect(() => {

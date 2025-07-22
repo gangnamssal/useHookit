@@ -133,14 +133,6 @@ export function useIntersectionObserver(
 
 	// Observer 생성
 	useEffect(() => {
-		// SSR 환경 체크
-		if (typeof window === 'undefined') {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useIntersectionObserver: window is not available (SSR environment)');
-			}
-			return;
-		}
-
 		// IntersectionObserver 지원 여부 체크
 		if (!window.IntersectionObserver) {
 			if (typeof console !== 'undefined' && console.warn) {

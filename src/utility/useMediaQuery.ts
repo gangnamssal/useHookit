@@ -34,14 +34,6 @@ export function useMediaQuery(query: string): boolean {
 	const [matches, setMatches] = useState(false);
 
 	useEffect(() => {
-		// SSR 환경 체크
-		if (typeof window === 'undefined') {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useMediaQuery: window is not available (SSR environment)');
-			}
-			return;
-		}
-
 		// matchMedia 지원 여부 체크
 		if (!window.matchMedia) {
 			if (typeof console !== 'undefined' && console.warn) {

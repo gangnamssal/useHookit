@@ -52,6 +52,32 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
 	const ref = useRef<T>(null);
 
 	useEffect(() => {
+		// SSR 환경 체크
+		if (typeof window === 'undefined') {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useClickOutside: window is not available (SSR environment)');
+			}
+			return;
+		}
+
+		// document 지원 여부 체크
+		if (!document || !document.addEventListener) {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn(
+					'useClickOutside: document is not available or does not support addEventListener',
+				);
+			}
+			return;
+		}
+
+		// 이벤트 타입 유효성 검사
+		if (!['mousedown', 'click', 'touchstart'].includes(eventType)) {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useClickOutside: eventType must be one of: mousedown, click, touchstart');
+			}
+			return;
+		}
+
 		if (!enabled) return;
 
 		const handleClickOutside = (event: Event) => {
@@ -62,11 +88,16 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
 			}
 		};
 
-		document.addEventListener(eventType, handleClickOutside);
-
-		return () => {
-			document.removeEventListener(eventType, handleClickOutside);
-		};
+		try {
+			document.addEventListener(eventType, handleClickOutside);
+			return () => {
+				document.removeEventListener(eventType, handleClickOutside);
+			};
+		} catch (error) {
+			if (typeof console !== 'undefined' && console.error) {
+				console.error('useClickOutside: Failed to add event listener:', error);
+			}
+		}
 	}, [callback, enabled, eventType]);
 
 	return ref;
@@ -130,6 +161,42 @@ export function useClickOutsideMultiple<T extends HTMLElement = HTMLElement>(
 	const { enabled = true, eventType = 'mousedown' } = options;
 
 	useEffect(() => {
+		// SSR 환경 체크
+		if (typeof window === 'undefined') {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useClickOutsideMultiple: window is not available (SSR environment)');
+			}
+			return;
+		}
+
+		// document 지원 여부 체크
+		if (!document || !document.addEventListener) {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn(
+					'useClickOutsideMultiple: document is not available or does not support addEventListener',
+				);
+			}
+			return;
+		}
+
+		// 이벤트 타입 유효성 검사
+		if (!['mousedown', 'click', 'touchstart'].includes(eventType)) {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn(
+					'useClickOutsideMultiple: eventType must be one of: mousedown, click, touchstart',
+				);
+			}
+			return;
+		}
+
+		// refs 배열 유효성 검사
+		if (!Array.isArray(refs) || refs.length === 0) {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useClickOutsideMultiple: refs must be a non-empty array');
+			}
+			return;
+		}
+
 		if (!enabled) return;
 
 		const handleClickOutside = (event: Event) => {
@@ -142,10 +209,15 @@ export function useClickOutsideMultiple<T extends HTMLElement = HTMLElement>(
 			}
 		};
 
-		document.addEventListener(eventType, handleClickOutside);
-
-		return () => {
-			document.removeEventListener(eventType, handleClickOutside);
-		};
-	}, [callback, enabled, eventType, refs]);
+		try {
+			document.addEventListener(eventType, handleClickOutside);
+			return () => {
+				document.removeEventListener(eventType, handleClickOutside);
+			};
+		} catch (error) {
+			if (typeof console !== 'undefined' && console.error) {
+				console.error('useClickOutsideMultiple: Failed to add event listener:', error);
+			}
+		}
+	}, [callback, refs, enabled, eventType]);
 }

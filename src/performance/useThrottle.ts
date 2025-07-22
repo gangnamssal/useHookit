@@ -42,6 +42,33 @@ export function useThrottle<T extends (...args: any[]) => any>(callback: T, dela
 	const lastRun = useRef<number>(0);
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+	// delay 유효성 검사
+	if (delay < 0) {
+		if (typeof console !== 'undefined' && console.warn) {
+			console.warn('useThrottle: delay must be non-negative');
+		}
+		// 음수 delay의 경우 즉시 실행되는 throttle 함수 반환
+		return useCallback(
+			((...args: Parameters<T>) => {
+				callback(...args);
+			}) as T,
+			[callback],
+		);
+	}
+
+	if (!Number.isFinite(delay)) {
+		if (typeof console !== 'undefined' && console.warn) {
+			console.warn('useThrottle: delay must be a finite number');
+		}
+		// 무한대 delay의 경우 즉시 실행되는 throttle 함수 반환
+		return useCallback(
+			((...args: Parameters<T>) => {
+				callback(...args);
+			}) as T,
+			[callback],
+		);
+	}
+
 	const throttledCallback = useCallback(
 		((...args: Parameters<T>) => {
 			const now = Date.now();
@@ -52,10 +79,16 @@ export function useThrottle<T extends (...args: any[]) => any>(callback: T, dela
 					clearTimeout(timeoutRef.current);
 				}
 
-				timeoutRef.current = setTimeout(() => {
-					lastRun.current = now;
-					callback(...args);
-				}, delay - (now - lastRun.current));
+				try {
+					timeoutRef.current = setTimeout(() => {
+						lastRun.current = now;
+						callback(...args);
+					}, delay - (now - lastRun.current));
+				} catch (error) {
+					if (typeof console !== 'undefined' && console.error) {
+						console.error('useThrottle: Failed to create timeout:', error);
+					}
+				}
 			} else {
 				// throttle 시간이 지났으면 즉시 실행
 				lastRun.current = now;
@@ -121,6 +154,25 @@ export function useThrottleValue<T>(value: T, delay: number): T {
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	useEffect(() => {
+		// delay 유효성 검사
+		if (delay < 0) {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useThrottleValue: delay must be non-negative');
+			}
+			// 음수 delay의 경우 즉시 업데이트
+			setThrottledValue(value);
+			return;
+		}
+
+		if (!Number.isFinite(delay)) {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useThrottleValue: delay must be a finite number');
+			}
+			// 무한대 delay의 경우 즉시 업데이트
+			setThrottledValue(value);
+			return;
+		}
+
 		const now = Date.now();
 
 		if (lastRun.current && now - lastRun.current < delay) {
@@ -129,10 +181,16 @@ export function useThrottleValue<T>(value: T, delay: number): T {
 				clearTimeout(timeoutRef.current);
 			}
 
-			timeoutRef.current = setTimeout(() => {
-				lastRun.current = now;
-				setThrottledValue(value);
-			}, delay - (now - lastRun.current));
+			try {
+				timeoutRef.current = setTimeout(() => {
+					lastRun.current = now;
+					setThrottledValue(value);
+				}, delay - (now - lastRun.current));
+			} catch (error) {
+				if (typeof console !== 'undefined' && console.error) {
+					console.error('useThrottleValue: Failed to create timeout:', error);
+				}
+			}
 		} else {
 			// throttle 시간이 지났으면 즉시 업데이트
 			lastRun.current = now;

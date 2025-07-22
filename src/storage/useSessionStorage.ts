@@ -84,11 +84,29 @@ export function useSessionStorage<T>(
 	 * @returns {T}
 	 */
 	const getStoredValue = useCallback((): T => {
+		// SSR 환경 체크
+		if (typeof window === 'undefined') {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useSessionStorage: window is not available (SSR environment)');
+			}
+			return initialValue;
+		}
+
+		// sessionStorage 지원 여부 체크
+		if (!window.sessionStorage) {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useSessionStorage: sessionStorage is not supported in this browser');
+			}
+			return initialValue;
+		}
+
 		try {
 			const item = window.sessionStorage.getItem(key);
 			return item ? deserializer(item) : initialValue;
 		} catch (error) {
-			console.warn(`Error reading sessionStorage key "${key}":`, error);
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn(`Error reading sessionStorage key "${key}":`, error);
+			}
 			return initialValue;
 		}
 	}, [key, initialValue, deserializer]);
@@ -101,26 +119,62 @@ export function useSessionStorage<T>(
 	 */
 	const setValue = useCallback(
 		(value: T | ((val: T) => T)) => {
+			// SSR 환경 체크
+			if (typeof window === 'undefined') {
+				if (typeof console !== 'undefined' && console.warn) {
+					console.warn('useSessionStorage: Cannot set value in SSR environment');
+				}
+				return;
+			}
+
+			// sessionStorage 지원 여부 체크
+			if (!window.sessionStorage) {
+				if (typeof console !== 'undefined' && console.warn) {
+					console.warn('useSessionStorage: Cannot set value - sessionStorage not supported');
+				}
+				return;
+			}
+
 			try {
 				const valueToStore = value instanceof Function ? value(storedValue) : value;
 				setStoredValue(valueToStore);
 				window.sessionStorage.setItem(key, serializer(valueToStore));
 			} catch (error) {
-				console.warn(`Error setting sessionStorage key "${key}":`, error);
+				if (typeof console !== 'undefined' && console.warn) {
+					console.warn(`Error setting sessionStorage key "${key}":`, error);
+				}
 			}
 		},
 		[key, storedValue, serializer],
 	);
 
 	/**
-	 * 값을 제거하고 초기값으로 되돌립니다.
+	 * sessionStorage에서 값을 제거하고 상태를 초기화합니다.
 	 */
 	const removeValue = useCallback(() => {
+		// SSR 환경 체크
+		if (typeof window === 'undefined') {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useSessionStorage: Cannot remove value in SSR environment');
+			}
+			return;
+		}
+
+		// sessionStorage 지원 여부 체크
+		if (!window.sessionStorage) {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useSessionStorage: Cannot remove value - sessionStorage not supported');
+			}
+			return;
+		}
+
 		try {
 			setStoredValue(initialValue);
 			window.sessionStorage.removeItem(key);
 		} catch (error) {
-			console.warn(`Error removing sessionStorage key "${key}":`, error);
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn(`Error removing sessionStorage key "${key}":`, error);
+			}
 		}
 	}, [key, initialValue]);
 

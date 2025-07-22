@@ -38,6 +38,14 @@ export function useIsMounted(): boolean {
 	const [isMounted, setIsMounted] = useState(false);
 
 	useEffect(() => {
+		// SSR 환경에서는 마운트 상태를 true로 설정하지 않음
+		if (typeof window === 'undefined') {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useIsMounted: window is not available (SSR environment)');
+			}
+			return;
+		}
+
 		setIsMounted(true);
 		return () => setIsMounted(false);
 	}, []);

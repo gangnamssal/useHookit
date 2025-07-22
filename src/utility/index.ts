@@ -6,3 +6,4 @@ export * from './useCopyToClipboard';
 export * from './useNetworkStatus';
 export * from './useLoading';
 export * from './useGeolocation';
+export * from './useBoolean';

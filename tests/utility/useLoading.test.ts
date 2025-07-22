@@ -360,4 +360,18 @@ describe('useLoading', () => {
 
 		expect(result.current.isLoading).toBe(false);
 	});
+
+	it('음수 delay에 대해 경고를 출력해야 함', () => {
+		const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		renderHook(() => useLoading({ delay: -100 }));
+		expect(consoleSpy).toHaveBeenCalledWith('useLoading: delay must be non-negative');
+		consoleSpy.mockRestore();
+	});
+
+	it('음수 minLoadingTime에 대해 경고를 출력해야 함', () => {
+		const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		renderHook(() => useLoading({ minLoadingTime: -100 }));
+		expect(consoleSpy).toHaveBeenCalledWith('useLoading: minLoadingTime must be non-negative');
+		consoleSpy.mockRestore();
+	});
 });

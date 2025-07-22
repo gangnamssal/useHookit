@@ -44,6 +44,12 @@ export function useInterval(callback: () => void, delay: number | null): void {
 			return;
 		}
 
+		// 음수 delay에 대한 경고
+		if (delay < 0) {
+			console.warn('useInterval: delay must be non-negative');
+			return;
+		}
+
 		const id = setInterval(() => {
 			savedCallback.current();
 		}, delay);
@@ -93,6 +99,12 @@ export function useTimeout(callback: () => void, delay: number | null): void {
 
 	useEffect(() => {
 		if (delay === null) {
+			return;
+		}
+
+		// 음수 delay에 대한 경고
+		if (delay < 0) {
+			console.warn('useTimeout: delay must be non-negative');
 			return;
 		}
 

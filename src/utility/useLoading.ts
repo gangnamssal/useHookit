@@ -169,6 +169,16 @@ export function useLoading(options: UseLoadingOptions = {}): {
 } {
 	const { initialLoading = false, delay = 0, minLoadingTime = 0, onLoadingChange } = options;
 
+	// 음수 값에 대한 경고
+	useEffect(() => {
+		if (delay < 0) {
+			console.warn('useLoading: delay must be non-negative');
+		}
+		if (minLoadingTime < 0) {
+			console.warn('useLoading: minLoadingTime must be non-negative');
+		}
+	}, [delay, minLoadingTime]);
+
 	const [isLoading, setIsLoading] = useState(initialLoading);
 	const [state, setState] = useState<LoadingState>({
 		isLoading: initialLoading,

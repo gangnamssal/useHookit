@@ -161,6 +161,14 @@ describe('useThrottle', () => {
 		expect(callback).toHaveBeenCalledWith('test2');
 		expect(callback).toHaveBeenCalledTimes(2);
 	});
+
+	it('음수 delay에 대해 경고를 출력해야 한다', () => {
+		const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const callback = vi.fn();
+		renderHook(() => useThrottle(callback, -1000));
+		expect(consoleSpy).toHaveBeenCalledWith('useThrottle: delay must be non-negative');
+		consoleSpy.mockRestore();
+	});
 });
 
 describe('useThrottleValue', () => {
@@ -276,6 +284,13 @@ describe('useThrottleValue', () => {
 
 		rerender({ value: 'second' });
 		expect(result.current).toBe('second');
+	});
+
+	it('음수 delay에 대해 경고를 출력해야 한다', () => {
+		const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		renderHook(() => useThrottleValue('test', -1000));
+		expect(consoleSpy).toHaveBeenCalledWith('useThrottleValue: delay must be non-negative');
+		consoleSpy.mockRestore();
 	});
 
 	it('delay가 변경되면 새로운 throttle이 적용된다', () => {

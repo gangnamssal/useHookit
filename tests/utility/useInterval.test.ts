@@ -85,6 +85,13 @@ describe('useInterval', () => {
 
 		expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 0);
 	});
+
+	it('음수 delay에 대해 경고를 출력해야 한다', () => {
+		const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		renderHook(() => useInterval(mockCallback, -1000));
+		expect(consoleSpy).toHaveBeenCalledWith('useInterval: delay must be non-negative');
+		consoleSpy.mockRestore();
+	});
 });
 
 describe('useTimeout', () => {
@@ -158,6 +165,13 @@ describe('useTimeout', () => {
 		unmount();
 
 		expect(clearTimeoutSpy).toHaveBeenCalled();
+	});
+
+	it('음수 delay에 대해 경고를 출력해야 한다', () => {
+		const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		renderHook(() => useTimeout(mockCallback, -1000));
+		expect(consoleSpy).toHaveBeenCalledWith('useTimeout: delay must be non-negative');
+		consoleSpy.mockRestore();
 	});
 });
 

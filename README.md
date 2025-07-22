@@ -122,6 +122,33 @@ return (
 );
 ```
 
+#### `useCopyToClipboard`
+
+Copies text to clipboard and returns copy success status.
+
+```typescript
+import { useCopyToClipboard } from 'use-hookit/utility';
+
+const { isCopied, isCopying, message, copyToClipboard, reset } = useCopyToClipboard();
+
+const handleCopy = async () => {
+	const success = await copyToClipboard('복사할 텍스트');
+	if (success) {
+		console.log('복사 성공!');
+	}
+};
+
+return (
+	<div>
+		<button onClick={handleCopy} disabled={isCopying}>
+			{isCopying ? '복사 중...' : '복사'}
+		</button>
+		{message && <span>{message}</span>}
+		{isCopied && <button onClick={reset}>초기화</button>}
+	</div>
+);
+```
+
 ### Lifecycle Hooks
 
 #### `useIsMounted`

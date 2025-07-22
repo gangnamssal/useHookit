@@ -56,7 +56,7 @@ describe('useCopyToClipboard', () => {
 
 		expect(mockClipboard.writeText).toHaveBeenCalledWith('테스트 텍스트');
 		expect(result.current.isCopied).toBe(true);
-		expect(result.current.message).toBe('복사되었습니다');
+		expect(result.current.message).toBe('Copied!');
 	});
 
 	it('복사 실패 시 에러 상태를 반환해야 함', async () => {
@@ -69,7 +69,7 @@ describe('useCopyToClipboard', () => {
 		});
 
 		expect(result.current.isCopied).toBe(false);
-		expect(result.current.message).toBe('복사에 실패했습니다');
+		expect(result.current.message).toBe('Copy failed');
 	});
 
 	it('빈 문자열 복사 시 실패해야 함', async () => {
@@ -81,7 +81,7 @@ describe('useCopyToClipboard', () => {
 		});
 
 		expect(result.current.isCopied).toBe(false);
-		expect(result.current.message).toBe('복사에 실패했습니다');
+		expect(result.current.message).toBe('Copy failed');
 	});
 
 	it('null 값 복사 시 실패해야 함', async () => {
@@ -93,7 +93,7 @@ describe('useCopyToClipboard', () => {
 		});
 
 		expect(result.current.isCopied).toBe(false);
-		expect(result.current.message).toBe('복사에 실패했습니다');
+		expect(result.current.message).toBe('Copy failed');
 	});
 
 	it('복사 중에는 isCopying이 true여야 함', async () => {
@@ -133,7 +133,7 @@ describe('useCopyToClipboard', () => {
 		});
 
 		expect(result.current.isCopied).toBe(true);
-		expect(result.current.message).toBe('복사되었습니다');
+		expect(result.current.message).toBe('Copied!');
 
 		// timeout 후 상태 초기화
 		act(() => {
@@ -155,7 +155,7 @@ describe('useCopyToClipboard', () => {
 		});
 
 		expect(result.current.isCopied).toBe(true);
-		expect(result.current.message).toBe('복사되었습니다');
+		expect(result.current.message).toBe('Copied!');
 
 		// 시간이 지나도 상태 유지
 		act(() => {
@@ -163,7 +163,7 @@ describe('useCopyToClipboard', () => {
 		});
 
 		expect(result.current.isCopied).toBe(true);
-		expect(result.current.message).toBe('복사되었습니다');
+		expect(result.current.message).toBe('Copied!');
 
 		vi.useRealTimers();
 	});
@@ -176,7 +176,7 @@ describe('useCopyToClipboard', () => {
 		});
 
 		expect(result.current.isCopied).toBe(true);
-		expect(result.current.message).toBe('복사되었습니다');
+		expect(result.current.message).toBe('Copied!');
 
 		act(() => {
 			result.current.reset();
@@ -264,7 +264,7 @@ describe('useCopyToClipboard', () => {
 		});
 
 		expect(result.current.isCopied).toBe(false);
-		expect(result.current.message).toBe('복사에 실패했습니다');
+		expect(result.current.message).toBe('Copy failed');
 
 		// 원래대로 복원
 		Object.defineProperty(navigator, 'clipboard', {

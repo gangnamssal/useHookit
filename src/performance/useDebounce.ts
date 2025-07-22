@@ -1,26 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 
 /**
- *
- * 주어진 값(value)을 지정한 시간(delay)만큼 지연시켜 반환하는 커스텀 훅입니다.
- *
  * A custom hook that delays and returns a value by a specified time (delay).
- *
- * 입력값이 변경될 때마다 delay(ms) 후에만 최신값을 반환합니다.
  *
  * Only returns the latest value after delay(ms) when the input value changes.
  *
- * @template T - 반환할 값의 타입 / Type of the value to return
+ * @template T - Type of the value to return
+ * @param {T} value - Value to debounce
+ * @param {number} delay - Debounce delay time (ms)
  *
- * @param {T} value - 디바운스 처리할 값 / Value to debounce
- *
- * @param {number} delay - 디바운스 지연 시간(ms) / Debounce delay time (ms)
- *
- * @returns {T} 디바운스된 값 / Debounced value
+ * @returns {T} Debounced value
  *
  * @example
  * ```tsx
- * // 기본 사용법 / Basic usage
+ * // Basic usage
  * const debouncedValue = useDebounce(inputValue, 300);
  *
  * useEffect(() => {
@@ -32,7 +25,7 @@ import { useState, useEffect, useRef } from 'react';
  *
  * @example
  * ```tsx
- * // 검색 입력에서 사용 / Usage in search input
+ * // Usage in search input
  * const [searchTerm, setSearchTerm] = useState('');
  * const debouncedSearchTerm = useDebounce(searchTerm, 500);
  *
@@ -46,7 +39,7 @@ import { useState, useEffect, useRef } from 'react';
  *   <input
  *     value={searchTerm}
  *     onChange={(e) => setSearchTerm(e.target.value)}
- *     placeholder="검색어를 입력하세요"
+ *     placeholder="Enter search term"
  *   />
  * );
  * ```

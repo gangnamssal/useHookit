@@ -1,34 +1,33 @@
 import { useEffect, useState, useCallback } from 'react';
 
 /**
- * 컴포넌트가 마운트되어 있는지 여부를 반환하는 커스텀 훅입니다.
  * A custom hook that returns whether the component is mounted.
  *
- * @returns {boolean} 컴포넌트가 마운트되어 있으면 true, 아니면 false / Returns true if the component is mounted, false otherwise
+ * @returns {boolean} Returns true if the component is mounted, false otherwise
  *
  * @example
  * ```tsx
- * // 기본 사용법 / Basic usage
+ * // Basic usage
  * const isMounted = useIsMounted();
  *
  * useEffect(() => {
  *   if (isMounted) {
- *     // 마운트된 상태에서만 실행 / Only execute when mounted
- *     console.log('컴포넌트가 마운트됨');
+ *     // Only execute when mounted
+ *     console.log('Component mounted');
  *   }
  * }, [isMounted]);
  * ```
  *
  * @example
  * ```tsx
- * // 비동기 작업에서 사용 / Usage in async operations
+ * // Usage in async operations
  * const isMounted = useIsMounted();
  *
  * const fetchData = async () => {
  *   const data = await api.getData();
  *
  *   if (isMounted) {
- *     // 컴포넌트가 여전히 마운트된 상태에서만 상태 업데이트 / Only update state if component is still mounted
+ *     // Only update state if component is still mounted
  *     setData(data);
  *   }
  * };

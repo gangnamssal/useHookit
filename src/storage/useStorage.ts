@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 /**
- * 스토리지 훅 옵션 타입
+ * Storage hook options type
  */
 export interface UseStorageOptions {
 	serializer?: (value: any) => string;
@@ -9,12 +9,12 @@ export interface UseStorageOptions {
 }
 
 /**
- * 스토리지 타입
+ * Storage type
  */
 export type StorageType = 'localStorage' | 'sessionStorage';
 
 /**
- * 공통 스토리지 로직을 처리하는 함수
+ * Common storage logic handler function
  */
 export function useStorage<T>(
 	storageType: StorageType,
@@ -25,7 +25,7 @@ export function useStorage<T>(
 	const { serializer = JSON.stringify, deserializer = JSON.parse } = options;
 
 	/**
-	 * 환경 체크 및 스토리지 접근 가능 여부 확인
+	 * Check environment and storage accessibility
 	 */
 	const checkEnvironment = useCallback((): boolean => {
 		if (typeof window === 'undefined') {
@@ -51,7 +51,7 @@ export function useStorage<T>(
 	}, [storageType]);
 
 	/**
-	 * 스토리지에서 값을 읽어오는 함수
+	 * Function to read value from storage
 	 */
 	const getStoredValue = useCallback((): T => {
 		if (!checkEnvironment()) {
@@ -69,7 +69,7 @@ export function useStorage<T>(
 	}, [key, initialValue, deserializer, checkEnvironment, storageType]);
 
 	/**
-	 * 스토리지에 값을 저장하는 함수
+	 * Function to save value to storage
 	 */
 	const setStoredValue = useCallback(
 		(value: T): void => {
@@ -90,7 +90,7 @@ export function useStorage<T>(
 	);
 
 	/**
-	 * 스토리지에서 값을 제거하는 함수
+	 * Function to remove value from storage
 	 */
 	const removeStoredValue = useCallback((): void => {
 		if (!checkEnvironment()) {

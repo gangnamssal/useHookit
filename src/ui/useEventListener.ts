@@ -4,50 +4,41 @@ type EventTarget = Window | Document | HTMLElement | Element | null | undefined;
 type EventListenerOptions = boolean | AddEventListenerOptions;
 
 /**
- *
- * 지정한 DOM 요소(또는 window)에 이벤트 리스너를 등록하는 커스텀 훅입니다.
- *
  * A custom hook that registers event listeners on specified DOM elements (or window).
- *
- * handler가 변경되어도 최신 핸들러가 항상 호출됩니다.
  *
  * Even when the handler changes, the latest handler is always called.
  *
- * @template T - 이벤트를 등록할 대상 타입 (Window, Document, HTMLElement 등) / Target type for event registration (Window, Document, HTMLElement, etc.)
- *
- * @param {string} eventName - 등록할 이벤트 이름 (예: 'click', 'keydown', 'resize') / Event name to register (e.g., 'click', 'keydown', 'resize')
- *
- * @param {(event: Event) => void} handler - 이벤트 발생 시 실행할 콜백 함수 / Callback function to execute when event occurs
- *
- * @param {T} element - 이벤트를 등록할 대상 (기본값: window) / Target to register event on (default: window)
- *
- * @param {EventListenerOptions} [options] - addEventListener의 옵션 (passive, capture 등) / addEventListener options (passive, capture, etc.)
+ * @template T - Target type for event registration (Window, Document, HTMLElement, etc.)
+ * @param {string} eventName - Event name to register (e.g., 'click', 'keydown', 'resize')
+ * @param {(event: Event) => void} handler - Callback function to execute when event occurs
+ * @param {T} element - Target to register event on (default: window)
+ * @param {EventListenerOptions} [options] - addEventListener options (passive, capture, etc.)
  *
  * @example
  * ```tsx
- * // 기본 사용법 / Basic usage
+ * // Basic usage
  * useEventListener('click', (e) => {
- *   console.log('클릭됨:', e.target);
+ *   console.log('Clicked:', e.target);
  * }, document);
  * ```
  *
  * @example
  * ```tsx
- * // 커스텀 요소에 이벤트 등록 / Register event on custom element
+ * // Register event on custom element
  * const buttonRef = useRef<HTMLButtonElement>(null);
  *
  * useEventListener('click', (e) => {
- *   console.log('버튼 클릭됨');
+ *   console.log('Button clicked');
  * }, buttonRef.current);
  *
- * return <button ref={buttonRef}>클릭하세요</button>;
+ * return <button ref={buttonRef}>Click me</button>;
  * ```
  *
  * @example
  * ```tsx
- * // 옵션과 함께 사용 / Usage with options
+ * // Usage with options
  * useEventListener('scroll', (e) => {
- *   console.log('스크롤됨');
+ *   console.log('Scrolled');
  * }, window, { passive: true });
  * ```
  *

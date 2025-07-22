@@ -1,17 +1,15 @@
 import { useState, useEffect } from 'react';
 
 /**
- * 주어진 미디어 쿼리 문자열에 대한 일치 여부를 반환하는 커스텀 훅입니다.
- *
  * A custom hook that returns whether a given media query string matches the current environment.
  *
- * @param {string} query - 유효한 CSS 미디어 쿼리 문자열 (예: '(max-width: 767px)', '(orientation: portrait)') / Valid CSS media query string (e.g., '(max-width: 767px)', '(orientation: portrait)')
+ * @param {string} query - Valid CSS media query string (e.g., '(max-width: 767px)', '(orientation: portrait)')
  *
- * @returns {boolean} 미디어 쿼리가 현재 환경에 일치하면 true, 아니면 false / Returns true if the media query matches the current environment, false otherwise
+ * @returns {boolean} Returns true if the media query matches the current environment, false otherwise
  *
  * @example
  * ```tsx
- * // 기본 사용법 / Basic usage
+ * // Basic usage
  * const isMobile = useMediaQuery('(max-width: 767px)');
  * const isDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
  *
@@ -25,7 +23,7 @@ import { useState, useEffect } from 'react';
  *
  * @example
  * ```tsx
- * // 동적 미디어 쿼리 / Dynamic media query
+ * // Dynamic media query
  * const [screenSize, setScreenSize] = useState('(max-width: 768px)');
  * const matches = useMediaQuery(screenSize);
  * ```
@@ -199,5 +197,5 @@ export function useBreakpoint(): 'mobile' | 'tablet' | 'desktop' | 'large' {
 	if (isDesktop) return 'desktop';
 	if (isLargeScreen) return 'large';
 
-	return 'desktop'; // 기본값
+	return 'desktop'; // Default value
 }

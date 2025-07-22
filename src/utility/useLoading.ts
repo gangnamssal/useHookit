@@ -1,61 +1,48 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 interface UseLoadingOptions {
-	/** 초기 로딩 상태 (기본값: false) */
+	/** Initial loading state (default: false) */
 	initialLoading?: boolean;
-	/** 로딩 상태 변경 시 지연 시간 (밀리초, 기본값: 0) */
+	/** Delay before loading state changes (milliseconds, default: 0) */
 	delay?: number;
-	/** 최소 로딩 표시 시간 (밀리초, 기본값: 0) */
+	/** Minimum loading display time (milliseconds, default: 0) */
 	minLoadingTime?: number;
-	/** 로딩 상태 변경 시 콜백 함수 */
+	/** Callback when loading state changes */
 	onLoadingChange?: (loading: boolean) => void;
 }
 
 interface LoadingState {
-	/** 현재 로딩 상태 */
+	/** Current loading state */
 	isLoading: boolean;
-	/** 로딩 시작 시간 */
+	/** Loading start time */
 	startTime: Date | null;
-	/** 로딩 지속 시간 (밀리초) */
+	/** Loading duration (milliseconds) */
 	duration: number;
-	/** 로딩 완료 시간 */
+	/** Loading end time */
 	endTime: Date | null;
 }
 
 /**
- * 로딩 상태를 선언적으로 관리하는 훅
- *
  * A hook for declaratively managing loading states
  *
- * @param options - 훅 옵션 / Hook options
+ * @param options - Hook options
+ * @param options.initialLoading - Initial loading state (default: false)
+ * @param options.delay - Delay before loading state changes (ms, default: 0)
+ * @param options.minLoadingTime - Minimum loading display time (ms, default: 0)
+ * @param options.onLoadingChange - Callback when loading state changes
  *
- * @param options.initialLoading - 초기 로딩 상태 (기본값: false) / Initial loading state (default: false)
- *
- * @param options.delay - 로딩 상태 변경 시 지연 시간 (밀리초, 기본값: 0) / Delay before loading state changes (ms, default: 0)
- *
- * @param options.minLoadingTime - 최소 로딩 표시 시간 (밀리초, 기본값: 0) / Minimum loading display time (ms, default: 0)
- *
- * @param options.onLoadingChange - 로딩 상태 변경 시 콜백 함수 / Callback when loading state changes
- *
- * @returns 로딩 상태 관리 객체 / Loading state management object
- *
- * @returns {boolean} isLoading - 현재 로딩 상태 / Current loading state
- *
- * @returns {() => void} startLoading - 로딩 시작 함수 / Function to start loading
- *
- * @returns {() => void} stopLoading - 로딩 중지 함수 / Function to stop loading
- *
- * @returns {() => void} toggleLoading - 로딩 상태 토글 함수 / Function to toggle loading state
- *
- * @returns {LoadingState} state - 상세 로딩 상태 정보 / Detailed loading state information
- *
- * @returns {<T>(promise: Promise<T>) => Promise<T>} withLoading - Promise를 로딩 상태와 함께 실행하는 함수 / Function to execute promise with loading state
- *
- * @returns {<T>(asyncFn: () => Promise<T>) => Promise<T>} wrapAsync - 비동기 함수를 로딩 상태와 함께 실행하는 함수 / Function to wrap async function with loading state
+ * @returns Loading state management object
+ * @returns {boolean} isLoading - Current loading state
+ * @returns {() => void} startLoading - Function to start loading
+ * @returns {() => void} stopLoading - Function to stop loading
+ * @returns {() => void} toggleLoading - Function to toggle loading state
+ * @returns {LoadingState} state - Detailed loading state information
+ * @returns {<T>(promise: Promise<T>) => Promise<T>} withLoading - Function to execute promise with loading state
+ * @returns {<T>(asyncFn: () => Promise<T>) => Promise<T>} wrapAsync - Function to wrap async function with loading state
  *
  * @example
  * ```tsx
- * // 기본 사용법 / Basic usage
+ * // Basic usage
  * const { isLoading, startLoading, stopLoading } = useLoading();
  *
  * const handleSubmit = async () => {
@@ -69,14 +56,14 @@ interface LoadingState {
  *
  * return (
  *   <button onClick={handleSubmit} disabled={isLoading}>
- *     {isLoading ? '제출 중...' : '제출'}
+ *     {isLoading ? 'Submitting...' : 'Submit'}
  *   </button>
  * );
  * ```
  *
  * @example
  * ```tsx
- * // withLoading 사용법 / Using withLoading
+ * // Using withLoading
  * const { isLoading, withLoading } = useLoading();
  *
  * const handleSubmit = async () => {
@@ -85,14 +72,14 @@ interface LoadingState {
  *
  * return (
  *   <button onClick={handleSubmit} disabled={isLoading}>
- *     {isLoading ? '제출 중...' : '제출'}
+ *     {isLoading ? 'Submitting...' : 'Submit'}
  *   </button>
  * );
  * ```
  *
  * @example
  * ```tsx
- * // wrapAsync 사용법 / Using wrapAsync
+ * // Using wrapAsync
  * const { isLoading, wrapAsync } = useLoading();
  *
  * const handleSubmit = wrapAsync(async () => {
@@ -192,7 +179,7 @@ export function useLoading(options: UseLoadingOptions = {}): {
 	const startTimeRef = useRef<Date | null>(initialLoading ? new Date() : null);
 
 	/**
-	 * 로딩 상태를 변경하는 함수
+	 * Function to update loading state
 	 */
 	const setLoadingState = useCallback(
 		(loading: boolean) => {
@@ -230,12 +217,12 @@ export function useLoading(options: UseLoadingOptions = {}): {
 	);
 
 	/**
-	 * 로딩을 시작하는 함수
+	 * Function to start loading
 	 */
 	const startLoading = useCallback(() => {
 		if (isLoading) return;
 
-		// 지연 시간이 설정된 경우
+		// If delay is set
 		if (delay > 0) {
 			delayTimerRef.current = setTimeout(() => {
 				setLoadingState(true);
@@ -246,10 +233,10 @@ export function useLoading(options: UseLoadingOptions = {}): {
 	}, [isLoading, delay, setLoadingState]);
 
 	/**
-	 * 로딩을 중지하는 함수
+	 * Function to stop loading
 	 */
 	const stopLoading = useCallback(() => {
-		// 지연 타이머가 있는 경우 정리
+		// Clear delay timer if exists
 		if (delayTimerRef.current) {
 			clearTimeout(delayTimerRef.current);
 			delayTimerRef.current = null;
@@ -258,7 +245,7 @@ export function useLoading(options: UseLoadingOptions = {}): {
 
 		if (!isLoading) return;
 
-		// 최소 로딩 시간이 설정된 경우
+		// If minimum loading time is set
 		if (minLoadingTime > 0) {
 			const elapsed = startTimeRef.current ? Date.now() - startTimeRef.current.getTime() : 0;
 
@@ -276,7 +263,7 @@ export function useLoading(options: UseLoadingOptions = {}): {
 	}, [isLoading, minLoadingTime, setLoadingState]);
 
 	/**
-	 * 로딩 상태를 토글하는 함수
+	 * Function to toggle loading state
 	 */
 	const toggleLoading = useCallback(() => {
 		if (isLoading) {
@@ -287,24 +274,24 @@ export function useLoading(options: UseLoadingOptions = {}): {
 	}, [isLoading, startLoading, stopLoading]);
 
 	/**
-	 * Promise를 로딩 상태와 함께 실행하는 함수
+	 * Function to execute promise with loading state
 	 */
 	const withLoading = useCallback(
 		async <T>(promise: Promise<T>): Promise<T> => {
-			// 지연 타이머가 있는 경우 정리
+			// Clear delay timer if exists
 			if (delayTimerRef.current) {
 				clearTimeout(delayTimerRef.current);
 				delayTimerRef.current = null;
 			}
 
-			// 즉시 로딩 상태 시작
+			// Start loading state immediately
 			setLoadingState(true);
 
 			try {
 				const result = await promise;
 				return result;
 			} finally {
-				// 최소 로딩 시간이 설정된 경우
+				// If minimum loading time is set
 				if (minLoadingTime > 0) {
 					const elapsed = startTimeRef.current ? Date.now() - startTimeRef.current.getTime() : 0;
 					const remaining = Math.max(0, minLoadingTime - elapsed);
@@ -325,7 +312,7 @@ export function useLoading(options: UseLoadingOptions = {}): {
 	);
 
 	/**
-	 * 비동기 함수를 로딩 상태와 함께 실행하는 함수
+	 * Function to execute async function with loading state
 	 */
 	const wrapAsync = useCallback(
 		<T>(asyncFn: () => Promise<T>): Promise<T> => {
@@ -336,7 +323,7 @@ export function useLoading(options: UseLoadingOptions = {}): {
 		[withLoading],
 	);
 
-	// 컴포넌트 언마운트 시 타이머 정리
+	// Clean up timers on component unmount
 	useEffect(() => {
 		return () => {
 			if (delayTimerRef.current) {

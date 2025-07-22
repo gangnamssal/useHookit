@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
 /**
- * 위치 정보 타입
+ * Geolocation position type
  */
 export interface GeolocationPosition {
 	latitude: number;
@@ -15,7 +15,7 @@ export interface GeolocationPosition {
 }
 
 /**
- * 위치 정보 에러 타입
+ * Geolocation error type
  */
 export interface GeolocationError {
 	code: number;
@@ -23,38 +23,38 @@ export interface GeolocationError {
 }
 
 /**
- * useGeolocation 훅 옵션 타입
+ * useGeolocation hook options type
  */
 export interface UseGeolocationOptions {
-	/** 위치 정보 요청 시 옵션 */
+	/** Geolocation request options */
 	enableHighAccuracy?: boolean;
-	/** 위치 정보 요청 타임아웃 (ms) */
+	/** Geolocation request timeout (ms) */
 	timeout?: number;
-	/** 위치 정보 캐시 시간 (ms) */
+	/** Geolocation cache time (ms) */
 	maximumAge?: number;
-	/** 자동으로 위치 정보를 가져올지 여부 */
+	/** Whether to automatically get location */
 	watch?: boolean;
 }
 
 /**
- * useGeolocation 훅 반환 타입
+ * useGeolocation hook return type
  */
 export interface UseGeolocationReturn {
-	/** 현재 위치 정보 */
+	/** Current location information */
 	position: GeolocationPosition | null;
-	/** 위치 정보 에러 */
+	/** Location error */
 	error: GeolocationError | null;
-	/** 위치 정보 로딩 상태 */
+	/** Location loading state */
 	loading: boolean;
-	/** 위치 정보 지원 여부 */
+	/** Location support status */
 	supported: boolean;
-	/** 현재 위치 정보를 가져오는 함수 */
+	/** Function to get current location */
 	getCurrentPosition: (options?: PositionOptions) => Promise<GeolocationPosition>;
-	/** 위치 정보 감시를 시작하는 함수 */
+	/** Function to start location watching */
 	startWatching: (options?: PositionOptions) => void;
-	/** 위치 정보 감시를 중지하는 함수 */
+	/** Function to stop location watching */
 	stopWatching: () => void;
-	/** 위치 정보 감시 중인지 여부 */
+	/** Whether location watching is active */
 	isWatching: boolean;
 }
 
@@ -65,38 +65,35 @@ const ERROR_MESSAGES = {
 } as const;
 
 /**
- *
- * 브라우저의 Geolocation API를 활용하여 위치 정보를 관리하는 커스텀 훅입니다.
- *
  * A custom hook that manages location information using the browser's Geolocation API.
  *
- * @param {UseGeolocationOptions} [options] - 위치 정보 요청 옵션 / Geolocation request options
+ * @param {UseGeolocationOptions} [options] - Geolocation request options
  *
- * @param {boolean} [options.enableHighAccuracy] - 고정밀 위치 정보 요청 여부 (기본값: false) / Whether to request high accuracy location (default: false)
+ * @param {boolean} [options.enableHighAccuracy] - Whether to request high accuracy location (default: false)
  *
- * @param {number} [options.timeout] - 위치 정보 요청 타임아웃 (ms, 기본값: 10000) / Timeout for location request (ms, default: 10000)
+ * @param {number} [options.timeout] - Timeout for location request (ms, default: 10000)
  *
- * @param {number} [options.maximumAge] - 위치 정보 캐시 시간 (ms, 기본값: 0) / Maximum age of cached location (ms, default: 0)
+ * @param {number} [options.maximumAge] - Maximum age of cached location (ms, default: 0)
  *
- * @param {boolean} [options.watch] - 자동으로 위치 정보를 감시할지 여부 (기본값: false) / Whether to automatically watch location (default: false)
+ * @param {boolean} [options.watch] - Whether to automatically watch location (default: false)
  *
- * @returns {UseGeolocationReturn} 위치 정보 관리 객체 / Location management object
+ * @returns {UseGeolocationReturn} Location management object
  *
- * @returns {GeolocationPosition | null} position - 현재 위치 정보 / Current location information
+ * @returns {GeolocationPosition | null} position - Current location information
  *
- * @returns {GeolocationError | null} error - 위치 정보 에러 / Location error
+ * @returns {GeolocationError | null} error - Location error
  *
- * @returns {boolean} loading - 위치 정보 로딩 상태 / Location loading state
+ * @returns {boolean} loading - Location loading state
  *
- * @returns {boolean} supported - 위치 정보 지원 여부 / Location support status
+ * @returns {boolean} supported - Location support status
  *
- * @returns {(options?: PositionOptions) => Promise<GeolocationPosition>} getCurrentPosition - 현재 위치 정보를 가져오는 함수 / Function to get current location
+ * @returns {(options?: PositionOptions) => Promise<GeolocationPosition>} getCurrentPosition - Function to get current location
  *
- * @returns {(options?: PositionOptions) => void} startWatching - 위치 정보 감시를 시작하는 함수 / Function to start location watching
+ * @returns {(options?: PositionOptions) => void} startWatching - Function to start location watching
  *
- * @returns {() => void} stopWatching - 위치 정보 감시를 중지하는 함수 / Function to stop location watching
+ * @returns {() => void} stopWatching - Function to stop location watching
  *
- * @returns {boolean} isWatching - 위치 정보 감시 중인지 여부 / Whether location watching is active
+ * @returns {boolean} isWatching - Whether location watching is active
  *
  * @example
  * ```tsx
@@ -203,7 +200,7 @@ export function useGeolocation(options: UseGeolocationOptions = {}): UseGeolocat
 		[],
 	);
 
-	// 브라우저 에러를 GeolocationError 형태로 변환
+	// Convert browser error to GeolocationError format
 	const convertError = useCallback(
 		(browserError: GeolocationPositionError): GeolocationError => ({
 			code: browserError.code,
@@ -213,7 +210,7 @@ export function useGeolocation(options: UseGeolocationOptions = {}): UseGeolocat
 		[],
 	);
 
-	// 현재 위치 정보를 가져오는 함수
+	// Function to get current location
 	const getCurrentPosition = useCallback(
 		async (customOptions?: PositionOptions): Promise<GeolocationPosition> => {
 			if (!supported) {
@@ -249,7 +246,7 @@ export function useGeolocation(options: UseGeolocationOptions = {}): UseGeolocat
 		[supported, enableHighAccuracy, timeout, maximumAge, convertPosition, convertError],
 	);
 
-	// 위치 정보 감시를 시작하는 함수
+	// Function to start location watching
 	const startWatching = useCallback(
 		(customOptions?: PositionOptions) => {
 			if (!supported) {
@@ -280,7 +277,7 @@ export function useGeolocation(options: UseGeolocationOptions = {}): UseGeolocat
 		[supported, enableHighAccuracy, timeout, maximumAge, convertPosition, convertError],
 	);
 
-	// 위치 정보 감시를 중지하는 함수
+	// Function to stop location watching
 	const stopWatching = useCallback(() => {
 		if (watchIdRef.current !== null) {
 			navigator.geolocation.clearWatch(watchIdRef.current);
@@ -290,7 +287,7 @@ export function useGeolocation(options: UseGeolocationOptions = {}): UseGeolocat
 		}
 	}, []);
 
-	// watch 옵션에 따라 자동 감시 시작/중지 및 언마운트 시 cleanup
+	// Auto start/stop watching based on watch option and cleanup on unmount
 	useEffect(() => {
 		if (watch && supported) {
 			startWatching();

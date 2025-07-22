@@ -8,44 +8,32 @@ interface UseNetworkStatusOptions {
 }
 
 /**
- * 네트워크 연결 상태를 감지하는 훅
+ * A hook that detects network connection status
  *
- * @param options - 훅 옵션
+ * @param options - Hook options
+ * @param options.initialOnline - Initial online status (default: navigator.onLine)
+ * @param options.onlineMessage - Online status message (default: 'Online')
+ * @param options.offlineMessage - Offline status message (default: 'Offline')
+ * @param options.showStatusMessage - Whether to log status changes to console (default: false)
  *
- * @param options.initialOnline - 초기 온라인 상태 (기본값: navigator.onLine)
- *
- * @param options.onlineMessage - 온라인 상태 메시지 (기본값: '온라인')
- *
- * @param options.offlineMessage - 오프라인 상태 메시지 (기본값: '오프라인')
- *
- * @param options.showStatusMessage - 상태 변화 시 콘솔 메시지 출력 여부 (기본값: false)
- *
- * @returns 네트워크 상태 정보
- *
- * @returns isOnline - 온라인 상태 여부
- *
- * @returns isOffline - 오프라인 상태 여부
- *
- * @returns statusMessage - 현재 상태 메시지
- *
- * @returns lastOnline - 마지막 온라인 시간
- *
- * @returns lastOffline - 마지막 오프라인 시간
- *
- * @returns onlineDuration - 온라인 지속 시간 (밀리초)
- *
- * @returns offlineDuration - 오프라인 지속 시간 (밀리초)
- *
- * @returns refreshStatus - 상태 새로고침 함수
+ * @returns Network status information
+ * @returns isOnline - Whether online
+ * @returns isOffline - Whether offline
+ * @returns statusMessage - Current status message
+ * @returns lastOnline - Last online time
+ * @returns lastOffline - Last offline time
+ * @returns onlineDuration - Online duration (milliseconds)
+ * @returns offlineDuration - Offline duration (milliseconds)
+ * @returns refreshStatus - Status refresh function
  *
  * @example
  * ```tsx
- * // 기본 사용법 / Basic usage
+ * // Basic usage
  * const { isOnline, isOffline } = useNetworkStatus();
  *
  * return (
  *   <div>
- *     <div>네트워크 상태: {isOnline ? '온라인' : '오프라인'}</div>
+ *     <div>Network status: {isOnline ? 'Online' : 'Offline'}</div>
  *     {isOffline && <OfflineBanner />}
  *   </div>
  * );
@@ -53,10 +41,10 @@ interface UseNetworkStatusOptions {
  *
  * @example
  * ```tsx
- * // 커스텀 옵션 사용 / Custom options usage
+ * // Custom options usage
  * const { isOnline, statusMessage, lastOnline, onlineDuration } = useNetworkStatus({
- *   onlineMessage: '인터넷 연결됨',
- *   offlineMessage: '인터넷 연결 끊김',
+ *   onlineMessage: 'Internet connected',
+ *   offlineMessage: 'Internet disconnected',
  *   showStatusMessage: true
  * });
  *
@@ -65,8 +53,8 @@ interface UseNetworkStatusOptions {
  *     <div>{statusMessage}</div>
  *     {isOnline && (
  *       <div>
- *         마지막 온라인: {lastOnline?.toLocaleString()}
- *         온라인 지속 시간: {Math.floor(onlineDuration / 1000)}초
+ *         Last online: {lastOnline?.toLocaleString()}
+ *         Online duration: {Math.floor(onlineDuration / 1000)}s
  *       </div>
  *     )}
  *   </div>
@@ -75,7 +63,7 @@ interface UseNetworkStatusOptions {
  *
  * @example
  * ```tsx
- * // 오프라인 시 대체 UI 표시 / Show alternative UI when offline
+ * // Show alternative UI when offline
  * const { isOnline, isOffline } = useNetworkStatus();
  *
  * return (
@@ -91,13 +79,13 @@ interface UseNetworkStatusOptions {
  *
  * @example
  * ```tsx
- * // 네트워크 상태 변화 감지 / Detect network status changes
+ * // Detect network status changes
  * const { isOnline, lastOnline, lastOffline } = useNetworkStatus();
  *
  * useEffect(() => {
  *   if (isOnline) {
- *     console.log('네트워크 연결됨:', lastOnline);
- *     // 데이터 동기화 로직
+ *     console.log('Network connected:', lastOnline);
+ *     // Data synchronization logic
  *     syncData();
  *   } else {
  *     console.log('네트워크 연결 끊김:', lastOffline);
@@ -183,7 +171,7 @@ export function useNetworkStatus(options: UseNetworkStatusOptions = {}) {
 		if (typeof window === 'undefined') return;
 		if (typeof navigator.onLine === 'undefined') return;
 
-		// 초기 상태 동기화
+		// Initial state synchronization
 		if (!hasInitialOnline) {
 			updateNetworkStatus(navigator.onLine);
 		}

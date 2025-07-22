@@ -1,40 +1,33 @@
 import { useEffect, useRef } from 'react';
 
 /**
- *
- * 지정한 DOM 요소 외부를 클릭했을 때 콜백을 실행하는 커스텀 훅입니다.
- *
  * A custom hook that executes a callback when clicking outside a specified DOM element.
  *
- * @template T - HTMLElement 또는 그 하위 타입 / HTMLElement or its subtype
+ * @template T - HTMLElement or its subtype
+ * @param {() => void} callback - Callback function to execute on outside click
+ * @param {Object} options - Options object
+ * @param {boolean} options.enabled - Whether the hook is enabled (default: true)
+ * @param {'mousedown' | 'click' | 'touchstart'} options.eventType - Event type to detect (default: 'mousedown')
  *
- * @param {() => void} callback - 외부 클릭 시 실행할 콜백 함수 / Callback function to execute on outside click
- *
- * @param {Object} options - 옵션 객체 / Options object
- *
- * @param {boolean} options.enabled - 훅 활성화 여부 (기본값: true) / Whether the hook is enabled (default: true)
- *
- * @param {'mousedown' | 'click' | 'touchstart'} options.eventType - 감지할 이벤트 타입 (기본값: 'mousedown') / Event type to detect (default: 'mousedown')
- *
- * @returns {React.RefObject<T>} 감지할 DOM 요소에 할당할 ref / Ref to assign to the DOM element to detect
+ * @returns {React.RefObject<T>} Ref to assign to the DOM element to detect
  *
  * @example
  * ```tsx
- * // 기본 사용법 / Basic usage
+ * // Basic usage
  * const ref = useClickOutside(() => setOpen(false));
  *
  * return (
  *   <div ref={ref}>
- *     모달 내용
+ *     Modal content
  *   </div>
  * );
  * ```
  *
  * @example
  * ```tsx
- * // 커스텀 옵션 사용 / Custom options usage
+ * // Custom options usage
  * const ref = useClickOutside(() => {
- *   console.log('외부 클릭됨');
+ *   console.log('Clicked outside');
  * }, {
  *   enabled: isModalOpen,
  *   eventType: 'click'

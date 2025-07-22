@@ -1,25 +1,25 @@
 import { useState, useCallback, useRef } from 'react';
 
 interface UseBooleanOptions {
-	/** 초기 불리언 값 (기본값: false) */
+	/** Initial boolean value (default: false) */
 	initialValue?: boolean;
-	/** 값 변경 시 콜백 함수 */
+	/** Callback when value changes */
 	onChange?: (value: boolean) => void;
 }
 
 /**
- * 불리언 상태를 선언적으로 관리하는 훅
+ * A hook for declaratively managing boolean states
  *
- * @param options - 훅 옵션
- * @param options.initialValue - 초기 불리언 값 (기본값: false)
- * @param options.onChange - 값 변경 시 콜백 함수
+ * @param options - Hook options
+ * @param options.initialValue - Initial boolean value (default: false)
+ * @param options.onChange - Callback when value changes
  *
- * @returns 불리언 상태 관리 객체
- * @returns {boolean} value - 현재 불리언 값
- * @returns {() => void} toggle - 값을 토글하는 함수
- * @returns {() => void} setTrue - 값을 true로 설정하는 함수
- * @returns {() => void} setFalse - 값을 false로 설정하는 함수
- * @returns {(value: boolean) => void} setValue - 값을 직접 설정하는 함수
+ * @returns Boolean state management object
+ * @returns {boolean} value - Current boolean value
+ * @returns {() => void} toggle - Function to toggle the value
+ * @returns {() => void} setTrue - Function to set value to true
+ * @returns {() => void} setFalse - Function to set value to false
+ * @returns {(value: boolean) => void} setValue - Function to set value directly
  *
  * @example
  * ```tsx
@@ -27,10 +27,10 @@ interface UseBooleanOptions {
  *
  * return (
  *   <div>
- *     <p>상태: {value ? '켜짐' : '꺼짐'}</p>
- *     <button onClick={toggle}>토글</button>
- *     <button onClick={setTrue}>켜기</button>
- *     <button onClick={setFalse}>끄기</button>
+ *     <p>Status: {value ? 'On' : 'Off'}</p>
+ *     <button onClick={toggle}>Toggle</button>
+ *     <button onClick={setTrue}>Turn On</button>
+ *     <button onClick={setFalse}>Turn Off</button>
  *   </div>
  * );
  * ```
@@ -51,31 +51,31 @@ export function useBoolean(options: UseBooleanOptions = {}): {
 	onChangeRef.current = onChange;
 
 	/**
-	 * 값을 변경하는 공통 함수
+	 * Common function to update value
 	 */
 	const updateValue = useCallback((newValue: boolean) => {
 		setValueState(newValue);
 
-		// onChange 콜백이 존재하는 경우에만 호출
+		// Only call if onChange callback exists
 		if (onChangeRef.current) {
 			try {
 				onChangeRef.current(newValue);
 			} catch (error) {
-				// onChange 콜백에서 에러가 발생해도 훅 자체는 정상 동작
+				// Hook continues to work even if onChange callback throws an error
 				console.warn('useBoolean: onChange callback threw an error:', error);
 			}
 		}
 	}, []);
 
 	/**
-	 * 값을 토글하는 함수
+	 * Function to toggle value
 	 */
 	const toggle = useCallback(() => {
 		updateValue(!value);
 	}, [value, updateValue]);
 
 	/**
-	 * 값을 true로 설정하는 함수
+	 * Function to set value to true
 	 */
 	const setTrue = useCallback(() => {
 		if (value !== true) {
@@ -84,7 +84,7 @@ export function useBoolean(options: UseBooleanOptions = {}): {
 	}, [value, updateValue]);
 
 	/**
-	 * 값을 false로 설정하는 함수
+	 * Function to set value to false
 	 */
 	const setFalse = useCallback(() => {
 		if (value !== false) {
@@ -93,11 +93,11 @@ export function useBoolean(options: UseBooleanOptions = {}): {
 	}, [value, updateValue]);
 
 	/**
-	 * 값을 직접 설정하는 함수
+	 * Function to set value directly
 	 */
 	const setValue = useCallback(
 		(newValue: boolean) => {
-			// 타입 안전성을 위해 boolean 타입 강제
+			// Force boolean type for type safety
 			const booleanValue = Boolean(newValue);
 			if (value !== booleanValue) {
 				updateValue(booleanValue);

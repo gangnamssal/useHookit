@@ -29,39 +29,26 @@ export interface UseIntersectionObserverReturn {
 }
 
 /**
- * Intersection Observer API를 사용하여 요소의 가시성을 감지하는 훅
- *
  * A hook that detects element visibility using the Intersection Observer API
  *
- * @param {IntersectionObserverOptions} options - Intersection Observer 옵션 / Intersection Observer options
+ * @param {IntersectionObserverOptions} options - Intersection Observer options
+ * @param {Element | null} options.root - Root element (default: null, browser viewport)
+ * @param {string} options.rootMargin - Root element margin (default: '0px')
+ * @param {number | number[]} options.threshold - Threshold array (default: [0])
+ * @param {boolean} options.initialIsIntersecting - Initial state (default: false)
  *
- * @param {Element | null} options.root - 루트 요소 (기본값: null, 브라우저 뷰포트) / Root element (default: null, browser viewport)
- *
- * @param {string} options.rootMargin - 루트 요소의 마진 (기본값: '0px') / Root element margin (default: '0px')
- *
- * @param {number | number[]} options.threshold - 임계값 배열 (기본값: [0]) / Threshold array (default: [0])
- *
- * @param {boolean} options.initialIsIntersecting - 초기 상태 (기본값: false) / Initial state (default: false)
- *
- * @returns {UseIntersectionObserverReturn} 교차 상태와 관련 정보를 포함한 객체 / Object containing intersection state and related information
- *
- * @returns {boolean} isIntersecting - 현재 교차 상태 / Current intersection state
- *
- * @returns {number} intersectionRatio - 교차 비율 (0-1) / Intersection ratio (0-1)
- *
- * @returns {DOMRectReadOnly | null} intersectionRect - 교차 영역의 경계 사각형 / Intersection area bounding rectangle
- *
- * @returns {DOMRectReadOnly | null} boundingClientRect - 대상 요소의 경계 사각형 / Target element bounding rectangle
- *
- * @returns {DOMRectReadOnly | null} rootBounds - 루트 요소의 경계 사각형 / Root element bounding rectangle
- *
- * @returns {(node: Element | null) => void} ref - 대상 요소에 대한 ref / Ref for target element
- *
- * @returns {IntersectionObserver | null} observer - Observer 인스턴스 / Observer instance
+ * @returns {UseIntersectionObserverReturn} Object containing intersection state and related information
+ * @returns {boolean} isIntersecting - Current intersection state
+ * @returns {number} intersectionRatio - Intersection ratio (0-1)
+ * @returns {DOMRectReadOnly | null} intersectionRect - Intersection area bounding rectangle
+ * @returns {DOMRectReadOnly | null} boundingClientRect - Target element bounding rectangle
+ * @returns {DOMRectReadOnly | null} rootBounds - Root element bounding rectangle
+ * @returns {(node: Element | null) => void} ref - Ref for target element
+ * @returns {IntersectionObserver | null} observer - Observer instance
  *
  * @example
  * ```tsx
- * // 기본 사용법 / Basic usage
+ * // Basic usage
  * const { isIntersecting, ref } = useIntersectionObserver({
  *   threshold: 0.5,
  *   rootMargin: '50px'
@@ -69,14 +56,14 @@ export interface UseIntersectionObserverReturn {
  *
  * return (
  *   <div ref={ref}>
- *     {isIntersecting ? '보임!' : '안 보임'}
+ *     {isIntersecting ? 'Visible!' : 'Hidden'}
  *   </div>
  * );
  * ```
  *
  * @example
  * ```tsx
- * // 무한 스크롤 / Infinite scroll
+ * // Infinite scroll
  * const { isIntersecting, ref } = useIntersectionObserver({
  *   threshold: 0.1,
  *   rootMargin: '100px'
@@ -90,7 +77,7 @@ export interface UseIntersectionObserverReturn {
  *
  * return (
  *   <div ref={ref}>
- *     로딩 중...
+ *     Loading...
  *   </div>
  * );
  * ```

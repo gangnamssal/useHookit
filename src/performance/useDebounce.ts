@@ -123,9 +123,26 @@ export function useDebounceCallback<T extends (...args: any[]) => any>(
 ): T {
 	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+	// 훅 초기화 시 delay 검증
+	useEffect(() => {
+		if (delay < 0) {
+			console.warn('useDebounce: delay must be non-negative');
+		}
+	}, [delay]);
+
 	const debouncedCallback = ((...args: Parameters<T>) => {
+		if (delay < 0) {
+			callback(...args);
+			return;
+		}
+
 		if (timerRef.current) {
 			clearTimeout(timerRef.current);
+		}
+
+		if (delay === 0) {
+			callback(...args);
+			return;
 		}
 
 		timerRef.current = setTimeout(() => {

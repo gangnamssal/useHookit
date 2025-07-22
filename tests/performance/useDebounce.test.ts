@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { useDebounce } from '../../src/performance/useDebounce';
+import { useDebounce, useDebounceCallback } from '../../src/performance/useDebounce';
 
 describe('useDebounce', () => {
 	beforeEach(() => {
@@ -92,5 +92,136 @@ describe('useDebounce', () => {
 			vi.advanceTimersByTime(1000);
 		});
 		// 에러 없이 통과하면 성공
+	});
+
+	it('음수 delay에 대해 경고를 출력해야 한다', () => {
+		const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		renderHook(() => useDebounce('test', -100));
+		expect(consoleSpy).toHaveBeenCalledWith('useDebounce: delay must be non-negative');
+		consoleSpy.mockRestore();
+	});
+});
+
+describe('useDebounceCallback', () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+	});
+	afterEach(() => {
+		vi.useRealTimers();
+		vi.clearAllMocks();
+	});
+
+	it('콜백을 디바운스해야 한다', () => {
+		const mockCallback = vi.fn();
+		const { result } = renderHook(() => useDebounceCallback(mockCallback, 1000));
+
+		act(() => {
+			result.current();
+			result.current();
+			result.current();
+		});
+
+		expect(mockCallback).not.toHaveBeenCalled();
+
+		act(() => {
+			vi.advanceTimersByTime(1000);
+		});
+
+		expect(mockCallback).toHaveBeenCalledTimes(1);
+	});
+
+	it('마지막 호출만 실행되어야 한다', () => {
+		const mockCallback = vi.fn();
+		const { result } = renderHook(() => useDebounceCallback(mockCallback, 1000));
+
+		act(() => {
+			result.current('first');
+			result.current('second');
+			result.current('third');
+		});
+
+		act(() => {
+			vi.advanceTimersByTime(1000);
+		});
+
+		expect(mockCallback).toHaveBeenCalledTimes(1);
+		expect(mockCallback).toHaveBeenCalledWith('third');
+	});
+
+	it('delay가 0이거나 음수면 즉시 실행되어야 한다', () => {
+		const mockCallback = vi.fn();
+		const { result } = renderHook(() => useDebounceCallback(mockCallback, 0));
+
+		act(() => {
+			result.current('test');
+		});
+
+		expect(mockCallback).toHaveBeenCalledWith('test');
+	});
+
+	it('음수 delay에 대해 경고를 출력해야 한다', () => {
+		const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const mockCallback = vi.fn();
+		renderHook(() => useDebounceCallback(mockCallback, -100));
+		expect(consoleSpy).toHaveBeenCalledWith('useDebounce: delay must be non-negative');
+		consoleSpy.mockRestore();
+	});
+
+	it('언마운트 시 타이머가 정리되어야 한다', () => {
+		const mockCallback = vi.fn();
+		const { result, unmount } = renderHook(() => useDebounceCallback(mockCallback, 1000));
+
+		act(() => {
+			result.current();
+		});
+
+		unmount();
+
+		act(() => {
+			vi.advanceTimersByTime(1000);
+		});
+
+		expect(mockCallback).not.toHaveBeenCalled();
+	});
+
+	it('여러 인자를 받는 콜백을 지원해야 한다', () => {
+		const mockCallback = vi.fn();
+		const { result } = renderHook(() => useDebounceCallback(mockCallback, 1000));
+
+		act(() => {
+			result.current('arg1', 'arg2', { key: 'value' });
+		});
+
+		act(() => {
+			vi.advanceTimersByTime(1000);
+		});
+
+		expect(mockCallback).toHaveBeenCalledWith('arg1', 'arg2', { key: 'value' });
+	});
+
+	it('콜백이 변경되어도 올바르게 동작해야 한다', () => {
+		const mockCallback1 = vi.fn();
+		const mockCallback2 = vi.fn();
+		const { result, rerender } = renderHook(
+			({ callback, delay }) => useDebounceCallback(callback, delay),
+			{ initialProps: { callback: mockCallback1, delay: 1000 } },
+		);
+
+		act(() => {
+			result.current();
+		});
+
+		rerender({ callback: mockCallback2, delay: 1000 });
+
+		act(() => {
+			result.current();
+		});
+
+		act(() => {
+			vi.advanceTimersByTime(1000);
+		});
+
+		expect(mockCallback1).not.toHaveBeenCalled();
+		expect(mockCallback2).toHaveBeenCalledTimes(1);
 	});
 });

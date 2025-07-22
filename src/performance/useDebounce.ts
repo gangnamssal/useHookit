@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 /**
  *
@@ -55,6 +55,13 @@ export function useDebounce<T>(value: T, delay: number): T {
 	const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
 	useEffect(() => {
+		if (delay < 0) {
+			if (typeof console !== 'undefined' && console.warn) {
+				console.warn('useDebounce: delay must be non-negative');
+			}
+			setDebouncedValue(value);
+			return;
+		}
 		const handler = setTimeout(() => {
 			setDebouncedValue(value);
 		}, delay);
@@ -116,27 +123,25 @@ export function useDebounceCallback<T extends (...args: any[]) => any>(
 	callback: T,
 	delay: number,
 ): T {
-	const [debounceTimer, setDebounceTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
+	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const debouncedCallback = ((...args: Parameters<T>) => {
-		if (debounceTimer) {
-			clearTimeout(debounceTimer);
+		if (timerRef.current) {
+			clearTimeout(timerRef.current);
 		}
 
-		const newTimer = setTimeout(() => {
+		timerRef.current = setTimeout(() => {
 			callback(...args);
 		}, delay);
-
-		setDebounceTimer(newTimer);
 	}) as T;
 
 	useEffect(() => {
 		return () => {
-			if (debounceTimer) {
-				clearTimeout(debounceTimer);
+			if (timerRef.current) {
+				clearTimeout(timerRef.current);
 			}
 		};
-	}, [debounceTimer]);
+	}, []);
 
 	return debouncedCallback;
 }

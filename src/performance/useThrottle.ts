@@ -134,21 +134,10 @@ export function useThrottleValue<T>(value: T, delay: number): T {
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	useEffect(() => {
-		// delay 유효성 검사
 		if (delay < 0) {
 			if (typeof console !== 'undefined' && console.warn) {
 				console.warn('useThrottleValue: delay must be non-negative');
 			}
-			// 음수 delay의 경우 즉시 업데이트
-			setThrottledValue(value);
-			return;
-		}
-
-		if (!Number.isFinite(delay)) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useThrottleValue: delay must be a finite number');
-			}
-			// 무한대 delay의 경우 즉시 업데이트
 			setThrottledValue(value);
 			return;
 		}
@@ -156,23 +145,14 @@ export function useThrottleValue<T>(value: T, delay: number): T {
 		const now = Date.now();
 
 		if (lastRun.current && now - lastRun.current < delay) {
-			// 아직 throttle 시간이 지나지 않았으면 마지막 업데이트를 스케줄링
 			if (timeoutRef.current) {
 				clearTimeout(timeoutRef.current);
 			}
-
-			try {
-				timeoutRef.current = setTimeout(() => {
-					lastRun.current = now;
-					setThrottledValue(value);
-				}, delay - (now - lastRun.current));
-			} catch (error) {
-				if (typeof console !== 'undefined' && console.error) {
-					console.error('useThrottleValue: Failed to create timeout:', error);
-				}
-			}
+			timeoutRef.current = setTimeout(() => {
+				lastRun.current = Date.now();
+				setThrottledValue(value);
+			}, delay - (now - lastRun.current));
 		} else {
-			// throttle 시간이 지났으면 즉시 업데이트
 			lastRun.current = now;
 			setThrottledValue(value);
 		}

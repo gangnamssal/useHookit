@@ -149,6 +149,29 @@ return (
 );
 ```
 
+#### `useNetworkStatus`
+
+Detects network connection status and provides online/offline state.
+
+```typescript
+import { useNetworkStatus } from 'use-hookit/utility';
+
+const { isOnline, isOffline, statusMessage, lastOnline, onlineDuration } = useNetworkStatus();
+
+return (
+	<div>
+		<div>네트워크 상태: {isOnline ? '온라인' : '오프라인'}</div>
+		{isOffline && <OfflineBanner />}
+		{isOnline && (
+			<div>
+				마지막 온라인: {lastOnline?.toLocaleString()}
+				온라인 지속 시간: {Math.floor(onlineDuration / 1000)}초
+			</div>
+		)}
+	</div>
+);
+```
+
 ### Lifecycle Hooks
 
 #### `useIsMounted`

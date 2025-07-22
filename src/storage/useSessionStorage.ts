@@ -84,16 +84,12 @@ export function useSessionStorage<T>(
 	 */
 	const checkEnvironment = useCallback((): boolean => {
 		if (typeof window === 'undefined') {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useSessionStorage: window is not available (SSR environment)');
-			}
+			console.warn('useSessionStorage: window is not available (SSR environment)');
 			return false;
 		}
 
 		if (!window.sessionStorage) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useSessionStorage: sessionStorage is not supported in this browser');
-			}
+			console.warn('useSessionStorage: sessionStorage is not supported in this browser');
 			return false;
 		}
 
@@ -113,9 +109,7 @@ export function useSessionStorage<T>(
 			const item = window.sessionStorage.getItem(key);
 			return item ? deserializer(item) : initialValue;
 		} catch (error) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn(`Error reading sessionStorage key "${key}":`, error);
-			}
+			console.warn(`Error reading sessionStorage key "${key}":`, error);
 			return initialValue;
 		}
 	}, [key, initialValue, deserializer, checkEnvironment]);
@@ -137,9 +131,7 @@ export function useSessionStorage<T>(
 				setStoredValue(valueToStore);
 				window.sessionStorage.setItem(key, serializer(valueToStore));
 			} catch (error) {
-				if (typeof console !== 'undefined' && console.warn) {
-					console.warn(`Error setting sessionStorage key "${key}":`, error);
-				}
+				console.warn(`Error setting sessionStorage key "${key}":`, error);
 			}
 		},
 		[key, storedValue, serializer, checkEnvironment],
@@ -157,9 +149,7 @@ export function useSessionStorage<T>(
 			setStoredValue(initialValue);
 			window.sessionStorage.removeItem(key);
 		} catch (error) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn(`Error removing sessionStorage key "${key}":`, error);
-			}
+			console.warn(`Error removing sessionStorage key "${key}":`, error);
 		}
 	}, [key, initialValue, checkEnvironment]);
 

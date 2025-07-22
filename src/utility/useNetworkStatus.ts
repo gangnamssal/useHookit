@@ -151,7 +151,7 @@ export function useNetworkStatus(options: UseNetworkStatusOptions = {}) {
 				setLastOnline(now);
 				setOnlineStartTime(now);
 				setOfflineStartTime(null);
-				if (showStatusMessage && typeof console !== 'undefined' && console.log) {
+				if (showStatusMessage) {
 					console.log('useNetworkStatus: 네트워크 연결됨');
 				}
 			} else if (!online && isOnline) {
@@ -159,7 +159,7 @@ export function useNetworkStatus(options: UseNetworkStatusOptions = {}) {
 				setLastOffline(now);
 				setOfflineStartTime(now);
 				setOnlineStartTime(null);
-				if (showStatusMessage && typeof console !== 'undefined' && console.log) {
+				if (showStatusMessage) {
 					console.log('useNetworkStatus: 네트워크 연결 끊김');
 				}
 			}

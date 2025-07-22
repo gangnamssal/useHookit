@@ -130,20 +130,9 @@ describe('useWindowSize', () => {
 		expect(landscapeResult.current.orientation).toBe('landscape');
 	});
 
-	it('디바운스 옵션을 설정할 수 있어야 함', () => {
-		const options = {
-			debounceMs: 100,
-		};
-
-		const { result } = renderHook(() => useWindowSize(options));
-
-		expect(result.current.width).toBe(window.innerWidth);
-		expect(result.current.height).toBe(window.innerHeight);
-	});
-
 	it('throttle 옵션을 설정할 수 있어야 함', () => {
 		const options = {
-			throttleMs: 50,
+			debounceMs: 50,
 		};
 
 		const { result } = renderHook(() => useWindowSize(options));
@@ -152,10 +141,20 @@ describe('useWindowSize', () => {
 		expect(result.current.height).toBe(window.innerHeight);
 	});
 
-	it('throttle과 debounce를 동시에 설정할 수 있어야 함', () => {
+	it('debounce를 설정할 수 있어야 함', () => {
 		const options = {
 			debounceMs: 100,
-			throttleMs: 50,
+		};
+
+		const { result } = renderHook(() => useWindowSize(options));
+
+		expect(result.current.width).toBe(window.innerWidth);
+		expect(result.current.height).toBe(window.innerHeight);
+	});
+
+	it('debounce를 동시에 설정할 수 있어야 함', () => {
+		const options = {
+			debounceMs: 100,
 		};
 
 		const { result } = renderHook(() => useWindowSize(options));

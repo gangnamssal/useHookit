@@ -135,11 +135,9 @@ export function useIntersectionObserver(
 	useEffect(() => {
 		// IntersectionObserver 지원 여부 체크
 		if (!window.IntersectionObserver) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn(
-					'useIntersectionObserver: IntersectionObserver is not supported in this browser',
-				);
-			}
+			console.warn(
+				'useIntersectionObserver: IntersectionObserver is not supported in this browser',
+			);
 			return;
 		}
 
@@ -150,9 +148,7 @@ export function useIntersectionObserver(
 				? threshold.some((t) => t < 0 || t > 1)
 				: threshold < 0 || threshold > 1)
 		) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useIntersectionObserver: threshold must be between 0 and 1');
-			}
+			console.warn('useIntersectionObserver: threshold must be between 0 and 1');
 			return;
 		}
 
@@ -174,9 +170,7 @@ export function useIntersectionObserver(
 				observer.disconnect();
 			};
 		} catch (error) {
-			if (typeof console !== 'undefined' && console.error) {
-				console.error('useIntersectionObserver: Failed to create IntersectionObserver:', error);
-			}
+			console.error('useIntersectionObserver: Failed to create IntersectionObserver:', error);
 		}
 	}, [root, rootMargin, threshold, handleIntersection]);
 

@@ -88,16 +88,12 @@ export function useLocalStorage<T>(
 	 */
 	const checkEnvironment = useCallback((): boolean => {
 		if (typeof window === 'undefined') {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useLocalStorage: window is not available (SSR environment)');
-			}
+			console.warn('useLocalStorage: window is not available (SSR environment)');
 			return false;
 		}
 
 		if (!window.localStorage) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useLocalStorage: localStorage is not supported in this browser');
-			}
+			console.warn('useLocalStorage: localStorage is not supported in this browser');
 			return false;
 		}
 
@@ -117,9 +113,7 @@ export function useLocalStorage<T>(
 			const item = window.localStorage.getItem(key);
 			return item ? deserializer(item) : initialValue;
 		} catch (error) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn(`Error reading localStorage key "${key}":`, error);
-			}
+			console.warn(`Error reading localStorage key "${key}":`, error);
 			return initialValue;
 		}
 	}, [key, initialValue, deserializer, checkEnvironment]);
@@ -141,9 +135,7 @@ export function useLocalStorage<T>(
 				setStoredValue(valueToStore);
 				window.localStorage.setItem(key, serializer(valueToStore));
 			} catch (error) {
-				if (typeof console !== 'undefined' && console.warn) {
-					console.warn(`Error setting localStorage key "${key}":`, error);
-				}
+				console.warn(`Error setting localStorage key "${key}":`, error);
 			}
 		},
 		[key, storedValue, serializer, checkEnvironment],
@@ -161,9 +153,7 @@ export function useLocalStorage<T>(
 			setStoredValue(initialValue);
 			window.localStorage.removeItem(key);
 		} catch (error) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn(`Error removing localStorage key "${key}":`, error);
-			}
+			console.warn(`Error removing localStorage key "${key}":`, error);
 		}
 	}, [key, initialValue, checkEnvironment]);
 

@@ -122,27 +122,21 @@ export function useCopyToClipboard(options: UseCopyToClipboardOptions = {}): {
 		async (text: string): Promise<boolean> => {
 			// navigator.clipboard 지원 여부 체크
 			if (!navigator.clipboard) {
-				if (typeof console !== 'undefined' && console.warn) {
-					console.warn('useCopyToClipboard: navigator.clipboard is not supported in this browser');
-				}
+				console.warn('useCopyToClipboard: navigator.clipboard is not supported in this browser');
 				setMessage(errorMessage);
 				return false;
 			}
 
 			// 텍스트 유효성 검사
 			if (!text || typeof text !== 'string') {
-				if (typeof console !== 'undefined' && console.warn) {
-					console.warn('useCopyToClipboard: text must be a non-empty string');
-				}
+				console.warn('useCopyToClipboard: text must be a non-empty string');
 				setMessage(errorMessage);
 				return false;
 			}
 
 			// timeout 유효성 검사
 			if (timeout < 0) {
-				if (typeof console !== 'undefined' && console.warn) {
-					console.warn('useCopyToClipboard: timeout must be non-negative');
-				}
+				console.warn('useCopyToClipboard: timeout must be non-negative');
 			}
 
 			setIsCopying(true);
@@ -163,9 +157,7 @@ export function useCopyToClipboard(options: UseCopyToClipboardOptions = {}): {
 
 				return true;
 			} catch (error) {
-				if (typeof console !== 'undefined' && console.error) {
-					console.error('useCopyToClipboard: Failed to copy to clipboard:', error);
-				}
+				console.error('useCopyToClipboard: Failed to copy to clipboard:', error);
 				setIsCopied(false);
 				setMessage(errorMessage);
 				return false;

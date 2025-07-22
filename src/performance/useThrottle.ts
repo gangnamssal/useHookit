@@ -44,9 +44,7 @@ export function useThrottle<T extends (...args: any[]) => any>(callback: T, dela
 
 	// delay 유효성 검사
 	if (delay < 0) {
-		if (typeof console !== 'undefined' && console.warn) {
-			console.warn('useThrottle: delay must be non-negative');
-		}
+		console.warn('useThrottle: delay must be non-negative');
 		return useCallback(
 			((...args: Parameters<T>) => {
 				callback(...args);

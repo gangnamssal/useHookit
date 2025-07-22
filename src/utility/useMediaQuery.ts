@@ -36,17 +36,13 @@ export function useMediaQuery(query: string): boolean {
 	useEffect(() => {
 		// matchMedia 지원 여부 체크
 		if (!window.matchMedia) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useMediaQuery: matchMedia is not supported in this browser');
-			}
+			console.warn('useMediaQuery: matchMedia is not supported in this browser');
 			return;
 		}
 
 		// 쿼리 유효성 검사
 		if (!query || typeof query !== 'string') {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useMediaQuery: query must be a non-empty string');
-			}
+			console.warn('useMediaQuery: query must be a non-empty string');
 			return;
 		}
 
@@ -63,9 +59,7 @@ export function useMediaQuery(query: string): boolean {
 				media.removeEventListener('change', listener);
 			};
 		} catch (error) {
-			if (typeof console !== 'undefined' && console.error) {
-				console.error('useMediaQuery: Failed to create media query:', error);
-			}
+			console.error('useMediaQuery: Failed to create media query:', error);
 		}
 	}, [query]);
 

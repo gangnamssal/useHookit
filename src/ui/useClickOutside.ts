@@ -54,19 +54,15 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
 	useEffect(() => {
 		// document 지원 여부 체크
 		if (!document || !document.addEventListener) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn(
-					'useClickOutside: document is not available or does not support addEventListener',
-				);
-			}
+			console.warn(
+				'useClickOutside: document is not available or does not support addEventListener',
+			);
 			return;
 		}
 
 		// 이벤트 타입 유효성 검사
 		if (!['mousedown', 'click', 'touchstart'].includes(eventType)) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useClickOutside: eventType must be one of: mousedown, click, touchstart');
-			}
+			console.warn('useClickOutside: eventType must be one of: mousedown, click, touchstart');
 			return;
 		}
 
@@ -86,9 +82,7 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
 				document.removeEventListener(eventType, handleClickOutside);
 			};
 		} catch (error) {
-			if (typeof console !== 'undefined' && console.error) {
-				console.error('useClickOutside: Failed to add event listener:', error);
-			}
+			console.error('useClickOutside: Failed to add event listener:', error);
 		}
 	}, [callback, enabled, eventType]);
 

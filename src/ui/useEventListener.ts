@@ -68,16 +68,12 @@ export function useEventListener<T extends EventTarget>(
 	useEffect(() => {
 		// 입력값 유효성 검사
 		if (!eventName || typeof eventName !== 'string') {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useEventListener: eventName must be a non-empty string');
-			}
+			console.warn('useEventListener: eventName must be a non-empty string');
 			return;
 		}
 
 		if (typeof handler !== 'function') {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useEventListener: handler must be a function');
-			}
+			console.warn('useEventListener: handler must be a function');
 			return;
 		}
 
@@ -85,9 +81,7 @@ export function useEventListener<T extends EventTarget>(
 
 		// addEventListener 지원 여부 체크
 		if (!targetElement || !targetElement.addEventListener) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useEventListener: target element does not support addEventListener');
-			}
+			console.warn('useEventListener: target element does not support addEventListener');
 			return;
 		}
 
@@ -95,9 +89,7 @@ export function useEventListener<T extends EventTarget>(
 			try {
 				savedHandler.current(event);
 			} catch (error) {
-				if (typeof console !== 'undefined' && console.error) {
-					console.error('useEventListener: Error in event handler:', error);
-				}
+				console.error('useEventListener: Error in event handler:', error);
 			}
 		};
 

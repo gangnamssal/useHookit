@@ -56,9 +56,7 @@ export function useDebounce<T>(value: T, delay: number): T {
 
 	useEffect(() => {
 		if (delay < 0) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useDebounce: delay must be non-negative');
-			}
+			console.warn('useDebounce: delay must be non-negative');
 			setDebouncedValue(value);
 			return;
 		}

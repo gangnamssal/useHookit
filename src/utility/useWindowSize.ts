@@ -19,8 +19,33 @@ export interface UseWindowSizeOptions {
 /**
  * 브라우저 윈도우의 크기를 실시간으로 감지하는 훅
  *
- * @param options - 윈도우 크기 감지 옵션
- * @returns 현재 윈도우 크기와 관련 정보
+ * A hook that detects browser window size in real-time
+ *
+ * @param options - 윈도우 크기 감지 옵션 / Window size detection options
+ *
+ * @param options.initialSize - 초기 윈도우 크기 (SSR 환경에서 사용, 기본값: { width: 0, height: 0 }) / Initial window size (used in SSR environment, default: { width: 0, height: 0 })
+ *
+ * @param options.debounceMs - 리사이즈 이벤트의 디바운스 시간 (ms, 기본값: 100) / Debounce time for resize events (ms, default: 100)
+ *
+ * @param options.throttleMs - 리사이즈 이벤트의 throttle 시간 (ms, 기본값: 0 - throttle 사용 안함) / Throttle time for resize events (ms, default: 0 - throttle disabled)
+ *
+ * @param options.listenerOptions - 리사이즈 이벤트 리스너 옵션 (기본값: { passive: true }) / Resize event listener options (default: { passive: true })
+ *
+ * @returns 현재 윈도우 크기와 관련 정보 / Current window size and related information
+ *
+ * @returns {number} width - 현재 윈도우 너비 / Current window width
+ *
+ * @returns {number} height - 현재 윈도우 높이 / Current window height
+ *
+ * @returns {boolean} isMobile - 모바일 크기 여부 (≤ 767px) / Whether it's mobile size (≤ 767px)
+ *
+ * @returns {boolean} isTablet - 태블릿 크기 여부 (768px - 1023px) / Whether it's tablet size (768px - 1023px)
+ *
+ * @returns {boolean} isDesktop - 데스크탑 크기 여부 (≥ 1024px) / Whether it's desktop size (≥ 1024px)
+ *
+ * @returns {boolean} isLargeScreen - 대형 화면 여부 (≥ 1440px) / Whether it's large screen (≥ 1440px)
+ *
+ * @returns {'portrait' | 'landscape'} orientation - 화면 방향 / Screen orientation
  *
  * @example
  * ```tsx
@@ -33,6 +58,16 @@ export interface UseWindowSizeOptions {
  *     {isDesktop && <DesktopLayout />}
  *   </div>
  * );
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // 커스텀 옵션 사용 / Custom options usage
+ * const { width, height } = useWindowSize({
+ *   debounceMs: 200,
+ *   throttleMs: 50,
+ *   listenerOptions: { passive: false }
+ * });
  * ```
  */
 export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize & {

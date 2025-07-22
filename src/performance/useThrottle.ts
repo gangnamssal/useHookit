@@ -1,16 +1,42 @@
 import { useRef, useCallback, useState, useEffect } from 'react';
 
 /**
+ *
  * 주어진 콜백 함수를 지정한 delay(ms) 동안 한 번만 실행되도록 throttle하는 커스텀 훅입니다.
  *
- * @template T
- * @param {T} callback - throttle할 콜백 함수
- * @param {number} delay - throttle 간격(ms)
- * @returns {T} throttle된 콜백 함수
+ * A custom hook that throttles a callback function to execute only once during the specified delay(ms).
+ *
+ * @template T - 콜백 함수의 타입 / Type of the callback function
+ *
+ * @param {T} callback - throttle할 콜백 함수 / Callback function to throttle
+ *
+ * @param {number} delay - throttle 간격(ms) / Throttle interval (ms)
+ *
+ * @returns {T} throttle된 콜백 함수 / Throttled callback function
  *
  * @example
- * const throttledFn = useThrottle((value) => { ... }, 500);
+ * ```tsx
+ * // 기본 사용법 / Basic usage
+ * const throttledFn = useThrottle((value) => {
+ *   console.log('throttle된 값:', value);
+ * }, 500);
+ *
  * throttledFn('hello');
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // 스크롤 이벤트에서 사용 / Usage in scroll events
+ * const throttledScrollHandler = useThrottle((event) => {
+ *   console.log('스크롤 위치:', event.target.scrollTop);
+ * }, 100);
+ *
+ * useEffect(() => {
+ *   window.addEventListener('scroll', throttledScrollHandler);
+ *   return () => window.removeEventListener('scroll', throttledScrollHandler);
+ * }, [throttledScrollHandler]);
+ * ```
+ *
  */
 export function useThrottle<T extends (...args: any[]) => any>(callback: T, delay: number): T {
 	const lastRun = useRef<number>(0);
@@ -43,15 +69,51 @@ export function useThrottle<T extends (...args: any[]) => any>(callback: T, dela
 }
 
 /**
+ *
  * 입력값이 변경될 때 지정한 delay(ms) 동안 한 번만 업데이트되는 throttled value를 반환하는 커스텀 훅입니다.
  *
- * @template T
- * @param {T} value - throttle할 값
- * @param {number} delay - throttle 간격(ms)
- * @returns {T} throttle된 값
+ * A custom hook that returns a throttled value that updates only once during the specified delay(ms) when the input value changes.
+ *
+ * @template T - throttle할 값의 타입 / Type of the value to throttle
+ *
+ * @param {T} value - throttle할 값 / Value to throttle
+ *
+ * @param {number} delay - throttle 간격(ms) / Throttle interval (ms)
+ *
+ * @returns {T} throttle된 값 / Throttled value
  *
  * @example
+ * ```tsx
+ * // 기본 사용법 / Basic usage
  * const throttledValue = useThrottleValue(inputValue, 300);
+ *
+ * useEffect(() => {
+ *   if (throttledValue) {
+ *     updateUI(throttledValue);
+ *   }
+ * }, [throttledValue]);
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // 실시간 입력에서 사용 / Usage in real-time input
+ * const [inputValue, setInputValue] = useState('');
+ * const throttledInputValue = useThrottleValue(inputValue, 200);
+ *
+ * useEffect(() => {
+ *   if (throttledInputValue) {
+ *     validateInput(throttledInputValue);
+ *   }
+ * }, [throttledInputValue]);
+ *
+ * return (
+ *   <input
+ *     value={inputValue}
+ *     onChange={(e) => setInputValue(e.target.value)}
+ *   />
+ * );
+ * ```
+ *
  */
 export function useThrottleValue<T>(value: T, delay: number): T {
 	const [throttledValue, setThrottledValue] = useState<T>(value);

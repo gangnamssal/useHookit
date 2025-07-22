@@ -83,14 +83,6 @@ export function useEventListener<T extends EventTarget>(
 
 		const targetElement = element || window;
 
-		// SSR 환경 체크
-		if (typeof window === 'undefined') {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useEventListener: window is not available (SSR environment)');
-			}
-			return;
-		}
-
 		// addEventListener 지원 여부 체크
 		if (!targetElement || !targetElement.addEventListener) {
 			if (typeof console !== 'undefined' && console.warn) {
@@ -109,23 +101,10 @@ export function useEventListener<T extends EventTarget>(
 			}
 		};
 
-		try {
-			targetElement.addEventListener(eventName, eventListener, options);
-		} catch (error) {
-			if (typeof console !== 'undefined' && console.error) {
-				console.error('useEventListener: Failed to add event listener:', error);
-			}
-			return;
-		}
+		targetElement.addEventListener(eventName, eventListener, options);
 
 		return () => {
-			try {
-				targetElement.removeEventListener(eventName, eventListener, options);
-			} catch (error) {
-				if (typeof console !== 'undefined' && console.error) {
-					console.error('useEventListener: Failed to remove event listener:', error);
-				}
-			}
+			targetElement.removeEventListener(eventName, eventListener, options);
 		};
 	}, [eventName, element, options]);
 }

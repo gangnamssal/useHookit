@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 
 export interface WindowSize {
 	width: number;
@@ -94,21 +94,23 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize & 
 
 	const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+	// 브레이크포인트 계산을 메모이제이션
+	const breakpoints = useMemo(() => {
+		const { width } = windowSize;
+		return {
+			isMobile: width <= 767,
+			isTablet: width >= 768 && width <= 1023,
+			isDesktop: width >= 1024,
+			isLargeScreen: width >= 1440,
+			orientation: (width > windowSize.height ? 'landscape' : 'portrait') as
+				| 'portrait'
+				| 'landscape',
+		};
+	}, [windowSize.width, windowSize.height]);
+
 	useEffect(() => {
 		// SSR 환경 체크
 		if (typeof window === 'undefined') {
-			// 테스트 환경에서는 경고를 출력하지 않음
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useWindowSize: window is not available (SSR environment)');
-			}
-			return;
-		}
-
-		// 옵션 유효성 검사
-		if (debounceMs < 0) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useWindowSize: debounceMs must be non-negative');
-			}
 			return;
 		}
 
@@ -127,39 +129,20 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize & 
 			debounceTimerRef.current = setTimeout(updateWindowSize, debounceMs);
 		};
 
-		const handleResize = () => {
-			if (debounceMs > 0) {
-				debouncedUpdate();
-			} else {
-				updateWindowSize();
+		const handleResize = debounceMs > 0 ? debouncedUpdate : updateWindowSize;
+
+		window.addEventListener('resize', handleResize, listenerOptions);
+
+		return () => {
+			window.removeEventListener('resize', handleResize, listenerOptions);
+			if (debounceTimerRef.current) {
+				clearTimeout(debounceTimerRef.current);
 			}
 		};
-
-		try {
-			updateWindowSize();
-			window.addEventListener('resize', handleResize, listenerOptions);
-
-			return () => {
-				window.removeEventListener('resize', handleResize, listenerOptions);
-				if (debounceTimerRef.current) {
-					clearTimeout(debounceTimerRef.current);
-				}
-			};
-		} catch (error) {
-			if (typeof console !== 'undefined' && console.error) {
-				console.error('useWindowSize: Failed to add resize event listener:', error);
-			}
-		}
-	}, [debounceMs]);
-
-	const { width, height } = windowSize;
+	}, [debounceMs, listenerOptions]);
 
 	return {
 		...windowSize,
-		isMobile: width <= 767,
-		isTablet: width >= 768 && width <= 1023,
-		isDesktop: width >= 1024,
-		isLargeScreen: width >= 1440,
-		orientation: width > height ? 'landscape' : 'portrait',
+		...breakpoints,
 	};
 }

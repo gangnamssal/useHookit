@@ -200,24 +200,26 @@ export function useLoading(options: UseLoadingOptions = {}): {
 
 			if (loading) {
 				startTimeRef.current = now;
-				setState({
+				setState((prevState) => ({
+					...prevState,
 					isLoading: true,
 					startTime: now,
 					duration: 0,
 					endTime: null,
-				});
+				}));
 			} else {
 				const endTime = now;
 				const duration = startTimeRef.current
 					? endTime.getTime() - startTimeRef.current.getTime()
 					: 0;
 
-				setState({
+				setState((prevState) => ({
+					...prevState,
 					isLoading: false,
 					startTime: startTimeRef.current,
 					duration,
 					endTime,
-				});
+				}));
 				startTimeRef.current = null;
 			}
 

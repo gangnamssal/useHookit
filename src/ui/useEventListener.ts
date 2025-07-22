@@ -102,144 +102,90 @@ export function useEventListener<T extends EventTarget>(
 }
 
 /**
- *
- * 'keydown' 이벤트에 타입 안전하게 리스너를 등록하는 훅
- *
- * @param handler - KeyboardEvent를 인자로 받는 콜백
- *
- * @param element - 이벤트를 등록할 대상 (기본값: window)
- *
+ * 특정 이벤트 타입에 대한 이벤트 리스너를 생성하는 팩토리 함수
+ */
+function createTypedEventListener<T extends EventTarget, E extends Event>(
+	eventName: string,
+	handler: (event: E) => void,
+	element?: T,
+	options?: EventListenerOptions,
+): void {
+	useEventListener(eventName, (event: Event) => handler(event as E), element, options);
+}
+
+/**
+ * 키보드 이벤트 리스너
  */
 export function useKeyDown(handler: (event: KeyboardEvent) => void, element?: EventTarget): void {
-	useEventListener('keydown', handler as (event: Event) => void, element);
+	createTypedEventListener('keydown', handler, element);
 }
 
 /**
- *
- * 'keyup' 이벤트에 타입 안전하게 리스너를 등록하는 훅
- *
- * @param handler - KeyboardEvent를 인자로 받는 콜백
- *
- * @param element - 이벤트를 등록할 대상 (기본값: window)
- *
+ * 키보드 이벤트 리스너 (키 업)
  */
 export function useKeyUp(handler: (event: KeyboardEvent) => void, element?: EventTarget): void {
-	useEventListener('keyup', handler as (event: Event) => void, element);
+	createTypedEventListener('keyup', handler, element);
 }
 
 /**
- *
- * 'click' 이벤트에 타입 안전하게 리스너를 등록하는 훅
- *
- * @param handler - MouseEvent를 인자로 받는 콜백
- *
- * @param element - 이벤트를 등록할 대상 (기본값: window)
- *
+ * 마우스 클릭 이벤트 리스너
  */
 export function useClick(handler: (event: MouseEvent) => void, element?: EventTarget): void {
-	useEventListener('click', handler as (event: Event) => void, element);
+	createTypedEventListener('click', handler, element);
 }
 
 /**
- *
- * 'mousedown' 이벤트에 타입 안전하게 리스너를 등록하는 훅
- *
- * @param handler - MouseEvent를 인자로 받는 콜백
- *
- * @param element - 이벤트를 등록할 대상 (기본값: window)
- *
+ * 마우스 다운 이벤트 리스너
  */
 export function useMouseDown(handler: (event: MouseEvent) => void, element?: EventTarget): void {
-	useEventListener('mousedown', handler as (event: Event) => void, element);
+	createTypedEventListener('mousedown', handler, element);
 }
 
 /**
- *
- * 'mouseup' 이벤트에 타입 안전하게 리스너를 등록하는 훅
- *
- * @param handler - MouseEvent를 인자로 받는 콜백
- *
- * @param element - 이벤트를 등록할 대상 (기본값: window)
- *
+ * 마우스 업 이벤트 리스너
  */
 export function useMouseUp(handler: (event: MouseEvent) => void, element?: EventTarget): void {
-	useEventListener('mouseup', handler as (event: Event) => void, element);
+	createTypedEventListener('mouseup', handler, element);
 }
 
 /**
- *
- * 'mousemove' 이벤트에 타입 안전하게 리스너를 등록하는 훅
- *
- * @param handler - MouseEvent를 인자로 받는 콜백
- *
- * @param element - 이벤트를 등록할 대상 (기본값: window)
- *
+ * 마우스 이동 이벤트 리스너
  */
 export function useMouseMove(handler: (event: MouseEvent) => void, element?: EventTarget): void {
-	useEventListener('mousemove', handler as (event: Event) => void, element);
+	createTypedEventListener('mousemove', handler, element);
 }
 
 /**
- *
- * 'resize' 이벤트에 타입 안전하게 리스너를 등록하는 훅
- *
- * @param handler - UIEvent를 인자로 받는 콜백
- *
- * @param element - 이벤트를 등록할 대상 (기본값: window)
- *
+ * 리사이즈 이벤트 리스너
  */
 export function useResize(handler: (event: UIEvent) => void, element?: EventTarget): void {
-	useEventListener('resize', handler as (event: Event) => void, element);
+	createTypedEventListener('resize', handler, element);
 }
 
 /**
- *
- * 'scroll' 이벤트에 타입 안전하게 리스너를 등록하는 훅
- *
- * @param handler - Event를 인자로 받는 콜백
- *
- * @param element - 이벤트를 등록할 대상 (기본값: window)
- *
+ * 스크롤 이벤트 리스너
  */
 export function useScroll(handler: (event: Event) => void, element?: EventTarget): void {
-	useEventListener('scroll', handler, element);
+	createTypedEventListener('scroll', handler, element);
 }
 
 /**
- *
- * 'touchstart' 이벤트에 타입 안전하게 리스너를 등록하는 훅
- *
- * @param handler - TouchEvent를 인자로 받는 콜백
- *
- * @param element - 이벤트를 등록할 대상 (기본값: window)
- *
+ * 터치 시작 이벤트 리스너
  */
 export function useTouchStart(handler: (event: TouchEvent) => void, element?: EventTarget): void {
-	useEventListener('touchstart', handler as (event: Event) => void, element);
+	createTypedEventListener('touchstart', handler, element);
 }
 
 /**
- *
- * 'touchmove' 이벤트에 타입 안전하게 리스너를 등록하는 훅
- *
- * @param handler - TouchEvent를 인자로 받는 콜백
- *
- * @param element - 이벤트를 등록할 대상 (기본값: window)
- *
+ * 터치 이동 이벤트 리스너
  */
 export function useTouchMove(handler: (event: TouchEvent) => void, element?: EventTarget): void {
-	useEventListener('touchmove', handler as (event: Event) => void, element);
+	createTypedEventListener('touchmove', handler, element);
 }
 
 /**
- *
- * 'touchend' 이벤트에 타입 안전하게 리스너를 등록하는 훅
- *
- * @param handler - TouchEvent를 인자로 받는 콜백
- *
- * @param element - 이벤트를 등록할 대상 (기본값: window)
- *
+ * 터치 종료 이벤트 리스너
  */
 export function useTouchEnd(handler: (event: TouchEvent) => void, element?: EventTarget): void {
-	useEventListener('touchend', handler as (event: Event) => void, element);
+	createTypedEventListener('touchend', handler, element);
 }

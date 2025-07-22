@@ -104,6 +104,24 @@ useInterval(() => {
 }, 1000);
 ```
 
+#### `useWindowSize`
+
+Detects browser window size changes in real-time.
+
+```typescript
+import { useWindowSize } from 'use-hookit/utility';
+
+const { width, height, isMobile, isDesktop } = useWindowSize();
+
+return (
+	<div>
+		윈도우 크기: {width} x {height}
+		{isMobile && <MobileLayout />}
+		{isDesktop && <DesktopLayout />}
+	</div>
+);
+```
+
 ### Lifecycle Hooks
 
 #### `useIsMounted`

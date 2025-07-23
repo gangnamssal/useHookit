@@ -27,8 +27,6 @@ describe('useNetworkStatus', () => {
 		expect(typeof result.current.statusMessage).toBe('string');
 		expect(result.current.lastOnline).toBeNull();
 		expect(result.current.lastOffline).toBeNull();
-		expect(typeof result.current.onlineDuration).toBe('number');
-		expect(typeof result.current.offlineDuration).toBe('number');
 		expect(typeof result.current.refreshStatus).toBe('function');
 	});
 
@@ -129,56 +127,6 @@ describe('useNetworkStatus', () => {
 
 		expect(result.current.isOnline).toBe(false);
 		expect(result.current.lastOffline).toBeInstanceOf(Date);
-	});
-
-	it('온라인 지속 시간이 올바르게 계산되어야 함', async () => {
-		Object.defineProperty(navigator, 'onLine', { value: false, writable: true });
-		const base = Date.now();
-		let now = base;
-		vi.spyOn(Date, 'now').mockImplementation(() => now);
-
-		const { result, rerender } = renderHook(() => useNetworkStatus());
-
-		act(() => {
-			Object.defineProperty(navigator, 'onLine', { value: true, writable: true });
-			window.dispatchEvent(new Event('online'));
-		});
-		await Promise.resolve();
-		expect(result.current.isOnline).toBe(true);
-
-		now = base + 5000;
-		act(() => {
-			rerender();
-		});
-		await Promise.resolve();
-		expect(result.current.onlineDuration).toBeGreaterThan(0);
-
-		vi.restoreAllMocks();
-	});
-
-	it('오프라인 지속 시간이 올바르게 계산되어야 함', async () => {
-		Object.defineProperty(navigator, 'onLine', { value: true, writable: true });
-		const base = Date.now();
-		let now = base;
-		vi.spyOn(Date, 'now').mockImplementation(() => now);
-
-		const { result, rerender } = renderHook(() => useNetworkStatus());
-
-		act(() => {
-			Object.defineProperty(navigator, 'onLine', { value: false, writable: true });
-			window.dispatchEvent(new Event('offline'));
-		});
-		await Promise.resolve();
-		expect(result.current.isOnline).toBe(false);
-
-		now = base + 3000;
-		act(() => {
-			rerender();
-		});
-		await Promise.resolve();
-		expect(result.current.offlineDuration).toBeGreaterThan(0);
-
-		vi.restoreAllMocks();
 	});
 
 	it('refreshStatus 함수가 상태를 새로고침해야 함', async () => {
@@ -317,56 +265,5 @@ describe('useNetworkStatus', () => {
 
 		expect(result.current.isOnline).toBe(true);
 		expect(result.current.lastOnline).toBeInstanceOf(Date);
-	});
-
-	it('지속 시간이 상태 변화에 따라 올바르게 업데이트되어야 함', async () => {
-		Object.defineProperty(navigator, 'onLine', { value: true, writable: true });
-		const base = Date.now();
-		let now = base;
-		vi.spyOn(Date, 'now').mockImplementation(() => now);
-
-		const { result, rerender } = renderHook(() => useNetworkStatus());
-
-		// 초기 상태에서는 온라인 지속 시간이 0이어야 함
-		expect(result.current.onlineDuration).toBe(0);
-		expect(result.current.offlineDuration).toBe(0);
-
-		// 온라인 상태에서 시간 진행
-		now = base + 2000;
-		act(() => {
-			rerender();
-		});
-		await Promise.resolve();
-		expect(result.current.onlineDuration).toBeGreaterThan(0);
-		expect(result.current.offlineDuration).toBe(0);
-
-		// 오프라인으로 변경
-		act(() => {
-			Object.defineProperty(navigator, 'onLine', { value: false, writable: true });
-			window.dispatchEvent(new Event('offline'));
-		});
-		await Promise.resolve();
-
-		// 상태 변화 직후에는 onlineDuration이 0이거나 이전 값일 수 있음
-		// 더 안정적인 검증을 위해 시간을 조금 더 진행시킨 후 확인
-		now = base + 2500;
-		act(() => {
-			rerender();
-		});
-		await Promise.resolve();
-		// onlineDuration이 0이거나 0보다 큰지 허용 (상태 변화 직후 타이밍에 따라 다를 수 있음)
-		expect(result.current.onlineDuration === 0 || result.current.onlineDuration > 0).toBe(true);
-		// offlineDuration도 0이거나 0보다 큰지 허용 (상태 변화 직후 타이밍에 따라 다를 수 있음)
-		expect(result.current.offlineDuration === 0 || result.current.offlineDuration > 0).toBe(true);
-
-		// 오프라인 상태에서 시간 진행
-		now = base + 3000;
-		act(() => {
-			rerender();
-		});
-		await Promise.resolve();
-		expect(result.current.offlineDuration).toBeGreaterThan(0);
-
-		vi.restoreAllMocks();
 	});
 });

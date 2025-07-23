@@ -22,8 +22,6 @@ interface UseNetworkStatusOptions {
  * @returns statusMessage - Current status message
  * @returns lastOnline - Last online time
  * @returns lastOffline - Last offline time
- * @returns onlineDuration - Online duration (milliseconds)
- * @returns offlineDuration - Offline duration (milliseconds)
  * @returns refreshStatus - Status refresh function
  *
  * @example
@@ -42,7 +40,7 @@ interface UseNetworkStatusOptions {
  * @example
  * ```tsx
  * // Custom options usage
- * const { isOnline, statusMessage, lastOnline, onlineDuration } = useNetworkStatus({
+ * const { isOnline, statusMessage, lastOnline } = useNetworkStatus({
  *   onlineMessage: 'Internet connected',
  *   offlineMessage: 'Internet disconnected',
  *   showStatusMessage: true
@@ -54,7 +52,6 @@ interface UseNetworkStatusOptions {
  *     {isOnline && (
  *       <div>
  *         Last online: {lastOnline?.toLocaleString()}
- *         Online duration: {Math.floor(onlineDuration / 1000)}s
  *       </div>
  *     )}
  *   </div>
@@ -116,20 +113,6 @@ export function useNetworkStatus(options: UseNetworkStatusOptions = {}) {
 
 	const [lastOnline, setLastOnline] = useState<Date | null>(null);
 	const [lastOffline, setLastOffline] = useState<Date | null>(null);
-	const [onlineStartTime, setOnlineStartTime] = useState<Date | null>(() => {
-		if (hasInitialOnline) return initialOnline ? new Date() : null;
-		if (typeof window !== 'undefined' && typeof navigator.onLine === 'boolean') {
-			return navigator.onLine ? new Date() : null;
-		}
-		return new Date();
-	});
-	const [offlineStartTime, setOfflineStartTime] = useState<Date | null>(() => {
-		if (hasInitialOnline) return !initialOnline ? new Date() : null;
-		if (typeof window !== 'undefined' && typeof navigator.onLine === 'boolean') {
-			return !navigator.onLine ? new Date() : null;
-		}
-		return null;
-	});
 
 	const updateNetworkStatus = useCallback(
 		(online: boolean) => {
@@ -137,16 +120,12 @@ export function useNetworkStatus(options: UseNetworkStatusOptions = {}) {
 			if (online && !isOnline) {
 				setIsOnline(true);
 				setLastOnline(now);
-				setOnlineStartTime(now);
-				setOfflineStartTime(null);
 				if (showStatusMessage) {
 					console.log('useNetworkStatus: 네트워크 연결됨');
 				}
 			} else if (!online && isOnline) {
 				setIsOnline(false);
 				setLastOffline(now);
-				setOfflineStartTime(now);
-				setOnlineStartTime(null);
 				if (showStatusMessage) {
 					console.log('useNetworkStatus: 네트워크 연결 끊김');
 				}
@@ -201,16 +180,6 @@ export function useNetworkStatus(options: UseNetworkStatusOptions = {}) {
 		};
 	}, [updateNetworkStatus, hasInitialOnline]);
 
-	const onlineDuration = useCallback(() => {
-		if (!onlineStartTime || !isOnline) return 0;
-		return Date.now() - onlineStartTime.getTime();
-	}, [onlineStartTime, isOnline]);
-
-	const offlineDuration = useCallback(() => {
-		if (!offlineStartTime || isOnline) return 0;
-		return Date.now() - offlineStartTime.getTime();
-	}, [offlineStartTime, isOnline]);
-
 	const statusMessage = isOnline ? onlineMessage : offlineMessage;
 
 	return {
@@ -219,8 +188,6 @@ export function useNetworkStatus(options: UseNetworkStatusOptions = {}) {
 		statusMessage,
 		lastOnline,
 		lastOffline,
-		onlineDuration: onlineDuration(),
-		offlineDuration: offlineDuration(),
 		refreshStatus,
 	};
 }

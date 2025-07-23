@@ -23,3 +23,5 @@ pnpm-debug.log*
 
 # 기타
 *.local 
+*storybook.log
+storybook-static

@@ -220,8 +220,6 @@ export function useLoading(options: UseLoadingOptions = {}): {
 	 * Function to start loading
 	 */
 	const startLoading = useCallback(() => {
-		if (isLoading) return;
-
 		// If delay is set
 		if (delay > 0) {
 			delayTimerRef.current = setTimeout(() => {
@@ -230,7 +228,7 @@ export function useLoading(options: UseLoadingOptions = {}): {
 		} else {
 			setLoadingState(true);
 		}
-	}, [isLoading, delay, setLoadingState]);
+	}, [delay, setLoadingState]);
 
 	/**
 	 * Function to stop loading
@@ -242,8 +240,6 @@ export function useLoading(options: UseLoadingOptions = {}): {
 			delayTimerRef.current = null;
 			return;
 		}
-
-		if (!isLoading) return;
 
 		// If minimum loading time is set
 		if (minLoadingTime > 0) {
@@ -260,7 +256,7 @@ export function useLoading(options: UseLoadingOptions = {}): {
 		}
 
 		setLoadingState(false);
-	}, [isLoading, minLoadingTime, setLoadingState]);
+	}, [minLoadingTime, setLoadingState]);
 
 	/**
 	 * Function to toggle loading state
@@ -316,9 +312,7 @@ export function useLoading(options: UseLoadingOptions = {}): {
 	 */
 	const wrapAsync = useCallback(
 		<T>(asyncFn: () => Promise<T>): Promise<T> => {
-			return new Promise<T>((resolve, reject) => {
-				withLoading(asyncFn()).then(resolve).catch(reject);
-			});
+			return withLoading(asyncFn());
 		},
 		[withLoading],
 	);

@@ -12,6 +12,25 @@ yarn add use-hookit
 pnpm add use-hookit
 ```
 
+## Development
+
+### Running Storybook
+
+To test and visualize the hooks in a real React environment:
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start Storybook
+pnpm run storybook
+
+# Build Storybook for production
+pnpm run build-storybook
+```
+
+Storybook will be available at `http://localhost:6006` and provides interactive demos for all hooks.
+
 ## Usage
 
 ### Import all hooks
@@ -65,6 +84,22 @@ import { useEventListener } from 'use-hookit/ui';
 useEventListener('click', handleClick, element);
 ```
 
+#### `useHover`
+
+Detects when an element is being hovered.
+
+```typescript
+import { useHover } from 'use-hookit/ui';
+
+const [hoverRef, isHovered] = useHover<HTMLDivElement>();
+
+return (
+	<div ref={hoverRef} style={{ background: isHovered ? 'blue' : 'red' }}>
+		{isHovered ? 'Hovered!' : 'Not hovered'}
+	</div>
+);
+```
+
 #### `useIntersectionObserver`
 
 Detects when an element enters or leaves the viewport using Intersection Observer API.
@@ -102,6 +137,75 @@ import { useInterval } from 'use-hookit/utility';
 useInterval(() => {
 	console.log('Tick!');
 }, 1000);
+```
+
+#### `useAsync`
+
+Manages async operations with loading, error, and success states.
+
+```typescript
+import { useAsync } from 'use-hookit/utility';
+
+const fetchUser = async (id: number) => {
+	const response = await fetch(`/api/users/${id}`);
+	return response.json();
+};
+
+const [state, execute, reset] = useAsync(fetchUser, {
+	immediate: true,
+	onSuccess: (data) => console.log('User loaded:', data),
+	onError: (error) => console.error('Failed to load user:', error),
+});
+
+// state: { data, loading, error }
+// execute: function to run async operation
+// reset: function to reset state
+```
+
+#### `useToggle`
+
+Manages boolean toggle state with convenient toggle and set functions.
+
+```typescript
+import { useToggle } from 'use-hookit/utility';
+
+const [isOpen, toggle, setOpen] = useToggle(false);
+
+return (
+	<div>
+		<button onClick={toggle}>Toggle</button>
+		<button onClick={() => setOpen(true)}>Open</button>
+		<button onClick={() => setOpen(false)}>Close</button>
+		{isOpen && <Modal />}
+	</div>
+);
+```
+
+#### `useCounter`
+
+Manages counter state with increment, decrement, and constraints.
+
+```typescript
+import { useCounter } from 'use-hookit/utility';
+
+const [count, { increment, decrement, reset, setValue, isMin, isMax }] = useCounter(0, {
+	min: 0,
+	max: 10,
+	step: 1,
+});
+
+return (
+	<div>
+		<button onClick={decrement} disabled={isMin}>
+			-
+		</button>
+		<span>{count}</span>
+		<button onClick={increment} disabled={isMax}>
+			+
+		</button>
+		<button onClick={reset}>Reset</button>
+	</div>
+);
 ```
 
 #### `useWindowSize`

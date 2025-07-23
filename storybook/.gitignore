@@ -1,0 +1,27 @@
+# Node
+node_modules/
+
+# Build output
+dist/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDEs
+.vscode/
+.idea/
+.DS_Store
+
+# Env
+.env*
+
+# Mac
+.DS_Store
+
+# 기타
+*.local 
+*storybook.log
+storybook-static

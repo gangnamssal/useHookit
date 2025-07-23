@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "ESNext",
+		"declaration": true,
+		"outDir": "dist",
+		"jsx": "react-jsx",
+		"moduleResolution": "Node",
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"types": ["vitest/globals"],
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["../src/*"]
+		}
+	}
+}

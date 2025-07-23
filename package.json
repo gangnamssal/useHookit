@@ -1,94 +1,86 @@
 {
-  "name": "use-hookit",
-  "version": "0.1.0",
-  "description": "useHookit is a collection of useful custom React Hooks designed to boost your development productivity. It helps you build faster and more efficiently by providing reusable hooks for common UI patterns and complex logic.",
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./dist/*.d.ts"
-      ]
-    }
-  },
-  "files": [
-    "dist"
-  ],
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.umd.cjs"
-    },
-    "./ui": {
-      "types": "./dist/ui.d.ts",
-      "import": "./dist/ui.js",
-      "require": "./dist/ui.umd.cjs"
-    },
-    "./utility": {
-      "types": "./dist/utility.d.ts",
-      "import": "./dist/utility.js",
-      "require": "./dist/utility.umd.cjs"
-    },
-    "./lifecycle": {
-      "types": "./dist/lifecycle.d.ts",
-      "import": "./dist/lifecycle.js",
-      "require": "./dist/lifecycle.umd.cjs"
-    },
-    "./performance": {
-      "types": "./dist/performance.d.ts",
-      "import": "./dist/performance.js",
-      "require": "./dist/performance.umd.cjs"
-    },
-    "./storage": {
-      "types": "./dist/storage.d.ts",
-      "import": "./dist/storage.js",
-      "require": "./dist/storage.umd.cjs"
-    }
-  },
-  "peerDependencies": {
-    "react": ">=18.0.0"
-  },
-  "devDependencies": {
-    "@storybook/addon-docs": "^9.0.18",
-    "@storybook/addon-onboarding": "^9.0.18",
-    "@storybook/react-vite": "^9.0.18",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.3.0",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
-    "@types/testing-library__jest-dom": "^6.0.0",
-    "jsdom": "^26.1.0",
-    "storybook": "^9.0.18",
-    "typescript": "^5.0.0",
-    "vite": "^7.0.0",
-    "vitest": "^3.2.4"
-  },
-  "scripts": {
-    "build": "vite build",
-    "publish:lib": "pnpm build && npm publish --access public",
-    "publish:dry": "pnpm build && npm publish --dry-run",
-    "test": "vitest",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/your-username/useHookit.git"
-  },
-  "keywords": [
-    "react",
-    "hooks",
-    "library",
-    "useHookit",
-    "use-hookit"
-  ],
-  "author": "24691116@naver.com",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/gangnamssal/useHookit/issues"
-  },
-  "homepage": "https://github.com/gangnamssal/useHookit#readme",
-  "dependencies": {
-    "@types/prismjs": "^1.26.5",
-    "prismjs": "^1.30.0"
-  }
+	"name": "use-hookit",
+	"version": "0.1.0",
+	"description": "useHookit is a collection of useful custom React Hooks designed to boost your development productivity. It helps you build faster and more efficiently by providing reusable hooks for common UI patterns and complex logic.",
+	"typesVersions": {
+		"*": {
+			"*": [
+				"./dist/*.d.ts"
+			]
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"require": "./dist/index.umd.cjs"
+		},
+		"./ui": {
+			"types": "./dist/ui.d.ts",
+			"import": "./dist/ui.js",
+			"require": "./dist/ui.umd.cjs"
+		},
+		"./utility": {
+			"types": "./dist/utility.d.ts",
+			"import": "./dist/utility.js",
+			"require": "./dist/utility.umd.cjs"
+		},
+		"./lifecycle": {
+			"types": "./dist/lifecycle.d.ts",
+			"import": "./dist/lifecycle.js",
+			"require": "./dist/lifecycle.umd.cjs"
+		},
+		"./performance": {
+			"types": "./dist/performance.d.ts",
+			"import": "./dist/performance.js",
+			"require": "./dist/performance.umd.cjs"
+		},
+		"./storage": {
+			"types": "./dist/storage.d.ts",
+			"import": "./dist/storage.js",
+			"require": "./dist/storage.umd.cjs"
+		}
+	},
+	"peerDependencies": {
+		"react": ">=18.0.0"
+	},
+	"devDependencies": {
+		"@testing-library/jest-dom": "^6.6.3",
+		"@testing-library/react": "^16.3.0",
+		"@types/react": "^18.0.0",
+		"@types/react-dom": "^18.0.0",
+		"@types/testing-library__jest-dom": "^6.0.0",
+		"jsdom": "^26.1.0",
+		"typescript": "^5.0.0",
+		"vite": "^7.0.0",
+		"vitest": "^3.2.4"
+	},
+	"scripts": {
+		"build": "vite build",
+		"publish:lib": "pnpm build && npm publish --access public",
+		"publish:dry": "pnpm build && npm publish --dry-run",
+		"test": "vitest",
+		"storybook": "pnpm --filter ./storybook storybook",
+		"build-storybook": "pnpm --filter ./storybook build-storybook"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/your-username/useHookit.git"
+	},
+	"keywords": [
+		"react",
+		"hooks",
+		"library",
+		"useHookit",
+		"use-hookit"
+	],
+	"author": "24691116@naver.com",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/gangnamssal/useHookit/issues"
+	},
+	"homepage": "https://github.com/gangnamssal/useHookit#readme"
 }

@@ -11,3 +11,4 @@ export * from './useScrollPosition';
 export * from './useArray';
 export * from './useObject';
 export * from './useSet';
+export * from './useMap';

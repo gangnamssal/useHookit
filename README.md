@@ -1,351 +1,166 @@
-# useHookit
+# useHookit 🚀
 
-useHookit is a collection of useful custom React Hooks designed to boost your development productivity. It helps you build faster and more efficiently by providing reusable hooks for common UI patterns and complex logic.
+> **Modern React Hooks Library** - Boost your development with powerful, type-safe custom hooks
 
-## Installation
+A comprehensive collection of **40+ production-ready React hooks** designed to accelerate your development workflow. Built with TypeScript, optimized for performance, and crafted for real-world applications.
+
+## ✨ Features
+
+- **Zero Dependencies** - Pure React hooks, no external dependencies
+- **Performance Optimized** - Built with React best practices and memoization
+- **Type Safe** - Full TypeScript support with comprehensive type definitions
+- **Tree Shakeable** - Import only what you need, keep your bundle size minimal
+- **Interactive Docs** - Live examples and documentation with Storybook
+
+## 🚀 Quick Start
 
 ```bash
 npm install use-hookit
 # or
-yarn add use-hookit
-# or
 pnpm add use-hookit
+# or
+yarn add use-hookit
 ```
-
-## Development
-
-### Running Storybook
-
-To test and visualize the hooks in a real React environment:
-
-```bash
-# Install dependencies
-pnpm install
-
-# Start Storybook
-pnpm run storybook
-
-# Build Storybook for production
-pnpm run build-storybook
-```
-
-Storybook will be available at `http://localhost:6006` and provides interactive demos for all hooks.
-
-## Usage
-
-### Import all hooks
 
 ```typescript
-import { useClickOutside, useDebounce, useLocalStorage } from 'use-hookit';
+import { useDebounce, useLocalStorage, useClickOutside } from 'use-hookit';
+
+// Debounce search input
+const debouncedSearch = useDebounce(searchTerm, 300);
+
+// Persistent state
+const [theme, setTheme, removeTheme] = useLocalStorage('theme', 'light');
+
+// Click outside detection
+const ref = useClickOutside(() => setModalOpen(false));
 ```
 
-### Import specific categories
+## 📚 Hook Categories
+
+### UI Hooks - DOM Interactions
 
 ```typescript
-// UI hooks
-import { useClickOutside, useEventListener } from 'use-hookit/ui';
+import {
+	useClickOutside,
+	useEventListener,
+	useIntersectionObserver,
+	useLongPress,
+} from 'use-hookit/ui';
+```
 
-// Utility hooks
-import { useMediaQuery, useInterval } from 'use-hookit/utility';
+### Utility Hooks - Data Management
 
-// Lifecycle hooks
-import { useIsMounted, usePrevious } from 'use-hookit/lifecycle';
+```typescript
+import {
+	useArray,
+	useObject,
+	useSet,
+	useMap, // Data structures
+	useBoolean,
+	useLoading,
+	useCopyToClipboard, // State management
+	useWindowSize,
+	useMediaQuery,
+	useNetworkStatus,
+	useGeolocation, // Browser APIs
+} from 'use-hookit/utility';
+```
 
-// Performance hooks
+### Performance Hooks - Optimization
+
+```typescript
 import { useDebounce, useThrottle } from 'use-hookit/performance';
+```
 
-// Storage hooks
+### Lifecycle Hooks - Component Lifecycle
+
+```typescript
+import { useIsMounted, usePrevious } from 'use-hookit/lifecycle';
+```
+
+### Storage Hooks - Persistence
+
+```typescript
 import { useLocalStorage, useSessionStorage } from 'use-hookit/storage';
 ```
 
-## API Documentation
+## 🎯 Featured Hooks
 
-### UI Hooks
-
-#### `useClickOutside`
-
-Detects clicks outside of a specified element.
+### Data Structure Hooks
 
 ```typescript
-import { useClickOutside } from 'use-hookit/ui';
+// Array management with 20+ methods
+const [array, { push, pop, filter, map, sort, reverse }] = useArray([1, 2, 3]);
 
-const ref = useClickOutside(() => {
-	console.log('Clicked outside!');
+// Object state management
+const [obj, { set, get, has, remove, merge, pick, omit }] = useObject({ name: 'John' });
+
+// Set operations
+const [set, { add, delete, union, intersection, difference }] = useSet(['apple', 'banana']);
+
+// Map key-value management
+const [map, { set, get, has, delete, filter, map: mapValues }] = useMap([['key', 'value']]);
+```
+
+### UI Interaction Hooks
+
+```typescript
+// Click outside detection
+const ref = useClickOutside(() => setOpen(false));
+
+// Long press detection
+const { handlers, isLongPressing } = useLongPress({
+	onLongPress: () => console.log('Long pressed!'),
+	delay: 500,
 });
-```
 
-#### `useEventListener`
-
-Attaches event listeners to DOM elements.
-
-```typescript
-import { useEventListener } from 'use-hookit/ui';
-
-useEventListener('click', handleClick, element);
-```
-
-#### `useHover`
-
-Detects when an element is being hovered.
-
-```typescript
-import { useHover } from 'use-hookit/ui';
-
-const [hoverRef, isHovered] = useHover<HTMLDivElement>();
-
-return (
-	<div ref={hoverRef} style={{ background: isHovered ? 'blue' : 'red' }}>
-		{isHovered ? 'Hovered!' : 'Not hovered'}
-	</div>
-);
-```
-
-#### `useIntersectionObserver`
-
-Detects when an element enters or leaves the viewport using Intersection Observer API.
-
-```typescript
-import { useIntersectionObserver } from 'use-hookit/ui';
-
+// Intersection observer
 const { isIntersecting, ref } = useIntersectionObserver({
 	threshold: 0.5,
-	rootMargin: '50px',
 });
-
-return <div ref={ref}>{isIntersecting ? '보임!' : '안 보임'}</div>;
-```
-
-### Utility Hooks
-
-#### `useMediaQuery`
-
-Responds to media query changes.
-
-```typescript
-import { useMediaQuery } from 'use-hookit/utility';
-
-const isMobile = useMediaQuery('(max-width: 768px)');
-```
-
-#### `useInterval`
-
-Manages intervals with automatic cleanup.
-
-```typescript
-import { useInterval } from 'use-hookit/utility';
-
-useInterval(() => {
-	console.log('Tick!');
-}, 1000);
-```
-
-#### `useAsync`
-
-Manages async operations with loading, error, and success states.
-
-```typescript
-import { useAsync } from 'use-hookit/utility';
-
-const fetchUser = async (id: number) => {
-	const response = await fetch(`/api/users/${id}`);
-	return response.json();
-};
-
-const [state, execute, reset] = useAsync(fetchUser, {
-	immediate: true,
-	onSuccess: (data) => console.log('User loaded:', data),
-	onError: (error) => console.error('Failed to load user:', error),
-});
-
-// state: { data, loading, error }
-// execute: function to run async operation
-// reset: function to reset state
-```
-
-#### `useToggle`
-
-Manages boolean toggle state with convenient toggle and set functions.
-
-```typescript
-import { useToggle } from 'use-hookit/utility';
-
-const [isOpen, toggle, setOpen] = useToggle(false);
-
-return (
-	<div>
-		<button onClick={toggle}>Toggle</button>
-		<button onClick={() => setOpen(true)}>Open</button>
-		<button onClick={() => setOpen(false)}>Close</button>
-		{isOpen && <Modal />}
-	</div>
-);
-```
-
-#### `useCounter`
-
-Manages counter state with increment, decrement, and constraints.
-
-```typescript
-import { useCounter } from 'use-hookit/utility';
-
-const [count, { increment, decrement, reset, setValue, isMin, isMax }] = useCounter(0, {
-	min: 0,
-	max: 10,
-	step: 1,
-});
-
-return (
-	<div>
-		<button onClick={decrement} disabled={isMin}>
-			-
-		</button>
-		<span>{count}</span>
-		<button onClick={increment} disabled={isMax}>
-			+
-		</button>
-		<button onClick={reset}>Reset</button>
-	</div>
-);
-```
-
-#### `useWindowSize`
-
-Detects browser window size changes in real-time.
-
-```typescript
-import { useWindowSize } from 'use-hookit/utility';
-
-const { width, height, isMobile, isDesktop } = useWindowSize();
-
-return (
-	<div>
-		윈도우 크기: {width} x {height}
-		{isMobile && <MobileLayout />}
-		{isDesktop && <DesktopLayout />}
-	</div>
-);
-```
-
-#### `useCopyToClipboard`
-
-Copies text to clipboard and returns copy success status.
-
-```typescript
-import { useCopyToClipboard } from 'use-hookit/utility';
-
-const { isCopied, isCopying, message, copyToClipboard, reset } = useCopyToClipboard();
-
-const handleCopy = async () => {
-	const success = await copyToClipboard('복사할 텍스트');
-	if (success) {
-		console.log('복사 성공!');
-	}
-};
-
-return (
-	<div>
-		<button onClick={handleCopy} disabled={isCopying}>
-			{isCopying ? '복사 중...' : '복사'}
-		</button>
-		{message && <span>{message}</span>}
-		{isCopied && <button onClick={reset}>초기화</button>}
-	</div>
-);
-```
-
-#### `useNetworkStatus`
-
-Detects network connection status and provides online/offline state.
-
-```typescript
-import { useNetworkStatus } from 'use-hookit/utility';
-
-const { isOnline, isOffline, statusMessage, lastOnline, onlineDuration } = useNetworkStatus();
-
-return (
-	<div>
-		<div>네트워크 상태: {isOnline ? '온라인' : '오프라인'}</div>
-		{isOffline && <OfflineBanner />}
-		{isOnline && (
-			<div>
-				마지막 온라인: {lastOnline?.toLocaleString()}
-				온라인 지속 시간: {Math.floor(onlineDuration / 1000)}초
-			</div>
-		)}
-	</div>
-);
-```
-
-### Lifecycle Hooks
-
-#### `useIsMounted`
-
-Tracks component mount status.
-
-```typescript
-import { useIsMounted } from 'use-hookit/lifecycle';
-
-const isMounted = useIsMounted();
-```
-
-#### `usePrevious`
-
-Tracks the previous value of a prop or state.
-
-```typescript
-import { usePrevious } from 'use-hookit/lifecycle';
-
-const previousValue = usePrevious(currentValue);
 ```
 
 ### Performance Hooks
 
-#### `useDebounce`
-
-Debounces a value with a delay.
-
 ```typescript
-import { useDebounce } from 'use-hookit/performance';
+// Debounce values
+const debouncedSearch = useDebounce(searchTerm, 300);
 
-const debouncedValue = useDebounce(value, 500);
+// Throttle callbacks
+const throttledScroll = useThrottle(handleScroll, 100);
 ```
 
-#### `useThrottle`
-
-Throttles function calls or values.
+### Browser API Hooks
 
 ```typescript
-import { useThrottle } from 'use-hookit/performance';
+// Window size with breakpoints
+const { width, height, isMobile, isDesktop } = useWindowSize();
 
-const throttledCallback = useThrottle(callback, 1000);
+// Media queries
+const isDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+
+// Network status
+const { isOnline, isOffline } = useNetworkStatus();
+
+// Geolocation
+const { position, loading, error } = useGeolocation();
 ```
 
-### Storage Hooks
+## 📖 Documentation
 
-#### `useLocalStorage`
+Explore all hooks with live examples at our [Storybook documentation](https://usehookit.vercel.app).
 
-Manages localStorage with React state synchronization.
+## 📦 Bundle Size
 
-```typescript
-import { useLocalStorage } from 'use-hookit/storage';
+- **Core**: ~2KB gzipped
+- **Individual hooks**: ~0.5-2KB each
+- **Tree-shakeable**: Only import what you use
 
-const [value, setValue, removeValue] = useLocalStorage('key', 'initial');
-```
-
-#### `useSessionStorage`
-
-Manages sessionStorage with React state synchronization.
-
-```typescript
-import { useSessionStorage } from 'use-hookit/storage';
-
-const [value, setValue, removeValue] = useSessionStorage('key', 'initial');
-```
-
-## Requirements
+## 📋 Requirements
 
 - React 18.0.0 or higher
+- TypeScript 4.5+ (recommended)
 
-## License
+## 📄 License
 
-MIT
+MIT © [useHookit](https://github.com/usehookit)

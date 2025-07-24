@@ -12,17 +12,24 @@ describe('useScrollPosition', () => {
 		mockElement.scrollTop = 0;
 		Object.defineProperty(mockElement, 'scrollHeight', { value: 1000, writable: true });
 		Object.defineProperty(mockElement, 'clientHeight', { value: 500, writable: true });
+		Object.defineProperty(mockElement, 'scrollWidth', { value: 2000, writable: true });
+		Object.defineProperty(mockElement, 'clientWidth', { value: 800, writable: true });
 
 		// Mock window scroll properties
 		Object.defineProperty(window, 'pageXOffset', { value: 0, writable: true });
 		Object.defineProperty(window, 'pageYOffset', { value: 0, writable: true });
 		Object.defineProperty(window, 'innerHeight', { value: 500, writable: true });
+		Object.defineProperty(window, 'innerWidth', { value: 800, writable: true });
 
 		// Mock document.documentElement
 		Object.defineProperty(document.documentElement, 'scrollLeft', { value: 0, writable: true });
 		Object.defineProperty(document.documentElement, 'scrollTop', { value: 0, writable: true });
 		Object.defineProperty(document.documentElement, 'scrollHeight', {
 			value: 1000,
+			writable: true,
+		});
+		Object.defineProperty(document.documentElement, 'scrollWidth', {
+			value: 2000,
 			writable: true,
 		});
 
@@ -50,6 +57,8 @@ describe('useScrollPosition', () => {
 		expect(typeof result.current.scrollTo).toBe('function');
 		expect(typeof result.current.scrollToTop).toBe('function');
 		expect(typeof result.current.scrollToBottom).toBe('function');
+		expect(typeof result.current.scrollToLeft).toBe('function');
+		expect(typeof result.current.scrollToRight).toBe('function');
 	});
 
 	it('커스텀 요소로 스크롤 위치를 추적해야 함', () => {
@@ -73,6 +82,33 @@ describe('useScrollPosition', () => {
 
 		expect(result.current.x).toBe(100);
 		expect(result.current.y).toBe(200);
+		expect(result.current.isScrolling).toBe(true);
+	});
+
+	it('가로 스크롤 이벤트가 발생하면 X 위치가 업데이트되어야 함', () => {
+		const { result } = renderHook(() => useScrollPosition());
+
+		act(() => {
+			Object.defineProperty(window, 'pageXOffset', { value: 500 });
+			window.dispatchEvent(new Event('scroll'));
+		});
+
+		expect(result.current.x).toBe(500);
+		expect(result.current.y).toBe(0);
+		expect(result.current.isScrolling).toBe(true);
+	});
+
+	it('커스텀 요소의 가로 스크롤이 정상적으로 추적되어야 함', () => {
+		const { result } = renderHook(() => useScrollPosition({ element: mockElement }));
+
+		act(() => {
+			mockElement.scrollLeft = 300;
+			mockElement.scrollTop = 150;
+			mockElement.dispatchEvent(new Event('scroll'));
+		});
+
+		expect(result.current.x).toBe(300);
+		expect(result.current.y).toBe(150);
 		expect(result.current.isScrolling).toBe(true);
 	});
 
@@ -201,6 +237,88 @@ describe('useScrollPosition', () => {
 		});
 	});
 
+	describe('scrollToLeft 함수', () => {
+		it('window에 대해 정상적으로 작동해야 함', () => {
+			const scrollToSpy = vi.spyOn(window, 'scrollTo');
+			const { result } = renderHook(() => useScrollPosition());
+
+			act(() => {
+				result.current.scrollToLeft();
+			});
+
+			expect(scrollToSpy).toHaveBeenCalledWith({ left: 0, top: 0, behavior: 'smooth' });
+		});
+
+		it('커스텀 요소에 대해 정상적으로 작동해야 함', () => {
+			const scrollToSpy = vi.spyOn(mockElement, 'scrollTo');
+			const { result } = renderHook(() => useScrollPosition({ element: mockElement }));
+
+			act(() => {
+				result.current.scrollToLeft();
+			});
+
+			expect(scrollToSpy).toHaveBeenCalledWith({ left: 0, top: 0, behavior: 'smooth' });
+		});
+
+		it('현재 세로 스크롤 위치를 유지해야 함', () => {
+			const scrollToSpy = vi.spyOn(window, 'scrollTo');
+			const { result } = renderHook(() => useScrollPosition());
+
+			// 먼저 세로 스크롤 위치를 설정
+			act(() => {
+				Object.defineProperty(window, 'pageYOffset', { value: 300 });
+				window.dispatchEvent(new Event('scroll'));
+			});
+
+			act(() => {
+				result.current.scrollToLeft();
+			});
+
+			expect(scrollToSpy).toHaveBeenCalledWith({ left: 0, top: 300, behavior: 'smooth' });
+		});
+	});
+
+	describe('scrollToRight 함수', () => {
+		it('window에 대해 정상적으로 작동해야 함', () => {
+			const scrollToSpy = vi.spyOn(window, 'scrollTo');
+			const { result } = renderHook(() => useScrollPosition());
+
+			act(() => {
+				result.current.scrollToRight();
+			});
+
+			expect(scrollToSpy).toHaveBeenCalledWith({ left: 1200, top: 0, behavior: 'smooth' });
+		});
+
+		it('커스텀 요소에 대해 정상적으로 작동해야 함', () => {
+			const scrollToSpy = vi.spyOn(mockElement, 'scrollTo');
+			const { result } = renderHook(() => useScrollPosition({ element: mockElement }));
+
+			act(() => {
+				result.current.scrollToRight();
+			});
+
+			expect(scrollToSpy).toHaveBeenCalledWith({ left: 1200, top: 0, behavior: 'smooth' });
+		});
+
+		it('현재 세로 스크롤 위치를 유지해야 함', () => {
+			const scrollToSpy = vi.spyOn(window, 'scrollTo');
+			const { result } = renderHook(() => useScrollPosition());
+
+			// 먼저 세로 스크롤 위치를 설정
+			act(() => {
+				Object.defineProperty(window, 'pageYOffset', { value: 200 });
+				window.dispatchEvent(new Event('scroll'));
+			});
+
+			act(() => {
+				result.current.scrollToRight();
+			});
+
+			expect(scrollToSpy).toHaveBeenCalledWith({ left: 1200, top: 200, behavior: 'smooth' });
+		});
+	});
+
 	it('onChange 콜백에서 에러가 발생해도 훅이 계속 작동해야 함', () => {
 		const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 		const onChange = vi.fn().mockImplementation(() => {
@@ -221,6 +339,48 @@ describe('useScrollPosition', () => {
 		expect(result.current.y).toBe(0);
 
 		consoleSpy.mockRestore();
+	});
+
+	it('scrollToRight에서 에러가 발생해도 훅이 계속 작동해야 함', () => {
+		const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {
+			throw new Error('Scroll error');
+		});
+
+		const { result } = renderHook(() => useScrollPosition());
+
+		act(() => {
+			result.current.scrollToRight();
+		});
+
+		expect(consoleSpy).toHaveBeenCalledWith(
+			'useScrollPosition: Error scrolling to right:',
+			expect.any(Error),
+		);
+
+		consoleSpy.mockRestore();
+		scrollToSpy.mockRestore();
+	});
+
+	it('scrollToLeft에서 에러가 발생해도 훅이 계속 작동해야 함', () => {
+		const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {
+			throw new Error('Scroll error');
+		});
+
+		const { result } = renderHook(() => useScrollPosition());
+
+		act(() => {
+			result.current.scrollToLeft();
+		});
+
+		expect(consoleSpy).toHaveBeenCalledWith(
+			'useScrollPosition: Error scrolling to position:',
+			expect.any(Error),
+		);
+
+		consoleSpy.mockRestore();
+		scrollToSpy.mockRestore();
 	});
 
 	describe('이벤트 리스너 관리', () => {

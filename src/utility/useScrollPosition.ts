@@ -91,26 +91,6 @@ export function useScrollPosition(options: UseScrollPositionOptions = {}) {
 		}
 	}, [element]);
 
-	// Memoize scroll end position calculation
-	const scrollEndPosition = useMemo(() => {
-		try {
-			if (element) {
-				return {
-					x: 0,
-					y: element.scrollHeight - element.clientHeight,
-				};
-			}
-
-			return {
-				x: 0,
-				y: document.documentElement.scrollHeight - window.innerHeight,
-			};
-		} catch (error) {
-			console.warn('useScrollPosition: Error calculating scroll end position:', error);
-			return { x: 0, y: 0 };
-		}
-	}, [element]);
-
 	// Handle scroll event with throttling
 	const handleScroll = useCallback(() => {
 		if (!enabled) return;
@@ -190,15 +170,17 @@ export function useScrollPosition(options: UseScrollPositionOptions = {}) {
 		(behavior: ScrollBehavior = 'smooth') => {
 			try {
 				if (element) {
+					const maxScrollTop = element.scrollHeight - element.clientHeight;
 					element.scrollTo({
-						left: scrollEndPosition.x,
-						top: scrollEndPosition.y,
+						left: 0,
+						top: maxScrollTop,
 						behavior,
 					});
 				} else {
+					const maxScrollTop = document.documentElement.scrollHeight - window.innerHeight;
 					window.scrollTo({
-						left: scrollEndPosition.x,
-						top: scrollEndPosition.y,
+						left: 0,
+						top: maxScrollTop,
 						behavior,
 					});
 				}
@@ -206,7 +188,53 @@ export function useScrollPosition(options: UseScrollPositionOptions = {}) {
 				console.warn('useScrollPosition: Error scrolling to bottom:', error);
 			}
 		},
-		[element, scrollEndPosition],
+		[element],
+	);
+
+	// Scroll to left utility function
+	const scrollToLeft = useCallback(
+		(behavior: ScrollBehavior = 'smooth') => {
+			try {
+				if (element) {
+					element.scrollTo({
+						left: 0,
+						top: position.y,
+						behavior,
+					});
+				} else {
+					scrollTo(0, position.y, behavior);
+				}
+			} catch (error) {
+				console.warn('useScrollPosition: Error scrolling to left:', error);
+			}
+		},
+		[element, position.y, scrollTo],
+	);
+
+	// Scroll to right utility function
+	const scrollToRight = useCallback(
+		(behavior: ScrollBehavior = 'smooth') => {
+			try {
+				if (element) {
+					const maxScrollLeft = element.scrollWidth - element.clientWidth;
+					element.scrollTo({
+						left: maxScrollLeft,
+						top: position.y,
+						behavior,
+					});
+				} else {
+					const maxScrollLeft = document.documentElement.scrollWidth - window.innerWidth;
+					window.scrollTo({
+						left: maxScrollLeft,
+						top: position.y,
+						behavior,
+					});
+				}
+			} catch (error) {
+				console.warn('useScrollPosition: Error scrolling to right:', error);
+			}
+		},
+		[element, position.y],
 	);
 
 	return {
@@ -216,5 +244,7 @@ export function useScrollPosition(options: UseScrollPositionOptions = {}) {
 		scrollTo,
 		scrollToTop,
 		scrollToBottom,
+		scrollToLeft,
+		scrollToRight,
 	};
 }

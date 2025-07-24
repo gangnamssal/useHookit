@@ -9,3 +9,4 @@ export * from './useGeolocation';
 export * from './useBoolean';
 export * from './useScrollPosition';
 export * from './useArray';
+export * from './useObject';

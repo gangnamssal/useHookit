@@ -148,13 +148,29 @@ const { position, loading, error } = useGeolocation();
 
 ## 📖 Documentation
 
-Explore all hooks with live examples at our [Storybook documentation](https://usehookit.vercel.app).
+Explore all hooks with live examples at our [Storybook documentation](https://use-hookit.vercel.app/).
 
 ## 📦 Bundle Size
 
 - **Core**: ~2KB gzipped
 - **Individual hooks**: ~0.5-2KB each
 - **Tree-shakeable**: Only import what you use
+
+## 🛠️ Development
+
+```bash
+# Install dependencies
+pnpm install
+
+# Run tests
+pnpm test
+
+# Run Storybook locally
+pnpm run storybook
+
+# Build library
+pnpm run build
+```
 
 ## 📋 Requirements
 

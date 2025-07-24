@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import {
 	useEventListener,
 	useClick,
@@ -64,30 +64,18 @@ function UseEventListenerDemo() {
 	const [clickCount, setClickCount] = useState(0);
 	const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-	useEventListener(
-		'keydown',
-		(event) => {
-			setKey((event as KeyboardEvent).key);
-		},
-		window,
-	);
+	useEventListener('keydown', (event) => {
+		setKey((event as KeyboardEvent).key);
+	});
 
-	useEventListener(
-		'click',
-		() => {
-			setClickCount((prev) => prev + 1);
-		},
-		window,
-	);
+	useEventListener('click', () => {
+		setClickCount((prev) => prev + 1);
+	});
 
-	useEventListener(
-		'mousemove',
-		(event) => {
-			const mouseEvent = event as MouseEvent;
-			setMousePosition({ x: mouseEvent.clientX, y: mouseEvent.clientY });
-		},
-		window,
-	);
+	useEventListener('mousemove', (event) => {
+		const mouseEvent = event as MouseEvent;
+		setMousePosition({ x: mouseEvent.clientX, y: mouseEvent.clientY });
+	});
 
 	return (
 		<div>
@@ -103,18 +91,6 @@ function UseEventListenerDemo() {
 				<p>
 					<strong>클릭 횟수:</strong> {clickCount}
 				</p>
-				<button
-					style={{
-						padding: '8px 16px',
-						backgroundColor: '#28a745',
-						color: 'white',
-						border: 'none',
-						borderRadius: '4px',
-						cursor: 'pointer',
-					}}
-				>
-					클릭해보세요
-				</button>
 			</div>
 
 			<div style={{ marginBottom: '20px' }}>
@@ -153,16 +129,12 @@ function WindowResizeExample() {
 		height: window.innerHeight,
 	});
 
-	useEventListener(
-		'resize',
-		() => {
-			setWindowSize({
-				width: window.innerWidth,
-				height: window.innerHeight,
-			});
-		},
-		window,
-	);
+	useEventListener('resize', () => {
+		setWindowSize({
+			width: window.innerWidth,
+			height: window.innerHeight,
+		});
+	});
 
 	return (
 		<div>
@@ -198,11 +170,13 @@ function ScrollEventsExample() {
 	const [scrollY, setScrollY] = useState(0);
 	const [scrollDirection, setScrollDirection] = useState('none');
 	const [lastScrollY, setLastScrollY] = useState(0);
+	const [scrollContainerRef, setScrollContainerRef] = useState<HTMLDivElement | null>(null);
 
 	useEventListener(
 		'scroll',
-		() => {
-			const currentScrollY = window.scrollY;
+		(event) => {
+			const target = event.target as HTMLElement;
+			const currentScrollY = target.scrollTop;
 			setScrollY(currentScrollY);
 
 			if (currentScrollY > lastScrollY) {
@@ -213,7 +187,7 @@ function ScrollEventsExample() {
 
 			setLastScrollY(currentScrollY);
 		},
-		window,
+		scrollContainerRef,
 	);
 
 	return (
@@ -228,10 +202,31 @@ function ScrollEventsExample() {
 				</p>
 			</div>
 
-			<div style={{ height: '200px', overflow: 'auto', border: '1px solid #ccc', padding: '20px' }}>
-				<p>스크롤해보세요!</p>
-				{[...Array(20)].map((_, i) => (
-					<p key={i}>스크롤 테스트 라인 {i + 1}</p>
+			<div
+				ref={setScrollContainerRef}
+				style={{
+					height: '200px',
+					overflow: 'auto',
+					border: '1px solid #ccc',
+					padding: '20px',
+					backgroundColor: '#f8f9fa',
+				}}
+			>
+				<p>
+					<strong>이 상자를 스크롤해보세요!</strong>
+				</p>
+				{[...Array(30)].map((_, i) => (
+					<p
+						key={i}
+						style={{
+							margin: '8px 0',
+							padding: '5px',
+							backgroundColor: 'white',
+							borderRadius: '4px',
+						}}
+					>
+						스크롤 테스트 라인 {i + 1} - 이 텍스트를 스크롤하면 위의 정보가 업데이트됩니다
+					</p>
 				))}
 			</div>
 
@@ -248,9 +243,10 @@ function ScrollEventsExample() {
 					<strong>💡 스크롤 이벤트 활용:</strong>
 				</p>
 				<ul>
-					<li>무한 스크롤 구현</li>
+					<li>컨테이너 내부 스크롤 감지</li>
 					<li>스크롤 기반 애니메이션</li>
 					<li>스크롤 위치에 따른 UI 변경</li>
+					<li>무한 스크롤 구현</li>
 				</ul>
 			</div>
 		</div>
@@ -261,24 +257,16 @@ function FocusEventsExample() {
 	const [focusedElement, setFocusedElement] = useState('');
 	const [focusHistory, setFocusHistory] = useState<string[]>([]);
 
-	useEventListener(
-		'focusin',
-		(event) => {
-			const target = event.target as HTMLElement;
-			setFocusedElement(target.tagName.toLowerCase());
-			setFocusHistory((prev) => [...prev, `포커스 진입: ${target.tagName.toLowerCase()}`]);
-		},
-		window,
-	);
+	useEventListener('focusin', (event) => {
+		const target = event.target as HTMLElement;
+		setFocusedElement(target.tagName.toLowerCase());
+		setFocusHistory((prev) => [...prev, `포커스 진입: ${target.tagName.toLowerCase()}`]);
+	});
 
-	useEventListener(
-		'focusout',
-		(event) => {
-			const target = event.target as HTMLElement;
-			setFocusHistory((prev) => [...prev, `포커스 해제: ${target.tagName.toLowerCase()}`]);
-		},
-		window,
-	);
+	useEventListener('focusout', (event) => {
+		const target = event.target as HTMLElement;
+		setFocusHistory((prev) => [...prev, `포커스 해제: ${target.tagName.toLowerCase()}`]);
+	});
 
 	return (
 		<div>
@@ -343,37 +331,25 @@ function TouchEventsExample() {
 	const [touchEnd, setTouchEnd] = useState({ x: 0, y: 0 });
 	const [touchHistory, setTouchHistory] = useState<string[]>([]);
 
-	useEventListener(
-		'touchstart',
-		(event) => {
-			const touchEvent = event as TouchEvent;
-			const touch = touchEvent.touches[0];
-			setTouchStart({ x: touch.clientX, y: touch.clientY });
-			setTouchHistory((prev) => [...prev, `터치 시작: (${touch.clientX}, ${touch.clientY})`]);
-		},
-		window,
-	);
+	useEventListener('touchstart', (event) => {
+		const touchEvent = event as TouchEvent;
+		const touch = touchEvent.touches[0];
+		setTouchStart({ x: touch.clientX, y: touch.clientY });
+		setTouchHistory((prev) => [...prev, `터치 시작: (${touch.clientX}, ${touch.clientY})`]);
+	});
 
-	useEventListener(
-		'touchmove',
-		(event) => {
-			const touchEvent = event as TouchEvent;
-			const touch = touchEvent.touches[0];
-			setTouchHistory((prev) => [...prev, `터치 이동: (${touch.clientX}, ${touch.clientY})`]);
-		},
-		window,
-	);
+	useEventListener('touchmove', (event) => {
+		const touchEvent = event as TouchEvent;
+		const touch = touchEvent.touches[0];
+		setTouchHistory((prev) => [...prev, `터치 이동: (${touch.clientX}, ${touch.clientY})`]);
+	});
 
-	useEventListener(
-		'touchend',
-		(event) => {
-			const touchEvent = event as TouchEvent;
-			const touch = touchEvent.changedTouches[0];
-			setTouchEnd({ x: touch.clientX, y: touch.clientY });
-			setTouchHistory((prev) => [...prev, `터치 종료: (${touch.clientX}, ${touch.clientY})`]);
-		},
-		window,
-	);
+	useEventListener('touchend', (event) => {
+		const touchEvent = event as TouchEvent;
+		const touch = touchEvent.changedTouches[0];
+		setTouchEnd({ x: touch.clientX, y: touch.clientY });
+		setTouchHistory((prev) => [...prev, `터치 종료: (${touch.clientX}, ${touch.clientY})`]);
+	});
 
 	const getSwipeDirection = () => {
 		const deltaX = touchEnd.x - touchStart.x;
@@ -608,6 +584,7 @@ function HelperFunctionsExample() {
 					<li>타입 안전성 보장</li>
 					<li>특정 이벤트에 최적화된 API</li>
 					<li>일관된 사용 패턴</li>
+					<li>element를 지정하지 않으면 window에 이벤트 등록</li>
 				</ul>
 			</div>
 		</div>
@@ -615,21 +592,27 @@ function HelperFunctionsExample() {
 }
 
 function ElementRefExampleComponent() {
-	const buttonRef = useRef<HTMLButtonElement>(null);
-	const divRef = useRef<HTMLDivElement>(null);
+	const [buttonRef, setButtonRef] = useState<HTMLButtonElement | null>(null);
+	const [divRef, setDivRef] = useState<HTMLDivElement | null>(null);
 	const [buttonClickCount, setButtonClickCount] = useState(0);
 	const [divHoverCount, setDivHoverCount] = useState(0);
 
-	useClick(() => {
-		setButtonClickCount((prev) => prev + 1);
-	}, buttonRef.current);
+	// useEventListener를 사용하여 특정 요소에만 이벤트 등록
+	useEventListener(
+		'click',
+		() => {
+			setButtonClickCount((prev) => prev + 1);
+		},
+		buttonRef,
+	);
 
+	// divRef.current가 존재할 때만 이벤트 리스너 등록
 	useEventListener(
 		'mouseenter',
 		() => {
 			setDivHoverCount((prev) => prev + 1);
 		},
-		divRef.current,
+		divRef,
 	);
 
 	return (
@@ -647,7 +630,7 @@ function ElementRefExampleComponent() {
 			<div style={{ marginBottom: '20px' }}>
 				<h4>테스트 요소들</h4>
 				<button
-					ref={buttonRef}
+					ref={setButtonRef}
 					style={{
 						padding: '10px 20px',
 						backgroundColor: '#007bff',
@@ -661,7 +644,7 @@ function ElementRefExampleComponent() {
 					클릭해보세요
 				</button>
 				<div
-					ref={divRef}
+					ref={setDivRef}
 					style={{
 						padding: '20px',
 						backgroundColor: '#ffc107',
@@ -884,13 +867,19 @@ function TouchHelpersExample() {
 // 코드 스니펫들
 const basicCode = `const [key, setKey] = useState('');
 const [clickCount, setClickCount] = useState(0);
+const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
 useEventListener('keydown', (event) => {
-  setKey(event.key);
+  setKey((event as KeyboardEvent).key);
 });
 
 useEventListener('click', () => {
   setClickCount(prev => prev + 1);
+});
+
+useEventListener('mousemove', (event) => {
+  const mouseEvent = event as MouseEvent;
+  setMousePosition({ x: mouseEvent.clientX, y: mouseEvent.clientY });
 });
 
 // 키보드, 마우스, 윈도우 이벤트 등 다양한 이벤트 감지 가능`;
@@ -911,53 +900,82 @@ useEventListener('resize', () => {
 
 const scrollCode = `const [scrollY, setScrollY] = useState(0);
 const [scrollDirection, setScrollDirection] = useState('none');
+const [scrollContainerRef, setScrollContainerRef] = useState<HTMLDivElement | null>(null);
 
-useEventListener('scroll', () => {
-  const currentScrollY = window.scrollY;
+useEventListener('scroll', (event) => {
+  const target = event.target as HTMLElement;
+  const currentScrollY = target.scrollTop;
   setScrollY(currentScrollY);
   
   // 스크롤 방향 감지 로직
-});
+}, scrollContainerRef);
 
-// 스크롤 위치와 방향 감지`;
+return (
+  <div ref={setScrollContainerRef} style={{ height: '200px', overflow: 'auto' }}>
+    {/* 스크롤할 내용 */}
+  </div>
+);
+
+// 특정 컨테이너의 스크롤 위치와 방향 감지`;
 
 const focusCode = `const [focusedElement, setFocusedElement] = useState('');
+const [focusHistory, setFocusHistory] = useState<string[]>([]);
 
 useEventListener('focusin', (event) => {
   const target = event.target as HTMLElement;
   setFocusedElement(target.tagName.toLowerCase());
+  setFocusHistory((prev) => [...prev, \`포커스 진입: \${target.tagName.toLowerCase()}\`]);
 });
 
 useEventListener('focusout', (event) => {
-  // 포커스 해제 처리
+  const target = event.target as HTMLElement;
+  setFocusHistory((prev) => [...prev, \`포커스 해제: \${target.tagName.toLowerCase()}\`]);
 });
 
 // 포커스 진입/해제 이벤트 감지`;
 
 const touchCode = `const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
 const [touchEnd, setTouchEnd] = useState({ x: 0, y: 0 });
+const [touchHistory, setTouchHistory] = useState<string[]>([]);
 
 useEventListener('touchstart', (event) => {
-  const touch = event.touches[0];
+  const touchEvent = event as TouchEvent;
+  const touch = touchEvent.touches[0];
   setTouchStart({ x: touch.clientX, y: touch.clientY });
+  setTouchHistory((prev) => [...prev, \`터치 시작: (\${touch.clientX}, \${touch.clientY})\`]);
+});
+
+useEventListener('touchmove', (event) => {
+  const touchEvent = event as TouchEvent;
+  const touch = touchEvent.touches[0];
+  setTouchHistory((prev) => [...prev, \`터치 이동: (\${touch.clientX}, \${touch.clientY})\`]);
 });
 
 useEventListener('touchend', (event) => {
-  const touch = event.changedTouches[0];
+  const touchEvent = event as TouchEvent;
+  const touch = touchEvent.changedTouches[0];
   setTouchEnd({ x: touch.clientX, y: touch.clientY });
+  setTouchHistory((prev) => [...prev, \`터치 종료: (\${touch.clientX}, \${touch.clientY})\`]);
 });
 
 // 터치 이벤트 감지 및 스와이프 방향 계산`;
 
 const customElementCode = `const [elementRef, setElementRef] = useState<HTMLDivElement | null>(null);
 const [hoverCount, setHoverCount] = useState(0);
+const [doubleClickCount, setDoubleClickCount] = useState(0);
+const [contextMenuCount, setContextMenuCount] = useState(0);
 
 useEventListener('mouseenter', () => {
   setHoverCount(prev => prev + 1);
 }, elementRef);
 
 useEventListener('dblclick', () => {
-  // 더블클릭 처리
+  setDoubleClickCount(prev => prev + 1);
+}, elementRef);
+
+useEventListener('contextmenu', (event) => {
+  event.preventDefault();
+  setContextMenuCount(prev => prev + 1);
 }, elementRef);
 
 // 특정 요소에 대한 이벤트 감지`;
@@ -978,47 +996,60 @@ useMouseDown(() => {
   setMouseDownCount(prev => prev + 1);
 });
 
-// 헬퍼 함수들을 사용하여 더 간결한 코드 작성`;
+// 헬퍼 함수들을 사용하여 더 간결한 코드 작성
+// element를 지정하지 않으면 window에 이벤트 등록`;
 
-const elementRefCode = `const buttonRef = useRef<HTMLButtonElement>(null);
+const elementRefCode = `const [buttonRef, setButtonRef] = useState<HTMLButtonElement | null>(null);
 const [clickCount, setClickCount] = useState(0);
 
-useClick(() => {
+useEventListener('click', () => {
   setClickCount(prev => prev + 1);
-}, buttonRef.current);
+}, buttonRef);
 
 return (
-  <button ref={buttonRef}>
+  <button ref={setButtonRef}>
     클릭 횟수: {clickCount}
   </button>
 );
 
-// useRef를 활용한 특정 요소 이벤트 감지`;
+// useRef를 활용한 특정 요소 이벤트 감지
+// element가 null이면 window에 이벤트 등록됨`;
 
 const keyboardHelpersCode = `const [keyDown, setKeyDown] = useState('');
 const [keyUp, setKeyUp] = useState('');
+const [keyHistory, setKeyHistory] = useState<string[]>([]);
 
 useKeyDown((event) => {
   setKeyDown(event.key);
+  setKeyHistory((prev) => [...prev, \`키 다운: \${event.key}\`]);
 });
 
 useKeyUp((event) => {
   setKeyUp(event.key);
+  setKeyHistory((prev) => [...prev, \`키 업: \${event.key}\`]);
 });
 
 // 키보드 이벤트 헬퍼 함수 활용`;
 
 const touchHelpersCode = `const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
 const [touchEnd, setTouchEnd] = useState({ x: 0, y: 0 });
+const [touchHistory, setTouchHistory] = useState<string[]>([]);
 
 useTouchStart((event) => {
   const touch = event.touches[0];
   setTouchStart({ x: touch.clientX, y: touch.clientY });
+  setTouchHistory((prev) => [...prev, \`터치 시작: (\${touch.clientX}, \${touch.clientY})\`]);
+});
+
+useTouchMove((event) => {
+  const touch = event.touches[0];
+  setTouchHistory((prev) => [...prev, \`터치 이동: (\${touch.clientX}, \${touch.clientY})\`]);
 });
 
 useTouchEnd((event) => {
   const touch = event.changedTouches[0];
   setTouchEnd({ x: touch.clientX, y: touch.clientY });
+  setTouchHistory((prev) => [...prev, \`터치 종료: (\${touch.clientX}, \${touch.clientY})\`]);
 });
 
 // 터치 이벤트 헬퍼 함수 활용`;
@@ -1096,7 +1127,7 @@ export const HelperFunctions = () => (
 export const ElementRefExample = () => (
 	<ToggleComponent
 		title='Element Ref 예제'
-		description='useRef를 활용한 특정 요소 이벤트 감지 예제입니다.'
+		description='useRef를 활용한 특정 요소 이벤트 감지 예제입니다. element가 null이면 window에 이벤트가 등록됩니다.'
 		code={elementRefCode}
 	>
 		<ElementRefExampleComponent />

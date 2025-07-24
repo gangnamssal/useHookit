@@ -46,7 +46,7 @@ type EventListenerOptions = boolean | AddEventListenerOptions;
 export function useEventListener<T extends EventTarget>(
 	eventName: string,
 	handler: (event: Event) => void,
-	element: T,
+	element?: T,
 	options?: EventListenerOptions,
 ): void {
 	const savedHandler = useRef(handler);

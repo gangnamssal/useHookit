@@ -10,82 +10,47 @@ export default {
 };
 
 // 코드 스니펫들
-const basicCode = `import React, { useState } from 'react';
-import { useCopyToClipboard } from '../../src/utility/useCopyToClipboard';
+const basicCode = `const { copyToClipboard, isCopied, message } = useCopyToClipboard();
 
-function UseCopyToClipboardDemo() {
-	const [copyText, setCopyText] = useState('');
-	const { copyToClipboard, isCopied, message } = useCopyToClipboard();
+const handleCopy = async () => {
+  try {
+    await copyToClipboard(text);
+  } catch (err) {
+    console.error('복사 실패:', err);
+  }
+};
 
-	const handleCopy = async () => {
-		try {
-			await copyToClipboard(copyText);
-		} catch (err) {
-			console.error('복사 실패:', err);
-		}
-	};
+return (
+  <button onClick={handleCopy}>
+    {isCopied ? '✅ 복사됨' : '📋 복사하기'}
+  </button>
+);`;
 
-	return (
-		<div style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
-			<h3>useCopyToClipboard 훅 데모</h3>
-			<p>텍스트를 클립보드에 복사하는 훅입니다.</p>
+const presetTextsCode = `const { copyToClipboard, isCopied } = useCopyToClipboard();
 
-			<div style={{ marginBottom: '20px' }}>
-				<h4>텍스트 입력</h4>
-				<textarea
-					value={copyText}
-					onChange={(e) => setCopyText(e.target.value)}
-					placeholder='복사할 텍스트를 입력하세요'
-					style={{
-						width: '100%',
-						height: '100px',
-						padding: '10px',
-						border: '1px solid #ccc',
-						borderRadius: '4px',
-						resize: 'vertical',
-						marginBottom: '10px',
-					}}
-				/>
-			</div>
+const presetTexts = [
+  '안녕하세요! 반갑습니다.',
+  '이메일: example@email.com',
+  '전화번호: 010-1234-5678',
+];
 
-			<div style={{ marginBottom: '20px' }}>
-				<button
-					onClick={handleCopy}
-					disabled={!copyText.trim()}
-					style={{
-						padding: '10px 20px',
-						backgroundColor: isCopied ? '#28a745' : '#007bff',
-						color: 'white',
-						border: 'none',
-						borderRadius: '4px',
-						cursor: !copyText.trim() ? 'not-allowed' : 'pointer',
-						opacity: !copyText.trim() ? 0.6 : 1,
-					}}
-				>
-					{isCopied ? '✅ 복사됨' : '📋 복사하기'}
-				</button>
-			</div>
+const handleCopy = async (text: string) => {
+  await copyToClipboard(text);
+};
 
-			{message && (
-				<div>
-					<p><strong>상태:</strong> {message}</p>
-				</div>
-			)}
-		</div>
-	);
-}`;
+return (
+  <div>
+    {presetTexts.map((text, index) => (
+      <button key={index} onClick={() => handleCopy(text)}>
+        복사
+      </button>
+    ))}
+  </div>
+);`;
 
-const presetTextsCode = `import React from 'react';
-import { useCopyToClipboard } from '../../src/utility/useCopyToClipboard';
-
-`;
-
-const formDataCode = `const { copyToClipboard, isCopied, message } = useCopyToClipboard();
+const formDataCode = `const { copyToClipboard, isCopied } = useCopyToClipboard();
 const [formData, setFormData] = useState({
-  name: '',
-  email: '',
-  phone: '',
-  address: '',
+  name: '', email: '', phone: '', address: ''
 });
 
 const handleCopyFormData = async () => {
@@ -100,12 +65,9 @@ const handleCopyFormData = async () => {
 };
 
 return (
-  <div>
-    <input value={formData.name} onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))} />
-    <button onClick={handleCopyFormData}>
-      {isCopied ? '복사됨' : '폼 데이터 복사'}
-    </button>
-  </div>
+  <button onClick={handleCopyFormData}>
+    {isCopied ? '복사됨' : '폼 데이터 복사'}
+  </button>
 );`;
 
 function UseCopyToClipboardDemo() {

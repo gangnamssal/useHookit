@@ -19,14 +19,14 @@ return (
   </div>
 );`;
 
-const scrollToCode = `const { x, y, scrollTo, scrollToTop, scrollToBottom } = useScrollPosition();
+const scrollToCode = `const { x, y, scrollTo, scrollToTop, scrollToBottom, scrollToLeft, scrollToRight } = useScrollPosition();
 
 return (
   <div>
     <p>현재 위치: X={x}px, Y={y}px</p>
     <button onClick={() => scrollToTop()}>맨 위로</button>
     <button onClick={() => scrollToBottom()}>맨 아래로</button>
-    <button onClick={() => scrollTo(0, 500)}>중간으로</button>
+    <button onClick={() => scrollTo(0, 500)}>특정 위치로</button>
   </div>
 );`;
 
@@ -61,6 +61,22 @@ return (
   <div>
     <p>현재: X={x}px, Y={y}px</p>
     <div>히스토리: {scrollHistory.length}개 기록</div>
+  </div>
+);`;
+
+const horizontalScrollCode = `const containerRef = useRef(null);
+const { x, y, scrollToLeft, scrollToRight } = useScrollPosition({
+  element: containerRef.current
+});
+
+return (
+  <div>
+    <p>가로 스크롤: X={x}px, Y={y}px</p>
+    <button onClick={() => scrollToLeft()}>맨 왼쪽</button>
+    <button onClick={() => scrollToRight()}>맨 오른쪽</button>
+    <div ref={containerRef} style={{ width: '300px', overflow: 'auto' }}>
+      {/* 넓은 콘텐츠 */}
+    </div>
   </div>
 );`;
 
@@ -136,7 +152,8 @@ export const Default = () => {
 };
 
 export const WithScrollTo = () => {
-	const { x, y, scrollTo, scrollToTop, scrollToBottom } = useScrollPosition();
+	const { x, y, scrollTo, scrollToTop, scrollToBottom, scrollToLeft, scrollToRight } =
+		useScrollPosition();
 
 	return (
 		<ToggleComponent
@@ -199,19 +216,6 @@ export const WithScrollTo = () => {
 							⬇️ 맨 아래로
 						</button>
 						<button
-							onClick={() => scrollTo(0, 500)}
-							style={{
-								padding: '10px 15px',
-								backgroundColor: '#ffc107',
-								color: 'black',
-								border: 'none',
-								borderRadius: '4px',
-								cursor: 'pointer',
-							}}
-						>
-							📍 중간으로
-						</button>
-						<button
 							onClick={() => scrollTo(0, 1000)}
 							style={{
 								padding: '10px 15px',
@@ -225,6 +229,35 @@ export const WithScrollTo = () => {
 							🎯 특정 위치
 						</button>
 					</div>
+				</div>
+
+				{/* 긴 콘텐츠 추가 */}
+				<div style={{ marginBottom: '20px' }}>
+					<h4>스크롤 테스트 영역</h4>
+					<p>아래 콘텐츠를 스크롤하여 버튼들이 제대로 작동하는지 테스트하세요.</p>
+
+					{Array.from({ length: 20 }, (_, i) => (
+						<div
+							key={i}
+							style={{
+								padding: '20px',
+								margin: '15px 0',
+								backgroundColor: i % 2 === 0 ? '#f8f9fa' : '#ffffff',
+								borderRadius: '8px',
+								border: '1px solid #dee2e6',
+							}}
+						>
+							<h5>섹션 {i + 1}</h5>
+							<p>
+								이것은 스크롤 테스트를 위한 샘플 콘텐츠입니다. "맨 아래로" 버튼을 클릭하면 이
+								섹션까지 스크롤됩니다.
+							</p>
+							<p>
+								Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
+								incididunt ut labore et dolore magna aliqua.
+							</p>
+						</div>
+					))}
 				</div>
 
 				<div
@@ -244,6 +277,12 @@ export const WithScrollTo = () => {
 						</li>
 						<li>
 							<code>scrollToBottom()</code>: 페이지 맨 아래로 스크롤
+						</li>
+						<li>
+							<code>scrollToLeft()</code>: 페이지 맨 왼쪽으로 스크롤
+						</li>
+						<li>
+							<code>scrollToRight()</code>: 페이지 맨 오른쪽으로 스크롤
 						</li>
 						<li>
 							<code>scrollTo(x, y)</code>: 특정 위치로 스크롤
@@ -456,6 +495,147 @@ export const WithOnChange = () => {
 						<li>스크롤 위치와 타임스탬프가 히스토리에 기록됩니다</li>
 						<li>최근 10개의 스크롤 이벤트만 표시됩니다</li>
 						<li>Throttle을 통해 콜백 실행 빈도를 제어할 수 있습니다</li>
+					</ul>
+				</div>
+			</div>
+		</ToggleComponent>
+	);
+};
+
+export const WithHorizontalScroll = () => {
+	const containerRef = useRef<HTMLDivElement>(null);
+
+	const { x, y, scrollToTop, scrollToBottom, scrollToLeft, scrollToRight } = useScrollPosition({
+		element: containerRef.current,
+	});
+
+	return (
+		<ToggleComponent
+			code={horizontalScrollCode}
+			title='가로 스크롤'
+			description='가로 스크롤을 지원하는 예제입니다.'
+		>
+			<div
+				style={{
+					padding: '20px',
+					border: '1px solid #ccc',
+					borderRadius: '8px',
+					maxWidth: '600px',
+				}}
+			>
+				<h3>가로 스크롤 예제</h3>
+				<p>가로 스크롤을 지원하는 예제입니다.</p>
+
+				<div style={{ marginBottom: '20px' }}>
+					<div
+						style={{
+							padding: '15px',
+							backgroundColor: '#f8f9fa',
+							borderRadius: '4px',
+							border: '1px solid #dee2e6',
+						}}
+					>
+						<p>
+							<strong>가로 스크롤 위치:</strong> X={x}px, Y={y}px
+						</p>
+					</div>
+				</div>
+
+				<div style={{ marginBottom: '20px' }}>
+					<h4>가로 스크롤 제어</h4>
+					<div
+						style={{
+							display: 'flex',
+							gap: '10px',
+							marginBottom: '15px',
+						}}
+					>
+						<button
+							onClick={() => scrollToLeft()}
+							style={{
+								padding: '10px 15px',
+								backgroundColor: '#17a2b8',
+								color: 'white',
+								border: 'none',
+								borderRadius: '4px',
+								cursor: 'pointer',
+							}}
+						>
+							⬅️ 맨 왼쪽으로
+						</button>
+						<button
+							onClick={() => scrollToRight()}
+							style={{
+								padding: '10px 15px',
+								backgroundColor: '#6f42c1',
+								color: 'white',
+								border: 'none',
+								borderRadius: '4px',
+								cursor: 'pointer',
+							}}
+						>
+							➡️ 맨 오른쪽으로
+						</button>
+					</div>
+				</div>
+
+				<div style={{ marginBottom: '20px' }}>
+					<h4>가로 스크롤 테스트 영역</h4>
+					<div
+						ref={containerRef}
+						style={{
+							width: '100%',
+							height: '200px',
+							border: '2px solid #007bff',
+							borderRadius: '8px',
+							overflow: 'auto',
+							backgroundColor: '#f8f9fa',
+						}}
+					>
+						<div style={{ width: '2000px', padding: '20px' }}>
+							<h4>가로 스크롤 테스트</h4>
+							<p>이 영역을 가로로 스크롤하여 위치 변화를 확인하세요.</p>
+
+							{Array.from({ length: 10 }, (_, i) => (
+								<div
+									key={i}
+									style={{
+										display: 'inline-block',
+										width: '180px',
+										padding: '15px',
+										margin: '10px',
+										backgroundColor: i % 2 === 0 ? '#e9ecef' : '#ffffff',
+										borderRadius: '4px',
+										border: '1px solid #dee2e6',
+									}}
+								>
+									<h5>카드 {i + 1}</h5>
+									<p>
+										이것은 가로 스크롤 테스트를 위한 샘플 카드입니다. 가로 스크롤 위치가 실시간으로
+										업데이트됩니다.
+									</p>
+								</div>
+							))}
+						</div>
+					</div>
+				</div>
+
+				<div
+					style={{
+						padding: '15px',
+						backgroundColor: '#fff3cd',
+						borderRadius: '4px',
+						border: '1px solid #ffeaa7',
+					}}
+				>
+					<p>
+						<strong>💡 특징:</strong>
+					</p>
+					<ul>
+						<li>가로 스크롤 위치를 실시간으로 추적합니다</li>
+						<li>맨 왼쪽/오른쪽으로 스크롤할 수 있습니다</li>
+						<li>세로 스크롤과 동시에 사용 가능합니다</li>
+						<li>모바일 터치 스크롤도 지원합니다</li>
 					</ul>
 				</div>
 			</div>

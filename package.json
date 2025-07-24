@@ -5,7 +5,7 @@
 	"typesVersions": {
 		"*": {
 			"*": [
-				"./dist/*.d.ts"
+				"./dist/src/*.d.ts"
 			]
 		}
 	},
@@ -14,34 +14,34 @@
 	],
 	"exports": {
 		".": {
-			"types": "./dist/index.d.ts",
-			"import": "./dist/index.js",
-			"require": "./dist/index.umd.cjs"
+			"types": "./dist/src/index.d.ts",
+			"import": "./dist/index.es.js",
+			"require": "./dist/index.cjs.js"
 		},
 		"./ui": {
-			"types": "./dist/ui.d.ts",
-			"import": "./dist/ui.js",
-			"require": "./dist/ui.umd.cjs"
+			"types": "./dist/src/ui/index.d.ts",
+			"import": "./dist/ui.es.js",
+			"require": "./dist/ui.cjs.js"
 		},
 		"./utility": {
-			"types": "./dist/utility.d.ts",
-			"import": "./dist/utility.js",
-			"require": "./dist/utility.umd.cjs"
+			"types": "./dist/src/utility/index.d.ts",
+			"import": "./dist/utility.es.js",
+			"require": "./dist/utility.cjs.js"
 		},
 		"./lifecycle": {
-			"types": "./dist/lifecycle.d.ts",
-			"import": "./dist/lifecycle.js",
-			"require": "./dist/lifecycle.umd.cjs"
+			"types": "./dist/src/lifecycle/index.d.ts",
+			"import": "./dist/lifecycle.es.js",
+			"require": "./dist/lifecycle.cjs.js"
 		},
 		"./performance": {
-			"types": "./dist/performance.d.ts",
-			"import": "./dist/performance.js",
-			"require": "./dist/performance.umd.cjs"
+			"types": "./dist/src/performance/index.d.ts",
+			"import": "./dist/performance.es.js",
+			"require": "./dist/performance.cjs.js"
 		},
 		"./storage": {
-			"types": "./dist/storage.d.ts",
-			"import": "./dist/storage.js",
-			"require": "./dist/storage.umd.cjs"
+			"types": "./dist/src/storage/index.d.ts",
+			"import": "./dist/storage.es.js",
+			"require": "./dist/storage.cjs.js"
 		}
 	},
 	"peerDependencies": {
@@ -59,7 +59,7 @@
 		"vitest": "^3.2.4"
 	},
 	"scripts": {
-		"build": "vite build",
+		"build": "vite build && tsc --emitDeclarationOnly --declaration --outDir dist",
 		"publish:lib": "pnpm build && npm publish --access public",
 		"publish:dry": "pnpm build && npm publish --dry-run",
 		"test": "vitest",
@@ -68,7 +68,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/your-username/useHookit.git"
+		"url": "https://github.com/gangnamssal/useHookit.git"
 	},
 	"keywords": [
 		"react",

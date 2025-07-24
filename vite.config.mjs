@@ -24,4 +24,13 @@ export default defineConfig({
 			},
 		},
 	},
+	plugins: [
+		{
+			name: 'generate-types',
+			writeBundle() {
+				// TypeScript 타입 정의 파일 생성을 위한 플러그인
+				// 실제 타입 정의는 별도 스크립트로 생성
+			},
+		},
+	],
 });

@@ -5,7 +5,155 @@ export default {
 	title: 'Utility/useNetworkStatus',
 	parameters: {
 		layout: 'centered',
+		docs: {
+			description: {
+				component: `
+A React hook that provides comprehensive network status management for detecting online/offline connectivity. Simplifies network status monitoring in React components with automatic cleanup and real-time updates.
+
+## API
+
+### Parameters
+- **options**: UseNetworkStatusOptions - Network status configuration options
+- **Usage Example**: useNetworkStatus({ onlineMessage: 'Connected', offlineMessage: 'Disconnected' });
+
+### Return Value
+- **Type**: NetworkStatusInfo
+- **Description**: Returns network status information including online/offline state and timestamps
+- **Usage Example**: const { isOnline, isOffline, statusMessage } = useNetworkStatus();
+
+### Parameters Properties
+- **initialOnline**: boolean (optional) - Initial online status (default: navigator.onLine)
+- **onlineMessage**: string (optional) - Online status message (default: '온라인')
+- **offlineMessage**: string (optional) - Offline status message (default: '오프라인')
+- **showStatusMessage**: boolean (optional) - Whether to log status changes to console (default: false)
+
+### Return Value Properties
+- **isOnline**: boolean - Whether the device is currently online
+- **isOffline**: boolean - Whether the device is currently offline
+- **statusMessage**: string - Current status message (online or offline message)
+- **lastOnline**: Date | null - Timestamp of last online event
+- **lastOffline**: Date | null - Timestamp of last offline event
+- **refreshStatus**: () => void - Function to manually refresh network status
+
+## Usage Examples
+
+\`\`\`tsx
+// Basic network status usage
+const { isOnline, isOffline, statusMessage } = useNetworkStatus();
+
+return (
+  <div>
+    <p>상태: {isOnline ? '🟢 온라인' : '🔴 오프라인'}</p>
+    <p>메시지: {statusMessage}</p>
+    {isOffline && <p>⚠️ 오프라인 모드</p>}
+  </div>
+);
+
+// Custom options usage
+const { isOnline, statusMessage, lastOnline } = useNetworkStatus({
+  onlineMessage: '인터넷 연결됨',
+  offlineMessage: '인터넷 연결 끊김',
+  showStatusMessage: true
+});
+
+return (
+  <div>
+    <p>{statusMessage}</p>
+    {isOnline && lastOnline && (
+      <p>마지막 연결: {lastOnline.toLocaleString()}</p>
+    )}
+  </div>
+);
+
+// Alternative UI based on network status
+const { isOnline, isOffline } = useNetworkStatus();
+
+return (
+  <div>
+    {isOnline ? (
+      <div>
+        <h2>온라인 콘텐츠</h2>
+        <p>실시간 데이터를 표시합니다.</p>
+      </div>
+    ) : (
+      <div>
+        <h2>오프라인 콘텐츠</h2>
+        <p>캐시된 데이터를 표시합니다.</p>
+      </div>
+    )}
+  </div>
+);
+
+// Network status change detection
+const { isOnline, lastOnline, lastOffline } = useNetworkStatus();
+
+useEffect(() => {
+  if (isOnline) {
+    console.log('네트워크 연결됨:', lastOnline);
+    syncData();
+  } else {
+    console.log('네트워크 연결 끊김:', lastOffline);
+    enableOfflineMode();
+  }
+}, [isOnline, lastOnline, lastOffline]);
+
+// Manual status refresh
+const { isOnline, refreshStatus } = useNetworkStatus();
+
+return (
+  <div>
+    <p>상태: {isOnline ? '온라인' : '오프라인'}</p>
+    <button onClick={refreshStatus}>상태 새로고침</button>
+  </div>
+);
+\`\`\`
+
+### Key Features
+
+- **Browser compatibility**: Checks for window and navigator.onLine support with fallback to true
+- **Initial state handling**: Complex initialization logic with hasInitialOnline check
+- **Real-time updates**: Automatically updates when network status changes via online/offline events
+- **Memory-safe operations**: Properly cleans up event listeners on unmount
+- **Error handling**: Graceful error handling with try-catch blocks in event handlers
+- **Event listener management**: Uses addEventListener/removeEventListener for online/offline events
+- **State change optimization**: Only updates state when status actually changes
+- **Timestamp tracking**: Records lastOnline and lastOffline timestamps
+- **Console logging**: Optional status change logging with showStatusMessage option
+- **Manual refresh**: Provides refreshStatus function for manual status updates
+- **Type safety**: Full TypeScript support with proper interface definitions
+- **Performance optimized**: Efficient event listener management and state updates
+
+### Implementation Details
+
+- **Window validation**: Checks for typeof window !== 'undefined' before accessing navigator
+- **Navigator validation**: Checks for typeof navigator.onLine === 'boolean' support
+- **Initial state logic**: Uses hasInitialOnline flag to determine initial state source
+- **State change detection**: Only updates state when online status actually changes
+- **Event listener pattern**: Uses online/offline events for real-time updates
+- **Cleanup mechanism**: Removes event listeners in useEffect cleanup
+- **Error boundary**: Wraps event handlers in try-catch for error handling
+- **State management**: Uses useState for tracking online status and timestamps
+- **Callback optimization**: Uses useCallback for updateNetworkStatus and refreshStatus
+- **Memory leak prevention**: Proper cleanup prevents memory leaks
+- **Real-time responsiveness**: Immediate updates when network status changes
+- **Fallback mechanism**: Defaults to true when navigator.onLine is not available
+				`,
+			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
+		},
 	},
+	tags: ['utility', 'network', 'online', 'offline', 'autodocs'],
 };
 
 // 코드 스니펫들
@@ -19,7 +167,7 @@ return (
   </div>
 );`;
 
-const offlineUIExampleCode = `const { isOnline, isOffline } = useNetworkStatus();
+const offlineUIExampleCode = `const { isOnline } = useNetworkStatus();
 
 return (
   <div>

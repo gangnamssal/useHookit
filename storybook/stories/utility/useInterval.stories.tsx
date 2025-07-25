@@ -9,49 +9,138 @@ export default {
 		docs: {
 			description: {
 				component: `
-## useInterval 훅
+A React hook that provides comprehensive timer management including intervals, timeouts, and controlled timers. Simplifies periodic execution, delayed execution, and manual timer control with automatic cleanup.
 
-지정된 간격으로 콜백 함수를 실행하는 훅입니다.
+## API
 
-### 기본 사용법
+### Parameters
+- **callback**: () => void - Function to execute periodically or after delay
+- **delay**: number | null - Interval/delay in milliseconds, null to disable (must be non-negative)
+- **Usage Example**: useInterval(() => console.log('tick'), 1000);
+
+### Return Value
+- **Type**: void (for useInterval/useTimeout) or { start: () => void, stop: () => void, isRunning: boolean } (for controlled versions)
+- **Description**: No return value for basic hooks, control functions for controlled versions
+- **Usage Example**: const { start, stop, isRunning } = useControlledInterval(callback, delay);
+
+### Hook Variants
+
+**Basic Hooks:**
+- **useInterval**: (callback: () => void, delay: number | null) => void - Periodic execution (auto-cleanup)
+- **useTimeout**: (callback: () => void, delay: number | null) => void - Delayed execution (auto-cleanup)
+
+**Controlled Hooks:**
+- **useControlledInterval**: (callback: () => void, delay: number | null) => { start: () => void, stop: () => void, isRunning: boolean } - Manual interval control (prevents duplicate calls)
+- **useControlledTimeout**: (callback: () => void, delay: number | null) => { start: () => void, stop: () => void, isRunning: boolean } - Manual timeout control (prevents duplicate calls)
+
+## Usage Examples
 
 \`\`\`tsx
-import { useInterval } from 'useHookit';
+// Basic interval usage
+const [count, setCount] = useState(0);
+const [isRunning, setIsRunning] = useState(false);
 
-function MyComponent() {
-  const [count, setCount] = useState(0);
-  const [isRunning, setIsRunning] = useState(false);
+useInterval(
+  () => setCount(c => c + 1),
+  isRunning ? 1000 : null
+);
 
-  useInterval(
-    () => {
-      setCount((c) => c + 1);
-    },
-    isRunning ? 1000 : null,
-  );
-
-  return (
-    <div>
-      <p>카운트: {count}</p>
-      <button onClick={() => setIsRunning(!isRunning)}>
-        {isRunning ? '중지' : '시작'}
-      </button>
-    </div>
-  );
-}
+return (
+  <div>
+    <p>Count: {count}</p>
+    <button onClick={() => setIsRunning(!isRunning)}>
+      {isRunning ? 'Stop' : 'Start'}
+    </button>
+  </div>
+);
 \`\`\`
 
-### 매개변수
+### Related Hooks
 
-- \`callback\`: 실행할 콜백 함수
-- \`delay\`: 실행 간격 (밀리초), null이면 중지
+#### useTimeout
+A hook that executes a callback once after a specified delay.
 
-### 반환값
+**Usage Example**:
+\`\`\`tsx
+const [message, setMessage] = useState('');
 
-- 없음 (void)
+useTimeout(() => {
+  setMessage('Message after 3 seconds!');
+}, 3000);
+
+return (
+  <div>
+    {!message ? (
+      <p>⏰ Waiting...</p>
+    ) : (
+      <p>✅ {message}</p>
+    )}
+  </div>
+);
+\`\`\`
+
+#### useControlledInterval
+A hook that provides manual control over interval timers.
+
+**Interval Control:**
+- **start**: () => void - Start the interval timer
+- **stop**: () => void - Stop the interval timer
+- **isRunning**: boolean - Whether the timer is currently running
+
+**Usage Example**:
+\`\`\`tsx
+const { start, stop, isRunning } = useControlledInterval(() => {
+  console.log('Executing every second');
+}, 1000);
+
+return (
+  <div>
+    <button onClick={start} disabled={isRunning}>Start</button>
+    <button onClick={stop} disabled={!isRunning}>Stop</button>
+    <p>Status: {isRunning ? 'Running' : 'Stopped'}</p>
+  </div>
+);
+\`\`\`
+
+#### useControlledTimeout
+A hook that provides manual control over timeout timers.
+
+**Timeout Control:**
+- **start**: () => void - Start the timeout timer
+- **stop**: () => void - Stop the timeout timer
+- **isRunning**: boolean - Whether the timer is currently running
+
+**Usage Example**:
+\`\`\`tsx
+const { start, stop, isRunning } = useControlledTimeout(() => {
+  console.log('Timeout completed!');
+}, 3000);
+
+return (
+  <div>
+    <button onClick={start} disabled={isRunning}>Start Timer</button>
+    <button onClick={stop} disabled={!isRunning}>Cancel Timer</button>
+    <p>Status: {isRunning ? 'Running' : 'Stopped'}</p>
+  </div>
+);
+\`\`\`
 				`,
 			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
 		},
 	},
+	tags: ['utility', 'interval', 'timeout', 'timer', 'scheduling', 'autodocs'],
 };
 
 function UseIntervalDemo() {

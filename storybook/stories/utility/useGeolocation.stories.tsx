@@ -9,64 +9,179 @@ export default {
 		docs: {
 			description: {
 				component: `
-## useGeolocation 훅
+A React hook that provides comprehensive location management using the browser's Geolocation API. Simplifies getting current position, watching location changes, and handling location errors with automatic state management.
 
-브라우저의 Geolocation API를 사용하여 위치 정보를 관리하는 훅입니다.
+## API
 
-### 주요 기능
+### Parameters
+- **enableHighAccuracy**: boolean (optional, default: false) - Whether to request high accuracy location
+- **timeout**: number (optional, default: 10000) - Timeout for location request in milliseconds
+- **maximumAge**: number (optional, default: 0) - Maximum age of cached location in milliseconds
+- **watch**: boolean (optional, default: false) - Whether to automatically watch location
+- **Usage Example**: useGeolocation({ enableHighAccuracy: true, timeout: 15000, maximumAge: 300000, watch: true });
 
-- **현재 위치 가져오기**: \`getCurrentPosition()\` 함수로 현재 위치 정보를 가져옵니다
-- **위치 감시**: \`startWatching()\`, \`stopWatching()\` 함수로 실시간 위치 추적
-- **고정밀 위치**: \`enableHighAccuracy\` 옵션으로 더 정확한 위치 정보
-- **캐시 설정**: \`maximumAge\` 옵션으로 캐시된 위치 정보 활용
-- **타임아웃 설정**: \`timeout\` 옵션으로 위치 요청 시간 제한
+### Return Value
+- **Type**: { position: GeolocationPosition | null, error: GeolocationError | null, loading: boolean, supported: boolean, getCurrentPosition: (options?: PositionOptions) => Promise<GeolocationPosition>, startWatching: (options?: PositionOptions) => void, stopWatching: () => void, isWatching: boolean }
+- **Description**: Returns comprehensive location management object with position data, error handling, and control functions
+- **Usage Example**: const { position, error, loading, supported, getCurrentPosition, startWatching, stopWatching, isWatching } = useGeolocation();
 
-### 매개변수
+### Return Value Properties
 
-- \`enableHighAccuracy\`: 고정밀 위치 정보 사용 여부 (기본값: false)
-- \`timeout\`: 위치 정보 요청 타임아웃 (밀리초, 기본값: 10000)
-- \`maximumAge\`: 캐시된 위치 정보 최대 나이 (밀리초, 기본값: 0)
-- \`watch\`: 자동 감시 모드 사용 여부 (기본값: false)
+**State Properties:**
+- **position**: GeolocationPosition | null - Current location information (latitude, longitude, accuracy, etc.)
+- **error**: GeolocationError | null - Location error information (with Korean error messages)
+- **loading**: boolean - Location request loading state
+- **supported**: boolean - Browser Geolocation API support status (memoized check)
 
-### 반환값
+**Control Functions:**
+- **getCurrentPosition**: (options?: PositionOptions) => Promise<GeolocationPosition> - Function to get current location
+- **startWatching**: (options?: PositionOptions) => void - Function to start location watching (prevents duplicate calls)
+- **stopWatching**: () => void - Function to stop location watching (with cleanup)
+- **isWatching**: boolean - Whether location watching is active
 
-- \`position\`: 위치 정보 객체 (위도, 경도, 정확도, 고도, 방향, 속도, 타임스탬프)
-- \`error\`: 오류 정보 (코드, 메시지)
-- \`loading\`: 로딩 상태
-- \`supported\`: Geolocation 지원 여부
-- \`getCurrentPosition\`: 현재 위치 가져오기 함수
-- \`startWatching\`: 위치 감시 시작 함수
-- \`stopWatching\`: 위치 감시 중지 함수
-- \`isWatching\`: 감시 상태
+### GeolocationPosition Properties
 
-### 오류 코드
+**Core Location Data:**
+- **latitude**: number - Latitude in decimal degrees
+- **longitude**: number - Longitude in decimal degrees
+- **accuracy**: number | undefined - Accuracy in meters
 
-- \`1\`: PERMISSION_DENIED - 위치 정보 접근 권한이 거부됨
-- \`2\`: POSITION_UNAVAILABLE - 위치 정보를 사용할 수 없음
-- \`3\`: TIMEOUT - 위치 정보 요청 시간 초과
+**Advanced Location Data:**
+- **altitude**: number | null - Altitude in meters
+- **altitudeAccuracy**: number | null - Altitude accuracy in meters
+- **heading**: number | null - Direction in degrees
+- **speed**: number | null - Speed in meters per second
+- **timestamp**: number - Position timestamp
 
-### 문제 해결
+### Error Codes
 
-**POSITION_UNAVAILABLE 오류가 발생하는 경우:**
+**Permission Issues:**
+- **1 - PERMISSION_DENIED**: 위치 정보 접근 권한이 거부되었습니다.
 
-1. **브라우저 설정 확인**
-   - 브라우저 주소창 왼쪽의 자물쇠 아이콘 클릭
-   - 위치 권한을 "허용"으로 설정
+**Technical Issues:**
+- **2 - POSITION_UNAVAILABLE**: 위치 정보를 사용할 수 없습니다.
+- **3 - TIMEOUT**: 위치 정보 요청 시간이 초과되었습니다.
 
-2. **시스템 위치 서비스 확인**
-   - macOS: 시스템 환경설정 > 보안 및 개인 정보 보호 > 위치 서비스
-   - Windows: 설정 > 개인 정보 > 위치
-   - 위치 서비스가 활성화되어 있는지 확인
+## Usage Examples
 
-3. **네트워크 연결 확인**
-   - 인터넷 연결 상태 확인
-   - VPN 사용 중이라면 일시적으로 비활성화
+\`\`\`tsx
+// Basic location usage
+const { position, error, loading, supported, getCurrentPosition } = useGeolocation();
 
-4. **브라우저 재시작**
-   - 브라우저를 완전히 종료 후 재시작
-   - 캐시 및 쿠키 삭제
+const handleGetPosition = async () => {
+  try {
+    await getCurrentPosition();
+  } catch (err) {
+    console.error('Failed to get location:', err);
+  }
+};
+
+return (
+  <div>
+    <button onClick={handleGetPosition} disabled={loading || !supported}>
+      {loading ? 'Loading...' : 'Get Location'}
+    </button>
+    
+    {error && <p>Error: {error.message}</p>}
+    
+    {position && (
+      <div>
+        <p>Latitude: {position.latitude.toFixed(6)}°</p>
+        <p>Longitude: {position.longitude.toFixed(6)}°</p>
+        {position.accuracy && (
+          <p>Accuracy: ±{position.accuracy.toFixed(1)}m</p>
+        )}
+      </div>
+    )}
+  </div>
+);
+
+// Location watching with custom options
+const { position, error, isWatching, startWatching, stopWatching } = useGeolocation();
+
+const handleStartWatching = () => {
+  startWatching({
+    enableHighAccuracy: true,
+    timeout: 10000,
+    maximumAge: 60000, // 1 minute cache
+  });
+};
+
+return (
+  <div>
+    {!isWatching ? (
+      <button onClick={handleStartWatching}>Start Watching</button>
+    ) : (
+      <button onClick={stopWatching}>Stop Watching</button>
+    )}
+    
+    {position && (
+      <div>
+        <p>Latitude: {position.latitude.toFixed(6)}°</p>
+        <p>Longitude: {position.longitude.toFixed(6)}°</p>
+        {position.accuracy && (
+          <p>Accuracy: ±{position.accuracy.toFixed(1)}m</p>
+        )}
+        {position.altitude && (
+          <p>Altitude: {position.altitude.toFixed(1)}m</p>
+        )}
+        {position.heading && (
+          <p>Heading: {position.heading.toFixed(1)}°</p>
+        )}
+        {position.speed && (
+          <p>Speed: {position.speed.toFixed(1)}m/s</p>
+        )}
+        <p>Updated: {new Date(position.timestamp).toLocaleTimeString()}</p>
+      </div>
+    )}
+  </div>
+);
+
+// Auto watch mode with high accuracy
+const { position, error, isWatching, startWatching, stopWatching } = useGeolocation({
+  watch: true,
+  enableHighAccuracy: true,
+  timeout: 5000,
+  maximumAge: 300000, // 5 minutes cache
+});
+
+return (
+  <div>
+    <p>Auto Watching: {isWatching ? 'Active' : 'Inactive'}</p>
+    
+    {error && <p>Error: {error.message}</p>}
+    
+    {position && (
+      <div>
+        <p>Latitude: {position.latitude.toFixed(8)}°</p>
+        <p>Longitude: {position.longitude.toFixed(8)}°</p>
+        {position.accuracy && (
+          <p>Accuracy: ±{position.accuracy.toFixed(1)}m</p>
+        )}
+        <p>Updated: {new Date(position.timestamp).toLocaleTimeString()}</p>
+      </div>
+    )}
+    
+    {!isWatching && (
+      <button onClick={startWatching}>Resume Watching</button>
+    )}
+  </div>
+);
+\`\`\`
 				`,
 			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
 		},
 	},
 };

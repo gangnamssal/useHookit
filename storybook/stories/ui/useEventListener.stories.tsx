@@ -20,41 +20,125 @@ export default {
 		docs: {
 			description: {
 				component: `
-## useEventListener 훅
+A React hook that safely manages DOM event listeners. It automatically handles event listener registration and cleanup to prevent memory leaks.
 
-DOM 이벤트 리스너를 관리하는 훅입니다.
+### API
 
-### 기본 사용법
+#### Parameters
+- **eventName**: string - Name of the event to listen for
+- **handler**: (event: Event) => void - Event handler function
+- **element**: EventTarget (optional) - Element to attach event listener to (defaults to window)
+- **options**: EventListenerOptions (optional) - addEventListener options (passive, capture, etc.)
+- **Usage Example**: useEventListener('click', (event) => console.log('clicked'), element, { passive: true });
+
+#### Return Value
+- **Type**: void
+- **Description**: No return value, side-effect only. Registers and manages event listeners automatically.
+- **Usage Example**: useEventListener('keydown', handleKeyDown);
+
+#### Helper Functions
+
+| Function | Type | Description |
+|----------|------|-------------|
+| useClick | (handler: (event: MouseEvent) => void, element?: EventTarget) => void | Click event handler |
+| useKeyDown | (handler: (event: KeyboardEvent) => void, element?: EventTarget) => void | Key down event handler |
+| useKeyUp | (handler: (event: KeyboardEvent) => void, element?: EventTarget) => void | Key up event handler |
+| useMouseMove | (handler: (event: MouseEvent) => void, element?: EventTarget) => void | Mouse move event handler |
+| useMouseDown | (handler: (event: MouseEvent) => void, element?: EventTarget) => void | Mouse down event handler |
+| useMouseUp | (handler: (event: MouseEvent) => void, element?: EventTarget) => void | Mouse up event handler |
+| useTouchStart | (handler: (event: TouchEvent) => void, element?: EventTarget) => void | Touch start event handler |
+| useTouchMove | (handler: (event: TouchEvent) => void, element?: EventTarget) => void | Touch move event handler |
+| useTouchEnd | (handler: (event: TouchEvent) => void, element?: EventTarget) => void | Touch end event handler |
+| useResize | (handler: (event: UIEvent) => void, element?: EventTarget) => void | Resize event handler |
+| useScroll | (handler: (event: Event) => void, element?: EventTarget) => void | Scroll event handler |
+
+### Usage Examples
 
 \`\`\`tsx
-import { useEventListener } from 'useHookit';
+// Basic usage
+const [key, setKey] = useState('');
+const [clickCount, setClickCount] = useState(0);
 
-function MyComponent() {
-  const [key, setKey] = useState('');
+useEventListener('keydown', (event) => {
+  setKey((event as KeyboardEvent).key);
+});
 
-  useEventListener('keydown', (event) => {
-    setKey(event.key);
+useEventListener('click', () => {
+  setClickCount(prev => prev + 1);
+});
+
+// Helper functions for common events
+useClick(() => {
+  console.log('Button clicked');
+});
+
+useKeyDown((event) => {
+  if (event.key === 'Escape') {
+    console.log('Escape pressed');
+  }
+});
+
+// Custom element events with options
+const [elementRef, setElementRef] = useState<HTMLDivElement | null>(null);
+
+useEventListener('mouseenter', () => {
+  console.log('Mouse entered element');
+}, elementRef, { passive: true });
+
+// Window resize detection
+const [windowSize, setWindowSize] = useState({
+  width: window.innerWidth,
+  height: window.innerHeight,
+});
+
+useEventListener('resize', () => {
+  setWindowSize({
+    width: window.innerWidth,
+    height: window.innerHeight,
   });
+});
 
-  return (
-    <div>
-      <p>마지막 누른 키: {key}</p>
-    </div>
-  );
-}
+// Scroll event handling with passive option
+const [scrollY, setScrollY] = useState(0);
+
+useEventListener('scroll', () => {
+  setScrollY(window.scrollY);
+}, window, { passive: true });
+
+// Touch events for mobile
+const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
+
+useTouchStart((event) => {
+  const touch = event.touches[0];
+  setTouchStart({ x: touch.clientX, y: touch.clientY });
+});
+
+// Focus events for accessibility
+useEventListener('focusin', (event) => {
+  console.log('Element focused:', (event.target as HTMLElement).tagName);
+});
+
+// Multiple events on same element
+const [buttonRef, setButtonRef] = useState<HTMLButtonElement | null>(null);
+
+useEventListener('click', () => console.log('Clicked'), buttonRef);
+useEventListener('mouseenter', () => console.log('Hovered'), buttonRef);
+useEventListener('mouseleave', () => console.log('Left'), buttonRef);
 \`\`\`
-
-### 매개변수
-
-- \`eventName\`: 이벤트 이름
-- \`handler\`: 이벤트 핸들러 함수
-- \`element\`: 이벤트를 감지할 요소 (기본값: window)
-
-### 반환값
-
-없음
 				`,
 			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
 		},
 	},
 };

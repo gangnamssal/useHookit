@@ -1,6 +1,247 @@
 import { useSet } from '@/utility/useSet';
 import { ToggleComponent } from '../../components/ToggleComponent';
 
+export default {
+	title: 'Utility/useSet',
+	parameters: {
+		layout: 'centered',
+		docs: {
+			description: {
+				component: `
+A React hook that provides declarative Set state management with comprehensive Set manipulation methods. Simplifies Set operations like adding, removing, querying, and performing set operations while maintaining immutability and performance.
+
+## API
+
+### Parameters
+- **options**: UseSetOptions<T> (optional) - Configuration options for Set management
+- **options.initialValue**: T[] (optional, default: []) - Initial Set values
+- **options.debug**: boolean (optional, default: false) - Enable debug logging
+- **Usage Example**: useSet<string>({ initialValue: ['apple', 'banana'], debug: true });
+
+### Return Value
+- **Type**: [Set<T>, SetOperations<T>]
+- **Description**: Returns current Set and operations object
+- **Usage Example**: const [set, operations] = useSet<string>({ initialValue: ['apple'] });
+
+### Return Value Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| set | Set<T> | Current Set value |
+| operations | SetOperations<T> | Object containing all Set manipulation methods |
+
+### SetOperations Methods
+
+**Basic Operations:**
+- **add**: (value: T) => void - Add a value to Set (ignores if already exists)
+- **delete**: (value: T) => void - Remove a value from Set (ignores if doesn't exist)
+- **clear**: () => void - Remove all values from Set
+- **has**: (value: T) => boolean - Check if value exists in Set
+
+**Convenience Methods:**
+- **toggle**: (value: T) => void - Toggle value (remove if exists, add if not)
+- **addMultiple**: (values: T[]) => void - Add multiple values at once (ignores duplicates)
+- **deleteMultiple**: (values: T[]) => void - Remove multiple values at once
+
+**Query Methods:**
+- **size**: number - Set size (number of values) - memoized
+- **isEmpty**: boolean - Is Set empty - memoized
+- **values**: T[] - All values as array - memoized
+
+**Set Operations:**
+- **union**: (otherSet: Set<T>) => void - Union with another Set
+- **intersection**: (otherSet: Set<T>) => void - Intersection with another Set
+- **difference**: (otherSet: Set<T>) => void - Difference with another Set
+- **symmetricDifference**: (otherSet: Set<T>) => void - Symmetric difference with another Set
+
+**Transformation Methods:**
+- **filter**: (predicate: (value: T) => boolean) => T[] - Filter values based on predicate
+- **map**: <U>(mapper: (value: T) => U) => U[] - Transform values using mapper function
+
+**Debug:**
+- **debug**: boolean - Debug mode flag
+
+## Usage Examples
+
+\`\`\`tsx
+// Basic Set operations
+const [set, operations] = useSet<string>({ 
+  initialValue: ['apple', 'banana'] 
+});
+
+const handleAdd = () => operations.add('orange');
+const handleDelete = () => operations.delete('apple');
+const handleClear = () => operations.clear();
+const checkHas = () => alert('apple이 있나요? ' + operations.has('apple'));
+
+return (
+  <div>
+    <p>Set: {JSON.stringify(Array.from(set))}</p>
+    <button onClick={handleAdd}>추가</button>
+    <button onClick={handleDelete}>제거</button>
+    <button onClick={handleClear}>초기화</button>
+    <button onClick={checkHas}>확인</button>
+  </div>
+);
+
+// Convenience methods
+const [set, operations] = useSet<string>();
+
+const handleToggle = () => operations.toggle('apple');
+const handleAddMultiple = () => operations.addMultiple(['apple', 'banana', 'orange']);
+const handleDeleteMultiple = () => operations.deleteMultiple(['apple', 'banana']);
+
+return (
+  <div>
+    <p>Set: {JSON.stringify(Array.from(set))}</p>
+    <button onClick={handleToggle}>토글</button>
+    <button onClick={handleAddMultiple}>여러 개 추가</button>
+    <button onClick={handleDeleteMultiple}>여러 개 제거</button>
+  </div>
+);
+
+// Query methods
+const [set, operations] = useSet<string>({ 
+  initialValue: ['apple', 'banana', 'orange'] 
+});
+
+return (
+  <div>
+    <p>Set: {JSON.stringify(Array.from(set))}</p>
+    <p>크기: {operations.size}</p>
+    <p>비어있나요? {operations.isEmpty ? '예' : '아니오'}</p>
+    <p>값들: {JSON.stringify(operations.values)}</p>
+  </div>
+);
+
+// Set operations
+const [set, operations] = useSet<string>({ 
+  initialValue: ['apple', 'banana'] 
+});
+
+const otherSet = new Set(['banana', 'orange']);
+
+const handleUnion = () => operations.union(otherSet);
+const handleIntersection = () => operations.intersection(otherSet);
+const handleDifference = () => operations.difference(otherSet);
+const handleSymmetricDifference = () => operations.symmetricDifference(otherSet);
+
+return (
+  <div>
+    <p>현재 Set: {JSON.stringify(Array.from(set))}</p>
+    <p>다른 Set: {JSON.stringify(Array.from(otherSet))}</p>
+    <button onClick={handleUnion}>합집합</button>
+    <button onClick={handleIntersection}>교집합</button>
+    <button onClick={handleDifference}>차집합</button>
+    <button onClick={handleSymmetricDifference}>대칭차집합</button>
+  </div>
+);
+
+// Transformation methods
+const [set, operations] = useSet<string>({ 
+  initialValue: ['apple', 'banana', 'orange', 'grape'] 
+});
+
+const handleFilter = () => {
+  const filtered = operations.filter(value => value.length > 5);
+  alert('5글자보다 긴 값들: ' + JSON.stringify(filtered));
+};
+
+const handleMap = () => {
+  const mapped = operations.map(value => value.toUpperCase());
+  alert('대문자로 변환: ' + JSON.stringify(mapped));
+};
+
+return (
+  <div>
+    <p>Set: {JSON.stringify(Array.from(set))}</p>
+    <button onClick={handleFilter}>필터링</button>
+    <button onClick={handleMap}>변환</button>
+  </div>
+);
+
+// Complex object Set
+interface User {
+  id: number;
+  name: string;
+  age: number;
+}
+
+const [set, operations] = useSet<User>({
+  initialValue: [
+    { id: 1, name: 'Alice', age: 25 },
+    { id: 2, name: 'Bob', age: 30 }
+  ]
+});
+
+const handleAddUser = () => {
+  operations.add({ id: 3, name: 'Charlie', age: 35 });
+};
+
+const handleDeleteUser = () => {
+  const aliceUser = operations.values.find(user => user.name === 'Alice');
+  if (aliceUser) {
+    operations.delete(aliceUser);
+  }
+};
+
+const handleCheckUser = () => {
+  const bobUser = operations.values.find(user => user.name === 'Bob');
+  if (bobUser) {
+    alert('Bob이 있나요? ' + operations.has(bobUser));
+  } else {
+    alert('Bob이 없습니다.');
+  }
+};
+
+return (
+  <div>
+    <p>사용자 Set:</p>
+    <ul>
+      {Array.from(set).map(user => (
+        <li key={user.id}>{user.name} ({user.age}세)</li>
+      ))}
+    </ul>
+    <button onClick={handleAddUser}>사용자 추가</button>
+    <button onClick={handleDeleteUser}>Alice 제거</button>
+    <button onClick={handleCheckUser}>Bob 확인</button>
+  </div>
+);
+
+// Debug mode
+const [set, operations] = useSet<string>({ debug: true });
+
+const handleAdd = () => operations.add('apple');
+const handleDelete = () => operations.delete('banana');
+
+return (
+  <div>
+    <p>Set: {JSON.stringify(Array.from(set))}</p>
+    <p>콘솔을 확인하여 디버그 로그를 보세요!</p>
+    <button onClick={handleAdd}>추가 (로그 출력)</button>
+    <button onClick={handleDelete}>제거 (로그 출력)</button>
+  </div>
+);
+\`\`\`
+				`,
+			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
+		},
+	},
+	tags: ['utility', 'set', 'data-structure', 'state-management', 'autodocs'],
+};
+
 const basicCode = `const [set, { add, delete: deleteValue, clear, has }] = useSet<string>({
   initialValue: ['apple', 'banana']
 });
@@ -209,18 +450,6 @@ return (
     <button onClick={handleReset}>초기화</button>
   </div>
 );`;
-
-export default {
-	title: 'Utility/useSet',
-	parameters: {
-		docs: {
-			description: {
-				component:
-					'Set 객체를 관리하는 훅입니다. Set 조작, 집합 연산, 필터링 등의 기능을 제공합니다.',
-			},
-		},
-	},
-};
 
 export const Default = () => {
 	const [set, { add, delete: deleteValue, clear, has }] = useSet<string>({

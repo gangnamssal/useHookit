@@ -16,6 +16,169 @@ export default {
 	title: 'Utility/useMediaQuery',
 	parameters: {
 		layout: 'centered',
+		docs: {
+			description: {
+				component: `
+A React hook that provides comprehensive media query management for responsive design and user preference detection. Simplifies CSS media queries in React components with automatic cleanup and real-time updates.
+
+## API
+
+### Parameters
+- **query**: string - Valid CSS media query string (e.g., '(max-width: 767px)', '(orientation: portrait)')
+- **Usage Example**: useMediaQuery('(max-width: 767px)');
+
+### Return Value
+- **Type**: boolean
+- **Description**: Returns true if the media query matches the current environment, false otherwise
+- **Usage Example**: const isMobile = useMediaQuery('(max-width: 767px)');
+
+## Helper Hooks
+
+### Screen Size Hooks
+- **useIsMobile()**: boolean - Returns true for screens ≤ 767px
+- **useIsTablet()**: boolean - Returns true for screens 768px - 1023px
+- **useIsDesktop()**: boolean - Returns true for screens ≥ 1024px
+- **useIsLargeScreen()**: boolean - Returns true for screens ≥ 1440px
+
+### Orientation Hooks
+- **useIsPortrait()**: boolean - Returns true for portrait orientation
+- **useIsLandscape()**: boolean - Returns true for landscape orientation
+
+### User Preference Hooks
+- **usePrefersDarkMode()**: boolean - Returns true if user prefers dark mode
+- **usePrefersReducedMotion()**: boolean - Returns true if user prefers reduced motion
+
+### Input Support Hooks
+- **useIsHoverSupported()**: boolean - Returns true if hover is supported
+- **useIsTouchSupported()**: boolean - Returns true if touch input is supported
+
+### Breakpoint Hook
+- **useBreakpoint()**: 'mobile' | 'tablet' | 'desktop' | 'large' - Returns current breakpoint string (defaults to 'desktop')
+
+## Usage Examples
+
+\`\`\`tsx
+// Basic media query usage
+const isMobile = useMediaQuery('(max-width: 767px)');
+const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1023px)');
+const isDesktop = useMediaQuery('(min-width: 1024px)');
+const isDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+
+return (
+  <div>
+    {isMobile && <p>모바일 화면</p>}
+    {isTablet && <p>태블릿 화면</p>}
+    {isDesktop && <p>데스크톱 화면</p>}
+    {isDarkMode && <p>다크 모드</p>}
+  </div>
+);
+
+// Helper hooks usage
+const isMobile = useIsMobile();
+const isTablet = useIsTablet();
+const isDesktop = useIsDesktop();
+const isLargeScreen = useIsLargeScreen();
+const isPortrait = useIsPortrait();
+const isLandscape = useIsLandscape();
+const prefersDarkMode = usePrefersDarkMode();
+const prefersReducedMotion = usePrefersReducedMotion();
+
+return (
+  <div>
+    {isMobile && <p>모바일</p>}
+    {isTablet && <p>태블릿</p>}
+    {isDesktop && <p>데스크톱</p>}
+    {isLargeScreen && <p>대형 화면</p>}
+  </div>
+);
+
+// Breakpoint usage
+const breakpoint = useBreakpoint();
+
+return (
+  <div>
+    {breakpoint === 'mobile' && <p>모바일 레이아웃</p>}
+    {breakpoint === 'tablet' && <p>태블릿 레이아웃</p>}
+    {breakpoint === 'desktop' && <p>데스크톱 레이아웃</p>}
+    {breakpoint === 'large' && <p>대형 화면 레이아웃</p>}
+  </div>
+);
+
+// User preferences
+const prefersDarkMode = usePrefersDarkMode();
+const prefersReducedMotion = usePrefersReducedMotion();
+
+return (
+  <div style={{ 
+    backgroundColor: prefersDarkMode ? '#333' : '#fff',
+    color: prefersDarkMode ? '#fff' : '#333'
+  }}>
+    {prefersReducedMotion && <p>모션 감소 모드</p>}
+  </div>
+);
+
+// Input support detection
+const isHoverSupported = useIsHoverSupported();
+const isTouchSupported = useIsTouchSupported();
+
+return (
+  <div>
+    {isHoverSupported && <p>호버 지원</p>}
+    {isTouchSupported && <p>터치 지원</p>}
+  </div>
+);
+
+// Dynamic media query
+const [screenSize, setScreenSize] = useState('(max-width: 768px)');
+const matches = useMediaQuery(screenSize);
+
+return (
+  <div>
+    <p>현재 쿼리: {screenSize}</p>
+    <p>매칭 여부: {matches ? '예' : '아니오'}</p>
+  </div>
+);
+\`\`\`
+
+### Key Features
+
+- **Browser compatibility**: Checks for matchMedia support and provides warnings for unsupported browsers
+- **Input validation**: Validates query string and provides helpful error messages
+- **Real-time updates**: Automatically updates when media query conditions change
+- **Memory-safe operations**: Properly cleans up event listeners on unmount
+- **Error handling**: Graceful error handling with try-catch blocks
+- **Event listener management**: Uses addEventListener/removeEventListener for MediaQueryListEvent
+- **Default fallback**: useBreakpoint defaults to 'desktop' when no conditions match
+- **Comprehensive helper hooks**: Covers screen sizes, orientation, user preferences, and input support
+- **Type safety**: Full TypeScript support with proper return types
+- **Performance optimized**: Efficient event listener management and state updates
+
+### Implementation Details
+
+- **matchMedia validation**: Checks for window.matchMedia support before creating queries
+- **Query validation**: Validates query string is non-empty and is a string
+- **Event listener pattern**: Uses MediaQueryListEvent for real-time updates
+- **Cleanup mechanism**: Removes event listeners in useEffect cleanup
+- **Error boundary**: Wraps media query creation in try-catch for error handling
+- **State management**: Uses useState for tracking matches state
+- **Effect dependency**: useEffect depends on query parameter for re-initialization
+- **Memory leak prevention**: Proper cleanup prevents memory leaks
+- **Real-time responsiveness**: Immediate updates when media query conditions change
+`,
+			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
+		},
 	},
 };
 

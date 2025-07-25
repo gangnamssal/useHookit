@@ -9,37 +9,81 @@ export default {
 		docs: {
 			description: {
 				component: `
-## usePrevious 훅
+A React hook that tracks the previous state of a value. It compares the current value with the previous value to detect changes and execute appropriate logic.
 
-이전 값을 추적하는 훅입니다.
+### API
 
-### 기본 사용법
+#### Parameters
+- **value**: T - Current value to track
+- **options**: UsePreviousOptions<T> (optional) - Configuration options
+  - **initialValue**: T (optional) - Initial value returned on first render
+- **Usage Example**: const previousValue = usePrevious(currentValue, { initialValue: defaultValue });
+
+#### Return Value
+- **Type**: T | undefined
+- **Description**: Previous value from the last render (undefined on first render unless initialValue is provided)
+- **Return Value Properties**:
+  - **previousValue**: T | undefined - Value from previous render
+  - **First render**: Returns undefined (or initialValue if provided)
+  - **Subsequent renders**: Returns the value from the previous render
+- **Usage Example**: const previousValue = usePrevious(value);
+
+### Usage Examples
 
 \`\`\`tsx
-import { usePrevious } from 'useHookit';
+// Basic usage
+const [count, setCount] = useState(0);
+const previousCount = usePrevious(count);
 
-function MyComponent() {
-  const [count, setCount] = useState(0);
-  const previousCount = usePrevious(count);
+// Value change detection
+useEffect(() => {
+  if (previousCount !== undefined && count !== previousCount) {
+    console.log('Count changed:', previousCount, '→', count);
+  }
+}, [count, previousCount]);
 
-  return (
-    <div>
-      <p>현재: {count}</p>
-      <p>이전: {previousCount}</p>
-    </div>
-  );
-}
+// With initial value
+const [value, setValue] = useState(10);
+const previousValue = usePrevious(value, { initialValue: 0 });
+
+// Conditional rendering based on previous value
+const [isVisible, setIsVisible] = useState(false);
+const previousIsVisible = usePrevious(isVisible);
+
+useEffect(() => {
+  if (isVisible && !previousIsVisible) {
+    // Element becomes visible
+    animateIn();
+  } else if (!isVisible && previousIsVisible) {
+    // Element becomes hidden
+    animateOut();
+  }
+}, [isVisible, previousIsVisible]);
+
+// Text input tracking
+const [text, setText] = useState('');
+const previousText = usePrevious(text);
+
+useEffect(() => {
+  if (previousText !== undefined && text !== previousText) {
+    console.log('Text changed from:', previousText, 'to:', text);
+  }
+}, [text, previousText]);
 \`\`\`
-
-### 매개변수
-
-- \`value\`: 추적할 값
-
-### 반환값
-
-- 이전 값 (첫 번째 렌더링 시에는 undefined)
 				`,
 			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
 		},
 	},
 };
@@ -290,8 +334,15 @@ return (
 const initialValueCode = `const [value, setValue] = useState(10);
 const previousValue = usePrevious(value);
 
-// 초기 렌더링 시 previousValue는 undefined
-// 첫 번째 값 변경 후부터 이전 값을 추적`;
+return (
+  <div>
+    <p>Current: {value}</p>
+    <p>Previous: {previousValue !== undefined ? previousValue : 'None'}</p>
+    <button onClick={() => setValue(value + 5)}>+5</button>
+    <button onClick={() => setValue(value - 5)}>-5</button>
+    <button onClick={() => setValue(10)}>Reset</button>
+  </div>
+);`;
 
 export const Default = () => (
 	<ToggleComponent

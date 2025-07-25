@@ -6,6 +6,111 @@ export default {
 	title: 'Utility/useCopyToClipboard',
 	parameters: {
 		layout: 'centered',
+		docs: {
+			description: {
+				component: `
+A React hook that provides clipboard copy functionality with state management and error handling. Simplifies copying text to clipboard with success/failure feedback and automatic timeout reset.
+
+## API
+
+### Parameters
+- **timeout**: number (optional, default: 2000) - Time in milliseconds to reset copy state (must be non-negative)
+- **successMessage**: string (optional, default: 'Copied!') - Success message to display
+- **errorMessage**: string (optional, default: 'Copy failed') - Error message to display
+- **Usage Example**: useCopyToClipboard({ timeout: 3000, successMessage: 'Copied to clipboard!', errorMessage: 'Cannot copy' });
+
+### Return Value
+- **Type**: { copyToClipboard: (text: string) => Promise<boolean>, isCopied: boolean, isCopying: boolean, message: string, reset: () => void }
+- **Description**: Returns clipboard copy function and comprehensive state management
+- **Usage Example**: const { copyToClipboard, isCopied, isCopying, message, reset } = useCopyToClipboard();
+
+### Return Value Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| copyToClipboard | (text: string) => Promise<boolean> | Function to copy text to clipboard (returns success status, validates input) |
+| isCopied | boolean | Copy success status |
+| isCopying | boolean | Whether copy operation is in progress |
+| message | string | Current status message |
+| reset | () => void | Function to reset all states |
+
+## Usage Examples
+
+\`\`\`tsx
+// Basic clipboard copy
+const { copyToClipboard, isCopied, isCopying, message } = useCopyToClipboard();
+
+const handleCopy = async () => {
+  const success = await copyToClipboard('Text to copy');
+  if (success) {
+    console.log('Copy successful!');
+  }
+};
+
+return (
+  <button onClick={handleCopy} disabled={isCopying}>
+    {isCopying ? 'Copying...' : isCopied ? '✅ Copied!' : '📋 Copy'}
+  </button>
+);
+
+// With custom options
+const { copyToClipboard, isCopied, message } = useCopyToClipboard({ 
+  timeout: 5000,
+  successMessage: 'Copied to clipboard!',
+  errorMessage: 'Cannot copy'
+});
+
+const handleCopy = async () => {
+  const success = await copyToClipboard('Text to copy');
+  if (!success) {
+    console.error('Copy failed');
+  }
+};
+
+return (
+  <div>
+    <button onClick={handleCopy}>Copy Text</button>
+    {message && <p>{message}</p>}
+  </div>
+);
+
+// Form data copying
+const { copyToClipboard, isCopied, isCopying } = useCopyToClipboard();
+
+const handleCopyFormData = async () => {
+  const formattedData = \`
+Name: \${formData.name}
+Email: \${formData.email}
+Phone: \${formData.phone}
+  \`.trim();
+
+  const success = await copyToClipboard(formattedData);
+  if (success) {
+    console.log('Form data copied successfully');
+  }
+};
+
+return (
+  <button onClick={handleCopyFormData} disabled={isCopying}>
+    {isCopied ? 'Copied!' : 'Copy Form Data'}
+  </button>
+);
+\`\`\`
+				`,
+			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
+		},
 	},
 };
 

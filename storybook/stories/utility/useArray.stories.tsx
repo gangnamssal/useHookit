@@ -1,11 +1,236 @@
 import { useArray } from '@/utility/useArray';
 import { ToggleComponent } from '../../components/ToggleComponent';
 
-const basicCode = `const [array, { push, pop, clear }] = useArray<number>([1, 2, 3]);
+export default {
+	title: 'Utility/useArray',
+	parameters: {
+		layout: 'centered',
+		docs: {
+			description: {
+				component: `
+A React hook that provides declarative array state management with comprehensive array manipulation methods. Simplifies array operations like adding, removing, modifying, searching, and sorting while maintaining immutability.
 
-const handlePush = () => push(Math.floor(Math.random() * 100));
-const handlePop = () => pop();
-const handleClear = () => clear();
+## API
+
+### Parameters
+- **options**: UseArrayOptions<T> (optional) - Configuration options for array management
+- **options.initialValue**: T[] (optional, default: []) - Initial array value
+- **options.debug**: boolean (optional, default: false) - Enable debug logging
+- **Usage Example**: useArray<number>({ initialValue: [1, 2, 3], debug: true });
+
+### Return Value
+- **Type**: [T[], ArrayOperations<T>]
+- **Description**: Returns current array and operations object
+- **Return Value Properties**:
+  - **array**: T[] - Current array value (reactive state)
+  - **operations**: ArrayOperations<T> - Object containing all array manipulation methods
+- **Usage Example**: const [array, operations] = useArray<number>({ initialValue: [1, 2, 3] });
+
+### ArrayOperations Methods
+
+**Basic Operations:**
+- **push**: (item: T) => void - Add item to end of array
+- **pop**: () => T \| undefined - Remove item from end of array
+- **shift**: () => T \| undefined - Remove item from beginning of array
+- **unshift**: (item: T) => void - Add item to beginning of array
+
+**Index-based Operations:**
+- **insertAt**: (index: number, item: T) => void - Insert item at specific index
+- **removeAt**: (index: number) => T \| undefined - Remove item at specific index
+- **updateAt**: (index: number, item: T) => void - Update item at specific index
+- **get**: (index: number) => T \| undefined - Get item at specific index
+
+**Search and Filtering:**
+- **find**: (predicate: (item: T, index: number) => boolean) => T \| undefined - Find first item matching predicate
+- **findIndex**: (predicate: (item: T, index: number) => boolean) => number - Find index of first item matching predicate
+- **includes**: (item: T) => boolean - Check if array includes item
+- **filter**: (predicate: (item: T, index: number) => boolean) => void - Keep only items matching predicate
+- **remove**: (predicate: (item: T, index: number) => boolean) => T[] - Remove items matching predicate and return removed items
+
+**Transform Operations:**
+- **sort**: (compareFn?: (a: T, b: T) => number) => void - Sort array with optional compare function
+- **reverse**: () => void - Reverse array order
+- **set**: (newArray: T[]) => void - Replace entire array
+- **clear**: () => void - Clear array
+
+**Utility Properties:**
+- **first**: () => T \| undefined - Get first item
+- **last**: () => T \| undefined - Get last item
+- **isEmpty**: boolean - Check if array is empty (memoized)
+- **isNotEmpty**: boolean - Check if array is not empty (memoized)
+- **length**: number - Get array length (memoized)
+
+## Usage Examples
+
+\`\`\`tsx
+// Basic array operations
+const [array, operations] = useArray<number>({ initialValue: [1, 2, 3] });
+
+const handlePush = () => operations.push(Math.floor(Math.random() * 100));
+const handlePop = () => operations.pop();
+const handleClear = () => operations.clear();
+
+return (
+  <div>
+    <p>Array: {JSON.stringify(array)}</p>
+    <button onClick={handlePush}>Add</button>
+    <button onClick={handlePop}>Remove</button>
+    <button onClick={handleClear}>Clear</button>
+  </div>
+);
+
+// Index-based operations
+const [array, operations] = useArray<number>({ initialValue: [1, 2, 3] });
+
+const handleInsertAt = () => operations.insertAt(1, 5);
+const handleRemoveAt = () => operations.removeAt(1);
+const handleUpdateAt = () => operations.updateAt(1, 10);
+
+return (
+  <div>
+    <p>Array: {JSON.stringify(array)}</p>
+    <button onClick={handleInsertAt}>Insert at index 1</button>
+    <button onClick={handleRemoveAt}>Remove at index 1</button>
+    <button onClick={handleUpdateAt}>Update at index 1</button>
+  </div>
+);
+
+// Search and filtering
+const [array, operations] = useArray<number>({ initialValue: [1, 2, 3, 4, 5, 6] });
+
+const handleFind = () => {
+  const found = operations.find((item, index) => item > 3);
+  console.log('First item > 3:', found);
+};
+
+const handleFilter = () => {
+  operations.filter((item, index) => item > 3);
+};
+
+const handleRemove = () => {
+  operations.remove((item, index) => item % 2 === 0);
+};
+
+return (
+  <div>
+    <p>Array: {JSON.stringify(array)}</p>
+    <button onClick={handleFind}>Find > 3</button>
+    <button onClick={handleFilter}>Filter > 3</button>
+    <button onClick={handleRemove}>Remove even numbers</button>
+  </div>
+);
+
+// Complex object array
+interface User {
+  id: number;
+  name: string;
+  age: number;
+}
+
+const [users, operations] = useArray<User>({
+  initialValue: [
+    { id: 1, name: 'Alice', age: 25 },
+    { id: 2, name: 'Bob', age: 30 }
+  ]
+});
+
+const handleAddUser = () => {
+  operations.push({ id: 3, name: 'Charlie', age: 35 });
+};
+
+const handleFindUser = () => {
+  const user = operations.find((user, index) => user.name === 'Bob');
+  console.log('Found Bob:', user);
+};
+
+const handleRemoveOldUsers = () => {
+  operations.remove((user, index) => user.age > 30);
+};
+
+return (
+  <div>
+    <ul>
+      {users.map(user => (
+        <li key={user.id}>{user.name} ({user.age})</li>
+      ))}
+    </ul>
+    <button onClick={handleAddUser}>Add User</button>
+    <button onClick={handleFindUser}>Find Bob</button>
+    <button onClick={handleRemoveOldUsers}>Remove Old Users</button>
+  </div>
+);
+
+// Sort and transform
+const [array, operations] = useArray<number>({ initialValue: [3, 1, 4, 1, 5, 9, 2, 6] });
+
+const handleSort = () => operations.sort((a, b) => a - b);
+const handleReverse = () => operations.reverse();
+const handleSet = () => operations.set([10, 20, 30, 40, 50]);
+
+return (
+  <div>
+    <p>Array: {JSON.stringify(array)}</p>
+    <button onClick={handleSort}>Sort</button>
+    <button onClick={handleReverse}>Reverse</button>
+    <button onClick={handleSet}>Set New Array</button>
+  </div>
+);
+
+// Utility methods
+const [array, operations] = useArray<number>({ initialValue: [1, 2, 3, 4, 5] });
+
+return (
+  <div>
+    <p>Array: {JSON.stringify(array)}</p>
+    <p>Length: {operations.length}</p>
+    <p>First: {operations.first()}</p>
+    <p>Last: {operations.last()}</p>
+    <p>Is Empty: {operations.isEmpty ? 'Yes' : 'No'}</p>
+    <p>Is Not Empty: {operations.isNotEmpty ? 'Yes' : 'No'}</p>
+  </div>
+);
+
+// Debug mode
+const [array, operations] = useArray<number>({
+  initialValue: [1, 2, 3],
+  debug: true
+});
+
+const handlePush = () => operations.push(Math.floor(Math.random() * 100));
+const handlePop = () => operations.pop();
+
+return (
+  <div>
+    <p>Array: {JSON.stringify(array)}</p>
+    <p>Check console for debug logs!</p>
+    <button onClick={handlePush}>Add (with logs)</button>
+    <button onClick={handlePop}>Remove (with logs)</button>
+  </div>
+);
+\`\`\`
+				`,
+			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
+		},
+	},
+};
+
+const basicCode = `const [array, operations] = useArray<number>([1, 2, 3]);
+
+const handlePush = () => operations.push(Math.floor(Math.random() * 100));
+const handlePop = () => operations.pop();
+const handleClear = () => operations.clear();
 
 return (
   <div>
@@ -205,24 +430,12 @@ return (
   </div>
 );`;
 
-export default {
-	title: 'Utility/useArray',
-	parameters: {
-		docs: {
-			description: {
-				component:
-					'배열 상태를 관리하는 훅입니다. 배열 조작, 검색, 필터링, 정렬 등의 기능을 제공합니다.',
-			},
-		},
-	},
-};
-
 export const Default = () => {
-	const [array, { push, pop, clear }] = useArray<number>({ initialValue: [1, 2, 3] });
+	const [array, operations] = useArray<number>({ initialValue: [1, 2, 3] });
 
-	const handlePush = () => push(Math.floor(Math.random() * 100));
-	const handlePop = () => pop();
-	const handleClear = () => clear();
+	const handlePush = () => operations.push(Math.floor(Math.random() * 100));
+	const handlePop = () => operations.pop();
+	const handleClear = () => operations.clear();
 
 	return (
 		<ToggleComponent
@@ -322,6 +535,16 @@ export const Default = () => {
 			</div>
 		</ToggleComponent>
 	);
+};
+
+Default.parameters = {
+	docs: {
+		description: {
+			story:
+				'useArray의 기본적인 사용법입니다. push, pop, clear 등의 기본 배열 조작 메서드를 사용할 수 있습니다.',
+		},
+		disable: true,
+	},
 };
 
 export const ArrayOperations = () => {

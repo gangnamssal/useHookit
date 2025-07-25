@@ -6,7 +6,237 @@ export default {
 	title: 'Utility/useObject',
 	parameters: {
 		layout: 'centered',
+		docs: {
+			description: {
+				component: `
+A React hook that provides declarative object state management with comprehensive object manipulation methods. Simplifies object operations like adding, removing, updating, searching, and transforming properties while maintaining immutability and performance.
+
+## API
+
+### Parameters
+- **options**: UseObjectOptions<T> (optional) - Configuration options for object management
+- **options.initialValue**: T (optional, default: {}) - Initial object value
+- **options.debug**: boolean (optional, default: false) - Enable debug logging
+- **Usage Example**: useObject<User>({ initialValue: { name: 'John', age: 30 }, debug: true });
+
+### Return Value
+- **Type**: [T, ObjectOperations<T>]
+- **Description**: Returns current object and operations object
+- **Usage Example**: const [object, operations] = useObject<User>({ initialValue: { name: 'John' } });
+
+### Return Value Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| object | T | Current object value |
+| operations | ObjectOperations<T> | Object containing all object manipulation methods |
+
+### ObjectOperations Methods
+
+**Basic Operations:**
+- **set**: (key: keyof T, value: T[keyof T]) => void - Set a property
+- **remove**: (key: keyof T) => void - Remove a property
+- **has**: (key: keyof T) => boolean - Check if property exists
+- **clear**: () => void - Remove all properties
+
+**Convenience Methods:**
+- **setMultiple**: (updates: Partial<T>) => void - Set multiple properties
+- **removeMultiple**: (keys: (keyof T)[]) => void - Remove multiple properties
+- **update**: (key: keyof T, updater: (value: T[keyof T]) => T[keyof T]) => void - Update property using function
+- **updateMultiple**: (updaters: { [K in keyof T]?: (value: T[K]) => T[K] }) => void - Update multiple properties using functions
+- **toggle**: (key: keyof T) => void - Toggle boolean property
+- **merge**: (objectToMerge: Partial<T>) => void - Merge with another object
+- **replace**: (newObject: T) => void - Replace entire object
+
+**Query Methods:**
+- **size**: number - Object size (number of properties)
+- **isEmpty**: boolean - Is object empty
+- **isNotEmpty**: boolean - Is object not empty
+- **keys**: () => (keyof T)[] - All keys as array
+- **values**: () => T[keyof T][] - All values as array
+- **entries**: () => [keyof T, T[keyof T]][] - All entries as array
+
+**Transformation Methods:**
+- **pick**: (keys: (keyof T)[]) => Partial<T> - Pick specific properties
+- **omit**: (keys: (keyof T)[]) => Partial<T> - Omit specific properties
+- **transform**: <R>(transformer: (obj: T) => R) => R - Transform object using function
+- **filter**: (predicate: (value: T[keyof T], key: keyof T) => boolean) => Partial<T> - Filter properties based on predicate
+- **map**: <R>(mapper: (value: T[keyof T], key: keyof T) => R) => Record<string, R> - Transform object values using mapper function
+
+**Debug:**
+- **debug**: boolean - Debug mode flag
+
+## Usage Examples
+
+\`\`\`tsx
+// Basic object operations
+const [object, operations] = useObject<User>({ 
+  initialValue: { name: 'John', age: 30, isActive: true } 
+});
+
+const handleSetName = () => operations.set('name', 'Jane');
+const handleGetAge = () => alert('나이: ' + object.age);
+const handleRemoveEmail = () => operations.remove('email');
+const handleHasName = () => alert('이름이 있나요? ' + operations.has('name'));
+const handleClear = () => operations.clear();
+
+return (
+  <div>
+    <p>객체: {JSON.stringify(object)}</p>
+    <button onClick={handleSetName}>이름 변경</button>
+    <button onClick={handleGetAge}>나이 조회</button>
+    <button onClick={handleRemoveEmail}>이메일 제거</button>
+    <button onClick={handleHasName}>이름 확인</button>
+    <button onClick={handleClear}>초기화</button>
+  </div>
+);
+
+// Convenience methods
+const [object, operations] = useObject<User>();
+
+const handleSetMultiple = () => operations.setMultiple({ name: 'Alice', age: 25, isActive: true });
+const handleRemoveMultiple = () => operations.removeMultiple(['email', 'preferences']);
+const handleUpdate = () => operations.update('age', (age) => age + 1);
+const handleToggle = () => operations.toggle('isActive');
+const handleMerge = () => operations.merge({ email: 'alice@example.com' });
+
+return (
+  <div>
+    <p>객체: {JSON.stringify(object)}</p>
+    <button onClick={handleSetMultiple}>여러 속성 설정</button>
+    <button onClick={handleRemoveMultiple}>여러 속성 제거</button>
+    <button onClick={handleUpdate}>나이 증가</button>
+    <button onClick={handleToggle}>활성 토글</button>
+    <button onClick={handleMerge}>객체 병합</button>
+  </div>
+);
+
+// Query methods
+const [object, operations] = useObject<User>({ 
+  initialValue: { name: 'Bob', age: 35, isActive: false, email: 'bob@example.com' } 
+});
+
+return (
+  <div>
+    <p>객체: {JSON.stringify(object)}</p>
+    <p>크기: {operations.size}</p>
+    <p>비어있나요? {operations.isEmpty ? '예' : '아니오'}</p>
+    <p>키들: {JSON.stringify(operations.keys())}</p>
+    <p>값들: {JSON.stringify(operations.values())}</p>
+    <p>엔트리들: {JSON.stringify(operations.entries())}</p>
+  </div>
+);
+
+// Transformation methods
+const [object, operations] = useObject<User>({ 
+  initialValue: { name: 'Charlie', age: 40, isActive: true, email: 'charlie@example.com' } 
+});
+
+const handlePick = () => {
+  const picked = operations.pick(['name', 'age']);
+  alert('선택된 속성: ' + JSON.stringify(picked));
+};
+
+const handleOmit = () => {
+  const omitted = operations.omit(['email', 'preferences']);
+  alert('제외된 속성: ' + JSON.stringify(omitted));
+};
+
+const handleFilter = () => {
+  const filtered = operations.filter((value, key) => typeof value === 'string');
+  alert('문자열 값들: ' + JSON.stringify(filtered));
+};
+
+const handleMap = () => {
+  const mapped = operations.map((value, key) => 
+    typeof value === 'string' ? value.toUpperCase() : value
+  );
+  alert('변환된 값들: ' + JSON.stringify(mapped));
+};
+
+const handleTransform = () => {
+  const transformed = operations.transform((obj) => ({
+    displayName: obj.name.toUpperCase(),
+    ageGroup: obj.age < 30 ? 'young' : obj.age < 50 ? 'middle' : 'senior',
+    status: obj.isActive ? 'active' : 'inactive'
+  }));
+  alert('변환된 객체: ' + JSON.stringify(transformed));
+};
+
+return (
+  <div>
+    <p>객체: {JSON.stringify(object)}</p>
+    <button onClick={handlePick}>속성 선택</button>
+    <button onClick={handleOmit}>속성 제외</button>
+    <button onClick={handleFilter}>필터링</button>
+    <button onClick={handleMap}>변환</button>
+    <button onClick={handleTransform}>객체 변환</button>
+  </div>
+);
+
+// Complex object management
+interface User {
+  name: string;
+  age: number;
+  isActive: boolean;
+  email?: string;
+  preferences?: {
+    theme: string;
+    language: string;
+  };
+}
+
+const [user, operations] = useObject<User>({
+  initialValue: { name: 'David', age: 28, isActive: true }
+});
+
+const handleAddEmail = () => operations.set('email', 'david@example.com');
+const handleAddPreferences = () => operations.set('preferences', { theme: 'dark', language: 'ko' });
+const handleUpdateAge = () => operations.update('age', (age) => age + 1);
+const handleToggleActive = () => operations.toggle('isActive');
+
+return (
+  <div>
+    <p>사용자: {JSON.stringify(user)}</p>
+    <button onClick={handleAddEmail}>이메일 추가</button>
+    <button onClick={handleAddPreferences}>설정 추가</button>
+    <button onClick={handleUpdateAge}>나이 증가</button>
+    <button onClick={handleToggleActive}>활성 토글</button>
+  </div>
+);
+
+// Debug mode
+const [object, operations] = useObject<User>({ debug: true });
+
+const handleAdd = () => operations.set('name', 'Emma');
+const handleRemove = () => operations.remove('email');
+
+return (
+  <div>
+    <p>객체: {JSON.stringify(object)}</p>
+    <p>콘솔을 확인하여 디버그 로그를 보세요!</p>
+    <button onClick={handleAdd}>속성 추가</button>
+    <button onClick={handleRemove}>속성 제거</button>
+  </div>
+);
+\`\`\`
+				`,
+			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
+		},
 	},
+	tags: ['utility', 'object', 'state-management', 'autodocs'],
 };
 
 interface User {

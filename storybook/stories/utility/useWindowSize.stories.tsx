@@ -5,7 +5,155 @@ export default {
 	title: 'Utility/useWindowSize',
 	parameters: {
 		layout: 'centered',
+		docs: {
+			description: {
+				component: `
+A React hook that provides comprehensive window size tracking with responsive breakpoint detection and orientation monitoring. Simplifies window size monitoring in React components with automatic cleanup and real-time updates.
+
+## API
+
+### Parameters
+- **options**: UseWindowSizeOptions (optional) - Configuration options for window size tracking
+- **options.initialSize**: WindowSize (optional, default: { width: 0, height: 0 }) - Initial window size for SSR
+- **options.debounceMs**: number (optional, default: 100) - Debounce delay in milliseconds for resize events
+- **options.listenerOptions**: AddEventListenerOptions (optional, default: { passive: true }) - Event listener options
+- **Usage Example**: useWindowSize({ debounceMs: 200, listenerOptions: { passive: false } });
+
+### Return Value
+- **Type**: { width: number; height: number; isMobile: boolean; isTablet: boolean; isDesktop: boolean; isLargeScreen: boolean; orientation: 'portrait' | 'landscape'; }
+- **Description**: Returns current window size and responsive breakpoint information
+- **Usage Example**: const { width, height, isMobile, isDesktop } = useWindowSize();
+
+### Return Value Properties
+- **width**: number - Current window width in pixels
+- **height**: number - Current window height in pixels
+- **isMobile**: boolean - Whether window width is ≤ 767px
+- **isTablet**: boolean - Whether window width is 768px - 1023px
+- **isDesktop**: boolean - Whether window width is ≥ 1024px
+- **isLargeScreen**: boolean - Whether window width is ≥ 1440px
+- **orientation**: 'portrait' | 'landscape' - Screen orientation based on width vs height
+
+## Usage Examples
+
+\`\`\`tsx
+// Basic window size tracking
+const { width, height, isMobile, isTablet, isDesktop, isLargeScreen, orientation } = useWindowSize();
+
+return (
+  <div>
+    <p>크기: {width}px × {height}px</p>
+    <p>방향: {orientation}</p>
+    <p>디바이스: {isMobile ? '모바일' : isTablet ? '태블릿' : isDesktop ? '데스크톱' : '대형 화면'}</p>
+  </div>
+);
+
+// Responsive layout with all breakpoints
+const { isMobile, isTablet, isDesktop, isLargeScreen } = useWindowSize();
+
+return (
+  <div>
+    {isMobile && <MobileLayout />}
+    {isTablet && <TabletLayout />}
+    {isDesktop && <DesktopLayout />}
+    {isLargeScreen && <LargeScreenLayout />}
+  </div>
+);
+
+// Custom debounce for performance optimization
+const { width, height } = useWindowSize({
+  debounceMs: 500
+});
+
+return (
+  <div>
+    <p>디바운스 적용된 크기: {width}px × {height}px</p>
+  </div>
+);
+
+// Orientation-based layout
+const { orientation, width, height } = useWindowSize();
+
+return (
+  <div style={{
+    display: 'grid',
+    gridTemplateColumns: orientation === 'portrait' ? '1fr' : 'repeat(2, 1fr)',
+    gap: '20px'
+  }}>
+    <div>콘텐츠 1</div>
+    <div>콘텐츠 2</div>
+  </div>
+);
+
+// SSR-safe initialization with custom initial size
+const { width, height } = useWindowSize({
+  initialSize: { width: 1200, height: 800 }
+});
+
+return (
+  <div>
+    <p>초기 크기: {width}px × {height}px</p>
+  </div>
+);
+
+// Custom event listener options for advanced use cases
+const { width, height } = useWindowSize({
+  listenerOptions: { passive: false }
+});
+
+return (
+  <div>
+    <p>커스텀 리스너: {width}px × {height}px</p>
+  </div>
+);
+
+// Comprehensive responsive design
+const { isMobile, isTablet, isDesktop, isLargeScreen, orientation } = useWindowSize();
+
+const getLayoutConfig = () => {
+  if (isMobile) {
+    return { columns: 1, spacing: '10px', fontSize: '14px' };
+  } else if (isTablet) {
+    return { columns: 2, spacing: '15px', fontSize: '16px' };
+  } else if (isDesktop) {
+    return { columns: 3, spacing: '20px', fontSize: '18px' };
+  } else {
+    return { columns: 4, spacing: '25px', fontSize: '20px' };
+  }
+};
+
+const config = getLayoutConfig();
+
+return (
+  <div style={{
+    display: 'grid',
+    gridTemplateColumns: \`repeat(\${config.columns}, 1fr)\`,
+    gap: config.spacing,
+    fontSize: config.fontSize
+  }}>
+    <div>반응형 콘텐츠 1</div>
+    <div>반응형 콘텐츠 2</div>
+    <div>반응형 콘텐츠 3</div>
+    {!isMobile && <div>반응형 콘텐츠 4</div>}
+  </div>
+);
+\`\`\`
+				`,
+			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
+		},
 	},
+	tags: ['utility', 'window-size', 'responsive', 'media-query', 'autodocs'],
 };
 
 // 코드 스니펫들
@@ -19,13 +167,14 @@ return (
   </div>
 );`;
 
-const responsiveCode = `const { isMobile, isTablet, isDesktop } = useWindowSize();
+const responsiveCode = `const { isMobile, isTablet, isDesktop, isLargeScreen } = useWindowSize();
 
 return (
   <div>
     {isMobile && <MobileLayout />}
     {isTablet && <TabletLayout />}
     {isDesktop && <DesktopLayout />}
+    {isLargeScreen && <LargeScreenLayout />}
   </div>
 );`;
 

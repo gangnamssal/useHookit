@@ -9,52 +9,110 @@ export default {
 		docs: {
 			description: {
 				component: `
-## useDebounce 훅
+A React hook that delays value changes to optimize performance. It groups continuous inputs or events to prevent unnecessary API calls or calculations.
 
-입력값을 디바운스하여 성능을 최적화하는 훅입니다.
+### API
 
-### 기본 사용법
+#### Parameters
+- **value**: T - Value to debounce
+- **delay**: number - Debounce delay time (ms)
+- **Usage Example**: const debouncedValue = useDebounce(value, 500);
+
+#### Return Value
+- **Type**: T
+- **Description**: Debounced value that updates only after the specified delay when input stops changing
+- **Return Value Properties**:
+  - **debouncedValue**: T - Value that updates after delay when input changes stop
+  - **Behavior**: Resets timer on every input change, only updates after delay period
+- **Usage Example**: const debouncedValue = useDebounce(value, 500);
+
+### Usage Examples
 
 \`\`\`tsx
-import { useDebounce } from 'useHookit';
+// Basic usage
+const [searchTerm, setSearchTerm] = useState('');
+const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-function SearchComponent() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+// Search API call
+useEffect(() => {
+  if (debouncedSearchTerm) {
+    searchAPI(debouncedSearchTerm);
+  }
+}, [debouncedSearchTerm]);
 
-  useEffect(() => {
-    if (debouncedSearchTerm) {
-      // API 호출
-      searchAPI(debouncedSearchTerm);
-    }
-  }, [debouncedSearchTerm]);
+// Form validation with debounce
+const [email, setEmail] = useState('');
+const debouncedEmail = useDebounce(email, 300);
 
-  return (
-    <input
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-      placeholder="검색어를 입력하세요"
-    />
-  );
-}
+useEffect(() => {
+  if (debouncedEmail && !debouncedEmail.includes('@')) {
+    setEmailError('올바른 이메일 형식이 아닙니다.');
+  } else {
+    setEmailError('');
+  }
+}, [debouncedEmail]);
+
+// Window size tracking with debounce
+const [windowSize, setWindowSize] = useState({
+  width: window.innerWidth,
+  height: window.innerHeight,
+});
+const debouncedWindowSize = useDebounce(windowSize, 200);
+
+useEffect(() => {
+  const handleResize = () => {
+    setWindowSize({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+  };
+
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
 \`\`\`
 
-### 매개변수
+### Related Hooks
 
-- \`value\`: 디바운스할 값
-- \`delay\`: 지연 시간 (밀리초)
+#### useDebounceCallback
+A callback debouncing hook that delays callback execution by a specified time.
 
-### 반환값
+**Usage Example**:
+\`\`\`tsx
+// Basic usage
+const debouncedOnChange = useDebounceCallback((value) => {
+  console.log('디바운스된 값:', value);
+}, 300);
 
-- 디바운스된 값
+return (
+  <input onChange={(e) => debouncedOnChange(e.target.value)} />
+);
+
+// API call usage
+const debouncedSearch = useDebounceCallback((searchTerm: string) => {
+  if (searchTerm.trim()) {
+    searchAPI(searchTerm);
+  }
+}, 500);
+
+const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  debouncedSearch(e.target.value);
+};
+\`\`\`
 				`,
 			},
-		},
-	},
-	argTypes: {
-		delay: {
-			control: { type: 'number', min: 100, max: 3000, step: 100 },
-			description: '디바운스 지연 시간 (밀리초)',
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
 		},
 	},
 };
@@ -476,7 +534,35 @@ const debouncedValue = useDebounce(value, delay);
 // 다양한 지연 시간으로 실험 가능
 // 100ms: 빠른 응답
 // 500ms: 일반적인 검색
-// 1000ms: 무거운 작업`;
+// 1000ms: 무거운 작업
+
+useEffect(() => {
+  if (debouncedValue) {
+    console.log('Debounced value changed:', debouncedValue);
+    // API 호출 또는 무거운 작업 수행
+    performHeavyOperation(debouncedValue);
+  }
+}, [debouncedValue]);
+
+return (
+  <div>
+    <select value={delay} onChange={(e) => setDelay(Number(e.target.value))}>
+      <option value={100}>100ms - 빠른 응답</option>
+      <option value={300}>300ms - 일반적인 검색</option>
+      <option value={500}>500ms - 폼 검증</option>
+      <option value={1000}>1000ms - 무거운 작업</option>
+    </select>
+    
+    <input
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      placeholder="텍스트를 입력하세요"
+    />
+    
+    <p>실시간: {value}</p>
+    <p>디바운스 ({delay}ms): {debouncedValue}</p>
+  </div>
+);`;
 
 export const Default = () => (
 	<ToggleComponent

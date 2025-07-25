@@ -9,44 +9,99 @@ export default {
 		docs: {
 			description: {
 				component: `
-## useIsMounted 훅
+A React hook that tracks the mounted state of a component. It prevents state updates after the component is unmounted during asynchronous operations to prevent memory leaks.
 
-컴포넌트가 마운트되어 있는지 확인하는 훅입니다.
+### API
 
-### 기본 사용법
+#### Parameters
+This hook does not accept any parameters.
+
+#### Return Value
+- **Type**: boolean
+- **Description**: Returns true if the component is mounted, false if unmounted
+- **Return Value Properties**:
+  - **isMounted**: boolean - Current mounted state of the component
+  - **Initial render**: Returns false initially, then true after mount
+  - **Unmount**: Returns false when component unmounts
+- **Usage Example**: const isMounted = useIsMounted();
+
+### Usage Examples
 
 \`\`\`tsx
-import { useIsMounted } from 'useHookit';
+// Basic usage
+const isMounted = useIsMounted();
 
-function MyComponent() {
-  const isMounted = useIsMounted();
-  const [data, setData] = useState(null);
+// Safe state update in async operations
+useEffect(() => {
+  const fetchData = async () => {
+    const result = await api.getData();
+    if (isMounted) {
+      setData(result);
+    }
+  };
+  fetchData();
+}, [isMounted]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const result = await api.getData();
-      
-      if (isMounted) {
-        setData(result);
-      }
-    };
+// Timer with safe state updates
+useEffect(() => {
+  const interval = setInterval(() => {
+    if (isMounted) {
+      setCount(prev => prev + 1);
+    }
+  }, 1000);
 
-    fetchData();
-  }, [isMounted]);
-
-  return <div>{data && <p>{data}</p>}</div>;
-}
+  return () => clearInterval(interval);
+}, [isMounted]);
 \`\`\`
 
-### 매개변수
+### Related Hooks
 
-없음
+#### useSafeState
+A safe state management hook that only updates state when the component is mounted.
 
-### 반환값
+**Usage Example**:
+\`\`\`tsx
+const [count, setCount] = useSafeState(0);
 
-- \`boolean\`: 컴포넌트가 마운트되어 있으면 \`true\`, 그렇지 않으면 \`false\`
+// Safe state update
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setCount(prev => prev + 1); // Won't execute after unmount
+  }, 1000);
+  
+  return () => clearTimeout(timer);
+}, []);
+\`\`\`
+
+#### useSafeCallback
+A safe callback management hook that only executes callbacks when the component is mounted.
+
+**Usage Example**:
+\`\`\`tsx
+const safeCallback = useSafeCallback((value: string) => {
+  console.log('Safe callback:', value);
+  // API calls or state updates
+});
+
+// Use in event handlers
+const handleClick = () => {
+  safeCallback('Button clicked');
+};
+\`\`\`
 				`,
 			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
 		},
 	},
 };

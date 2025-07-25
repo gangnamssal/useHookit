@@ -9,42 +9,73 @@ export default {
 		docs: {
 			description: {
 				component: `
-## useThrottle 훅
+A React hook that limits callback execution to optimize performance. It restricts continuous function calls at regular intervals to prevent excessive processing or rendering.
 
-입력값을 스로틀링하여 성능을 최적화하는 훅입니다.
+### API
 
-### 기본 사용법
+#### Parameters
+- **callback**: T (generic function type)
+- **delay**: number - Throttle interval (ms)
+- **Usage Example**: const throttledFn = useThrottle(callback, 500);
+
+#### Return Value
+- **Type**: T
+- **Description**: Throttled callback function
+- **Usage Example**: const throttledFn = useThrottle(callback, 500);
+
+### Usage Examples
 
 \`\`\`tsx
-import { useThrottleValue } from 'useHookit';
+// Basic usage
+const throttledFn = useThrottle((value) => {
+  console.log('throttled value:', value);
+}, 500);
 
-function MyComponent() {
-  const [inputValue, setInputValue] = useState('');
-  const throttledValue = useThrottleValue(inputValue, 1000);
+throttledFn('hello');
 
-  return (
-    <div>
-      <input
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        placeholder="입력해보세요"
-      />
-      <p>스로틀된 값: {throttledValue}</p>
-    </div>
-  );
-}
+// Usage in scroll events
+const throttledScrollHandler = useThrottle((event) => {
+  console.log('scroll position:', event.target.scrollTop);
+}, 100);
+
+useEffect(() => {
+  window.addEventListener('scroll', throttledScrollHandler);
+  return () => window.removeEventListener('scroll', throttledScrollHandler);
+}, [throttledScrollHandler]);
 \`\`\`
 
-### 매개변수
+### Related Hooks
 
-- \`value\`: 스로틀링할 값
-- \`delay\`: 지연 시간 (밀리초)
+#### useThrottleValue
+A value throttling hook that limits value changes to once during the specified delay.
 
-### 반환값
+**Usage Example**:
+\`\`\`tsx
+// Basic usage
+const [inputValue, setInputValue] = useState('');
+const throttledValue = useThrottleValue(inputValue, 1000);
 
-- 스로틀링된 값
+// API call at regular intervals
+useEffect(() => {
+  if (throttledValue) {
+    searchAPI(throttledValue);
+  }
+}, [throttledValue]);
+\`\`\`
 				`,
 			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
 		},
 	},
 };

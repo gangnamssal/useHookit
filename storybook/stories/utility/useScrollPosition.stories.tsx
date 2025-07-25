@@ -6,6 +6,142 @@ export default {
 	title: 'Utility/useScrollPosition',
 	parameters: {
 		layout: 'centered',
+		docs: {
+			description: {
+				component: `
+A React hook that provides comprehensive scroll position tracking with throttling support and scroll control utilities. Simplifies scroll position monitoring in React components with automatic cleanup and real-time updates.
+
+## API
+
+### Parameters
+- **options**: UseScrollPositionOptions (optional) - Configuration options for scroll tracking
+- **options.element**: HTMLElement | null (optional, default: window) - Element to track scroll position for
+- **options.throttle**: number (optional, default: 16) - Throttle delay in milliseconds (60fps)
+- **options.onChange**: (position: ScrollPosition) => void (optional) - Callback function called when scroll position changes
+- **options.enabled**: boolean (optional, default: true) - Whether to enable scroll tracking
+- **Usage Example**: useScrollPosition({ element: containerRef.current, throttle: 100 });
+
+### Return Value
+- **Type**: { x: number; y: number; isScrolling: boolean; scrollTo: (x: number, y: number, behavior?: ScrollBehavior) => void; scrollToTop: (behavior?: ScrollBehavior) => void; scrollToBottom: (behavior?: ScrollBehavior) => void; scrollToLeft: (behavior?: ScrollBehavior) => void; scrollToRight: (behavior?: ScrollBehavior) => void; }
+- **Description**: Returns current scroll position and utility functions
+- **Usage Example**: const { x, y, isScrolling } = useScrollPosition();
+
+### Return Value Properties
+- **x**: number - Current horizontal scroll position
+- **y**: number - Current vertical scroll position
+- **isScrolling**: boolean - Whether currently scrolling (auto-reset after 150ms)
+- **scrollTo**: (x: number, y: number, behavior?: ScrollBehavior) => void - Scroll to specific position
+- **scrollToTop**: (behavior?: ScrollBehavior) => void - Scroll to top
+- **scrollToBottom**: (behavior?: ScrollBehavior) => void - Scroll to bottom
+- **scrollToLeft**: (behavior?: ScrollBehavior) => void - Scroll to left
+- **scrollToRight**: (behavior?: ScrollBehavior) => void - Scroll to right
+
+## Usage Examples
+
+\`\`\`tsx
+// Basic scroll position tracking
+const { x, y, isScrolling } = useScrollPosition();
+
+return (
+  <div>
+    <p>X: {x}px, Y: {y}px</p>
+    <p>스크롤 중: {isScrolling ? '🔄 스크롤 중' : '⏸️ 정지'}</p>
+  </div>
+);
+
+// Scroll control utilities
+const { x, y, scrollTo, scrollToTop, scrollToBottom, scrollToLeft, scrollToRight } = useScrollPosition();
+
+return (
+  <div>
+    <p>현재 위치: X={x}px, Y={y}px</p>
+    <button onClick={() => scrollToTop()}>맨 위로</button>
+    <button onClick={() => scrollToBottom()}>맨 아래로</button>
+    <button onClick={() => scrollTo(0, 500)}>특정 위치로</button>
+    <button onClick={() => scrollToLeft()}>맨 왼쪽으로</button>
+    <button onClick={() => scrollToRight()}>맨 오른쪽으로</button>
+  </div>
+);
+
+// Custom element with throttling
+const containerRef = useRef(null);
+const { x, y, isScrolling } = useScrollPosition({
+  element: containerRef.current,
+  throttle: 50
+});
+
+return (
+  <div>
+    <p>컨테이너 스크롤: X={x}px, Y={y}px</p>
+    <div ref={containerRef} style={{ height: '200px', overflow: 'auto' }}>
+      {/* 긴 콘텐츠 */}
+    </div>
+  </div>
+);
+
+// onChange callback with scroll history
+const [scrollHistory, setScrollHistory] = useState([]);
+
+const { x, y } = useScrollPosition({
+  throttle: 100,
+  onChange: (position) => {
+    setScrollHistory(prev => [
+      ...prev.slice(-9),
+      { ...position, timestamp: Date.now() }
+    ]);
+  }
+});
+
+return (
+  <div>
+    <p>현재: X={x}px, Y={y}px</p>
+    <div>히스토리: {scrollHistory.length}개 기록</div>
+  </div>
+);
+
+// Horizontal scroll tracking
+const containerRef = useRef(null);
+const { x, y, scrollToLeft, scrollToRight } = useScrollPosition({
+  element: containerRef.current
+});
+
+return (
+  <div>
+    <p>가로 스크롤: X={x}px, Y={y}px</p>
+    <button onClick={() => scrollToLeft()}>맨 왼쪽</button>
+    <button onClick={() => scrollToRight()}>맨 오른쪽</button>
+    <div ref={containerRef} style={{ width: '300px', overflow: 'auto' }}>
+      {/* 넓은 콘텐츠 */}
+    </div>
+  </div>
+);
+
+// Disabled scroll tracking
+const { x, y } = useScrollPosition({
+  enabled: false
+});
+
+return (
+  <div>
+    <p>스크롤 추적 비활성화: X={x}px, Y={y}px</p>
+  </div>
+);
+\`\`\`
+				`,
+			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
+		},
 	},
 };
 
@@ -27,6 +163,8 @@ return (
     <button onClick={() => scrollToTop()}>맨 위로</button>
     <button onClick={() => scrollToBottom()}>맨 아래로</button>
     <button onClick={() => scrollTo(0, 500)}>특정 위치로</button>
+    <button onClick={() => scrollToLeft()}>맨 왼쪽으로</button>
+    <button onClick={() => scrollToRight()}>맨 오른쪽으로</button>
   </div>
 );`;
 
@@ -152,8 +290,7 @@ export const Default = () => {
 };
 
 export const WithScrollTo = () => {
-	const { x, y, scrollTo, scrollToTop, scrollToBottom, scrollToLeft, scrollToRight } =
-		useScrollPosition();
+	const { x, y, scrollTo, scrollToTop, scrollToBottom } = useScrollPosition();
 
 	return (
 		<ToggleComponent
@@ -505,7 +642,7 @@ export const WithOnChange = () => {
 export const WithHorizontalScroll = () => {
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	const { x, y, scrollToTop, scrollToBottom, scrollToLeft, scrollToRight } = useScrollPosition({
+	const { x, y, scrollToLeft, scrollToRight } = useScrollPosition({
 		element: containerRef.current,
 	});
 

@@ -9,41 +9,120 @@ export default {
 		docs: {
 			description: {
 				component: `
-## useClickOutside 훅
+A React hook that detects clicks outside of a specified element. It provides functionality to automatically close UI elements like modals, dropdowns, and popups when clicking outside.
 
-요소 외부 클릭을 감지하는 훅입니다.
+### API
 
-### 기본 사용법
+#### Parameters
+- **callback**: () => void - Callback function to execute when clicking outside
+- **options**: Object (optional) - Configuration options
+  - **enabled**: boolean (optional, default: true) - Whether the hook is enabled
+  - **eventType**: 'mousedown' | 'click' | 'touchstart' (optional, default: 'mousedown') - Event type to detect
+- **Usage Example**: const ref = useClickOutside(() => setIsOpen(false), { enabled: true, eventType: 'click' });
+
+#### Return Value
+- **Type**: RefObject<T>
+- **Description**: Returns a ref object to attach to the element to monitor
+- **Usage Example**: const ref = useClickOutside<HTMLDivElement>(() => setIsOpen(false));
+
+### Usage Examples
 
 \`\`\`tsx
-import { useClickOutside } from 'useHookit';
+// Basic usage
+const [isOpen, setIsOpen] = useState(false);
+const ref = useClickOutside<HTMLDivElement>(() => setIsOpen(false));
 
-function MyComponent() {
-  const [isOpen, setIsOpen] = useState(false);
-  const ref = useClickOutside(() => setIsOpen(false));
+return (
+  <div>
+    <button onClick={() => setIsOpen(!isOpen)}>
+      {isOpen ? 'Close Menu' : 'Open Menu'}
+    </button>
+    {isOpen && (
+      <div ref={ref} style={{ border: '2px solid #007bff', padding: '20px' }}>
+        Menu content
+      </div>
+    )}
+  </div>
+);
 
-  return (
-    <div>
-      <button onClick={() => setIsOpen(!isOpen)}>메뉴 열기</button>
-      {isOpen && (
-        <div ref={ref} style={{ border: '1px solid #ccc', padding: '10px' }}>
-          메뉴 내용
+// Custom options usage
+const [isModalOpen, setIsModalOpen] = useState(false);
+const modalRef = useClickOutside<HTMLDivElement>(() => setIsModalOpen(false), {
+  enabled: isModalOpen,
+  eventType: 'click'
+});
+
+return (
+  <div>
+    <button onClick={() => setIsModalOpen(true)}>Open Modal</button>
+    {isModalOpen && (
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+        <div ref={modalRef} style={{ backgroundColor: 'white', padding: '30px' }}>
+          Modal content
         </div>
-      )}
-    </div>
-  );
-}
+      </div>
+    )}
+  </div>
+);
+
+// Conditional hook usage
+const [isActive, setIsActive] = useState(false);
+const ref = useClickOutside<HTMLDivElement>(() => setIsActive(false), {
+  enabled: isActive,
+  eventType: 'mousedown'
+});
+
+return (
+  <div ref={ref}>
+    {isActive ? 'Active' : 'Inactive'}
+  </div>
+);
 \`\`\`
 
-### 매개변수
+### Related Hooks
 
-- \`callback\`: 외부 클릭 시 실행할 콜백 함수
+#### useClickOutsideMultiple
+A hook that detects clicks outside of multiple specified elements. It executes a callback when clicking outside all monitored elements.
 
-### 반환값
+**Usage Example**:
+\`\`\`tsx
+// Basic usage
+const ref1 = useRef(null);
+const ref2 = useRef(null);
 
-- \`ref\`: 감지할 요소에 연결할 ref
+useClickOutsideMultiple(() => setOpen(false), [ref1, ref2]);
+
+return (
+  <>
+    <div ref={ref1}>첫 번째 요소</div>
+    <div ref={ref2}>두 번째 요소</div>
+  </>
+);
+
+// Custom options usage
+const refs = [ref1, ref2, ref3];
+
+useClickOutsideMultiple(() => {
+  console.log('모든 요소 외부 클릭됨');
+}, refs, {
+  enabled: isActive,
+  eventType: 'click'
+});
+\`\`\`
 				`,
 			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
 		},
 	},
 };

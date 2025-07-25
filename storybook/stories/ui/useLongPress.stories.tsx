@@ -9,50 +9,104 @@ export default {
 		docs: {
 			description: {
 				component: `
-## useLongPress 훅
+A React hook that handles long press events with customizable timing and movement thresholds. Perfect for implementing mobile context menus, item selection, and drag-and-drop interactions.
 
-길게 누르기 동작을 감지하는 훅입니다.
+### API
 
-### 기본 사용법
+#### Parameters
+- **delay**: number (optional, default: 500) - Duration in milliseconds to trigger long press
+- **onLongPress**: () => void (optional) - Callback when long press is completed
+- **onLongPressStart**: (event: MouseEvent | TouchEvent) => void (optional) - Callback when long press starts
+- **onLongPressEnd**: () => void (optional) - Callback when long press ends
+- **onLongPressCancel**: () => void (optional) - Callback when long press is cancelled
+- **preventDefault**: boolean (optional, default: true) - Whether to prevent default events
+- **shouldPreventDefault**: boolean (optional, default: true) - Whether to prevent default on touch events
+- **moveThreshold**: number (optional, default: 10) - Movement threshold in pixels before canceling
+- **Usage Example**: useLongPress({ delay: 1000, onLongPress: () => console.log('Long pressed!') });
+
+#### Return Value
+- **Type**: { handlers: LongPressHandlers, isLongPressing: boolean }
+- **Description**: Returns event handlers to attach to target element and current long press state
+- **Usage Example**: const { handlers, isLongPressing } = useLongPress(options);
+
+#### Return Value Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| handlers | LongPressHandlers | Event handlers object to spread on target element |
+| isLongPressing | boolean | Current long press state |
+
+### Usage Examples
 
 \`\`\`tsx
-import { useLongPress } from 'useHookit';
+// Basic long press detection
+const [longPressCount, setLongPressCount] = useState(0);
 
-function MyComponent() {
-  const { handlers } = useLongPress({
-    delay: 1000,
-    onLongPress: () => {
-      console.log('길게 누름!');
-    },
-    onLongPressStart: () => {
-      console.log('길게 누르기 시작');
-    },
-    onLongPressEnd: () => {
-      console.log('길게 누르기 종료');
-    },
-  });
+const { handlers, isLongPressing } = useLongPress({
+  delay: 1000,
+  onLongPress: () => setLongPressCount(prev => prev + 1),
+  preventDefault: true,
+});
 
-  return (
-    <button {...handlers}>
-      길게 누르세요
-    </button>
-  );
-}
+return (
+  <div {...handlers}>
+    {isLongPressing ? 'Long pressing...' : 'Press and hold'}
+    <p>Count: {longPressCount}</p>
+  </div>
+);
+
+// Custom delay and movement threshold
+const { handlers, isLongPressing } = useLongPress({
+  delay: 2000, // 2 seconds
+  moveThreshold: 50, // Allow 50px movement
+  onLongPress: () => console.log('Long press completed'),
+  preventDefault: true,
+});
+
+return (
+  <button {...handlers}>
+    {isLongPressing ? 'Long pressing...' : 'Hold for 2 seconds'}
+  </button>
+);
+
+// Mobile context menu with cancel handling
+const [showContextMenu, setShowContextMenu] = useState(false);
+
+const { handlers, isLongPressing } = useLongPress({
+  delay: 500,
+  onLongPress: () => setShowContextMenu(true),
+  onLongPressCancel: () => console.log('Long press cancelled'),
+  preventDefault: true,
+});
+
+return (
+  <div>
+    <div {...handlers}>
+      {isLongPressing ? 'Long pressing...' : 'Long press for context menu'}
+    </div>
+    {showContextMenu && (
+      <div className="context-menu">
+        <button onClick={() => console.log('Delete')}>Delete</button>
+        <button onClick={() => console.log('Edit')}>Edit</button>
+      </div>
+    )}
+  </div>
+);
 \`\`\`
-
-### 매개변수
-
-- \`delay\`: 길게 누르기로 인식할 시간 (밀리초)
-- \`onLongPress\`: 길게 누르기가 완료되었을 때 호출되는 콜백
-- \`onLongPressStart\`: 길게 누르기가 시작되었을 때 호출되는 콜백
-- \`onLongPressEnd\`: 길게 누르기가 종료되었을 때 호출되는 콜백
-- \`preventDefault\`: 기본 이벤트 방지 여부
-
-### 반환값
-
-- \`handlers\`: 이벤트 핸들러 객체
 				`,
 			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
 		},
 	},
 };

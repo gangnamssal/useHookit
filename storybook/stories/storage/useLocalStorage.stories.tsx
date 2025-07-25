@@ -8,46 +8,80 @@ export default {
 		docs: {
 			description: {
 				component: `
-## useLocalStorage 훅
+A React hook that allows you to use browser's localStorage like React state. It provides persistent data storage that persists across browser sessions.
 
-로컬 스토리지에 데이터를 저장하고 관리하는 훅입니다.
+### API
 
-### 기본 사용법
+#### Parameters
+- **key**: string - Key to store in localStorage
+- **initialValue**: T - Initial value for the storage
+- **options**: UseLocalStorageOptions (optional) - Serialization/deserialization function options
+  - **serializer**: (value: T) => string (optional) - Custom serialization function
+  - **deserializer**: (value: string) => T (optional) - Custom deserialization function
+- **Usage Example**: const [value, setValue, removeValue] = useLocalStorage('key', initialValue);
+
+#### Return Value
+- **Type**: [T, (value: T | ((val: T) => T)) => void, () => void]
+- **Description**: Returns [current value, set value function, remove value function] tuple
+- **Return Value Properties**:
+  - **value**: T - Current stored value
+  - **setValue**: (value: T | ((val: T) => T)) => void - Function to update the stored value
+  - **removeValue**: () => void - Function to remove the stored value
+- **Usage Example**: const [name, setName, removeName] = useLocalStorage('user-name', '');
+
+### Usage Examples
 
 \`\`\`tsx
-import { useLocalStorage } from 'useHookit';
+// Basic usage
+const [name, setName, removeName] = useLocalStorage('user-name', '');
+const [age, setAge, removeAge] = useLocalStorage('user-age', 0);
+const [preferences, setPreferences, removePreferences] = useLocalStorage('user-preferences', {
+  theme: 'light',
+  language: 'ko'
+});
 
-function MyComponent() {
-  const [name, setName] = useLocalStorage('user-name', '');
-  const [age, setAge] = useLocalStorage('user-age', 0);
+// String, number, object types are automatically serialized
+// Data persists across browser sessions
 
-  return (
-    <div>
-      <input
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="이름을 입력하세요"
-      />
-      <input
-        type="number"
-        value={age}
-        onChange={(e) => setAge(Number(e.target.value))}
-      />
-    </div>
-  );
-}
+// Usage with function updater
+const handleIncrement = () => {
+  setAge(prev => prev + 1);
+};
+
+// Remove stored value
+const handleReset = () => {
+  removeName();
+  removeAge();
+  removePreferences();
+};
+
+// Custom serialization for Date objects
+const [date, setDate, removeDate] = useLocalStorage('user-birthdate', new Date(), {
+  serializer: (value) => value.toISOString(),
+  deserializer: (value) => new Date(value)
+});
+
+// Custom serialization for complex objects
+const [user, setUser, removeUser] = useLocalStorage('user-profile', null, {
+  serializer: (value) => JSON.stringify(value, null, 2),
+  deserializer: (value) => JSON.parse(value)
+});
 \`\`\`
 
-### 매개변수
-
-- \`key\`: 로컬 스토리지 키
-- \`initialValue\`: 초기값
-
-### 반환값
-
-- \`[value, setValue]\`: 상태와 설정 함수
 				`,
 			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
 		},
 	},
 };
@@ -295,7 +329,19 @@ const [preferences, setPreferences, removePreferences] = useLocalStorage('user-p
 });
 
 // 문자열, 숫자, 객체 등 다양한 타입을 저장할 수 있습니다
-// 브라우저를 닫아도 데이터가 유지됩니다`;
+// 브라우저를 닫아도 데이터가 유지됩니다
+
+// Function updater 사용법
+const handleIncrement = () => {
+  setAge(prev => prev + 1);
+};
+
+// 값 제거
+const handleReset = () => {
+  removeName();
+  removeAge();
+  removePreferences();
+};`;
 
 const clearDataCode = `const [name, setName, removeName] = useLocalStorage('user-name', '');
 const [age, setAge, removeAge] = useLocalStorage('user-age', 0);

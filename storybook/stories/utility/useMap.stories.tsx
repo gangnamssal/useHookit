@@ -1,15 +1,15 @@
 import { useMap } from '@/utility/useMap';
 import { ToggleComponent } from '../../components/ToggleComponent';
 
-const basicCode = `const [map, { set, get, delete: deleteValue, has, clear }] = useMap<string, number>({
+const basicCode = `const [map, operations] = useMap<string, number>({
   initialValue: [['apple', 1], ['banana', 2]]
 });
 
-const handleSet = () => set('orange', 3);
-const handleGet = () => alert('apple의 값: ' + get('apple'));
-const handleDelete = () => deleteValue('apple');
-const handleHas = () => alert('banana가 있나요? ' + has('banana'));
-const handleClear = () => clear();
+const handleSet = () => operations.set('orange', 3);
+const handleGet = () => alert('apple의 값: ' + operations.get('apple'));
+const handleDelete = () => operations.delete('apple');
+const handleHas = () => alert('banana가 있나요? ' + operations.has('banana'));
+const handleClear = () => operations.clear();
 
 return (
   <div>
@@ -22,12 +22,12 @@ return (
   </div>
 );`;
 
-const convenienceMethodsCode = `const [map, { toggle, setMultiple, deleteMultiple, update }] = useMap<string, number>();
+const convenienceMethodsCode = `const [map, operations] = useMap<string, number>();
 
-const handleToggle = () => toggle('apple', 1);
-const handleSetMultiple = () => setMultiple([['apple', 1], ['banana', 2], ['orange', 3]]);
-const handleDeleteMultiple = () => deleteMultiple(['apple', 'banana']);
-const handleUpdate = () => update('apple', (value) => (value || 0) + 1);
+const handleToggle = () => operations.toggle('apple', 1);
+const handleSetMultiple = () => operations.setMultiple([['apple', 1], ['banana', 2], ['orange', 3]]);
+const handleDeleteMultiple = () => operations.deleteMultiple(['apple', 'banana']);
+const handleUpdate = () => operations.update('apple', (value) => (value || 0) + 1);
 
 return (
   <div>
@@ -54,32 +54,32 @@ return (
   </div>
 );`;
 
-const transformationMethodsCode = `const [map, { filter, map: mapValues, find, findKey, findValue }] = useMap<string, number>({
+const transformationMethodsCode = `const [map, operations] = useMap<string, number>({
   initialValue: [['apple', 1], ['banana', 2], ['orange', 3], ['grape', 4]]
 });
 
 const handleFilter = () => {
-  const filtered = filter((key, value) => value > 2);
+  const filtered = operations.filter((key, value) => value > 2);
   alert('2보다 큰 값들: ' + JSON.stringify(filtered));
 };
 
 const handleMap = () => {
-  const mapped = mapValues((key, value) => \`\${key}: \${value * 2}\`);
+  const mapped = operations.map((key, value) => \`\${key}: \${value * 2}\`);
   alert('값을 2배로 변환: ' + JSON.stringify(mapped));
 };
 
 const handleFind = () => {
-  const found = find((key, value) => value === 3);
+  const found = operations.find((key, value) => value === 3);
   alert('값이 3인 엔트리: ' + JSON.stringify(found));
 };
 
 const handleFindKey = () => {
-  const foundKey = findKey((key, value) => value === 2);
+  const foundKey = operations.findKey((key, value) => value === 2);
   alert('값이 2인 키: ' + foundKey);
 };
 
 const handleFindValue = () => {
-  const foundValue = findValue((key, value) => key === 'banana');
+  const foundValue = operations.findValue((key, value) => key === 'banana');
   alert('키가 banana인 값: ' + foundValue);
 };
 
@@ -100,27 +100,27 @@ const complexObjectsCode = `interface User {
   age: number;
 }
 
-const [map, { set, get, has, delete: deleteValue }] = useMap<number, User>();
+const [map, operations] = useMap<number, User>();
 
 const user1 = { id: 1, name: 'Alice', age: 25 };
 const user2 = { id: 2, name: 'Bob', age: 30 };
 
 const handleAddUser = () => {
-  set(1, user1);
-  set(2, user2);
+  operations.set(1, user1);
+  operations.set(2, user2);
 };
 
 const handleGetUser = () => {
-  const user = get(1);
+  const user = operations.get(1);
   alert('User 1: ' + JSON.stringify(user));
 };
 
 const handleCheckUser = () => {
-  alert('User 2가 있나요? ' + has(2));
+  alert('User 2가 있나요? ' + operations.has(2));
 };
 
 const handleDeleteUser = () => {
-  deleteValue(1);
+  operations.delete(1);
 };
 
 return (
@@ -133,10 +133,10 @@ return (
   </div>
 );`;
 
-const debugModeCode = `const [map, { set, delete: deleteValue }] = useMap<string, number>({ debug: true });
+const debugModeCode = `const [map, operations] = useMap<string, number>({ debug: true });
 
-const handleAdd = () => set('apple', 1);
-const handleDelete = () => deleteValue('apple');
+const handleAdd = () => operations.set('apple', 1);
+const handleDelete = () => operations.delete('apple');
 
 return (
   <div>
@@ -147,21 +147,21 @@ return (
   </div>
 );`;
 
-const edgeCasesCode = `const [map, { set, get, has }] = useMap<any, any>();
+const edgeCasesCode = `const [map, operations] = useMap<any, any>();
 
-const handleAddNull = () => set(null, 'null value');
-const handleAddUndefined = () => set(undefined, 'undefined value');
-const handleAddEmptyString = () => set('', 'empty string key');
-const handleAddNaN = () => set(NaN, 'NaN key');
-const handleAddInfinity = () => set(Infinity, 'Infinity key');
-const handleAddObject = () => set({ id: 1 }, 'object key');
-const handleAddArray = () => set([1, 2, 3], 'array key');
+const handleAddNull = () => operations.set(null, 'null value');
+const handleAddUndefined = () => operations.set(undefined, 'undefined value');
+const handleAddEmptyString = () => operations.set('', 'empty string key');
+const handleAddNaN = () => operations.set(NaN, 'NaN key');
+const handleAddInfinity = () => operations.set(Infinity, 'Infinity key');
+const handleAddObject = () => operations.set({ id: 1 }, 'object key');
+const handleAddArray = () => operations.set([1, 2, 3], 'array key');
 
-const handleCheckNull = () => alert('null이 있나요? ' + has(null));
-const handleCheckUndefined = () => alert('undefined가 있나요? ' + has(undefined));
-const handleCheckEmptyString = () => alert('빈 문자열이 있나요? ' + has(''));
-const handleCheckNaN = () => alert('NaN이 있나요? ' + has(NaN));
-const handleCheckInfinity = () => alert('Infinity가 있나요? ' + has(Infinity));
+const handleCheckNull = () => alert('null이 있나요? ' + operations.has(null));
+const handleCheckUndefined = () => alert('undefined가 있나요? ' + operations.has(undefined));
+const handleCheckEmptyString = () => alert('빈 문자열이 있나요? ' + operations.has(''));
+const handleCheckNaN = () => alert('NaN이 있나요? ' + operations.has(NaN));
+const handleCheckInfinity = () => alert('Infinity가 있나요? ' + operations.has(Infinity));
 
 return (
   <div>
@@ -230,11 +230,227 @@ return (
 export default {
 	title: 'Utility/useMap',
 	parameters: {
+		layout: 'centered',
 		docs: {
 			description: {
-				component:
-					'React hook for managing Map objects with convenience methods and transformations.',
+				component: `
+A React hook that provides declarative Map state management with comprehensive map manipulation methods. Simplifies Map operations like adding, removing, updating, searching, and transforming key-value pairs while maintaining immutability and performance.
+
+## API
+
+### Parameters
+- **options**: UseMapOptions<K, V> (optional) - Configuration options for map management
+- **options.initialValue**: [K, V][] (optional, default: []) - Initial map entries
+- **options.debug**: boolean (optional, default: false) - Enable debug logging (performance optimized)
+- **Usage Example**: useMap<string, number>({ initialValue: [['a', 1], ['b', 2]], debug: true });
+
+### Return Value
+- **Type**: [Map<K, V>, MapOperations<K, V>]
+- **Description**: Returns current Map and operations object
+- **Usage Example**: const [map, operations] = useMap<string, number>({ initialValue: [['a', 1]] });
+
+### Return Value Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| map | Map<K, V> | Current Map value |
+| operations | MapOperations<K, V> | Object containing all map manipulation methods |
+
+### MapOperations Methods
+
+**Basic Operations:**
+- **set**: (key: K, value: V) => void - Set a key-value pair
+- **get**: (key: K) => V \| undefined - Get value by key
+- **delete**: (key: K) => void - Remove key-value pair
+- **has**: (key: K) => boolean - Check if key exists
+- **clear**: () => void - Remove all entries
+
+**Convenience Methods:**
+- **toggle**: (key: K, value: V) => void - Toggle key-value existence
+- **setMultiple**: (entries: [K, V][]) => void - Set multiple entries
+- **deleteMultiple**: (keys: K[]) => void - Delete multiple keys
+- **update**: (key: K, updater: (value: V \| undefined) => V) => void - Update or set value
+
+**Query Methods:**
+- **size**: number - Map size (memoized)
+- **isEmpty**: boolean - Is map empty (memoized)
+- **keys**: K[] - All keys as array (memoized)
+- **values**: V[] - All values as array (memoized)
+- **entries**: [K, V][] - All entries as array (memoized)
+
+**Transformation Methods:**
+- **filter**: (predicate: (key: K, value: V) => boolean) => [K, V][] - Filter entries based on predicate
+- **map**: <U>(mapper: (key: K, value: V) => U) => U[] - Transform entries using mapper function
+- **find**: (predicate: (key: K, value: V) => boolean) => [K, V] \| undefined - Find first entry matching predicate
+- **findKey**: (predicate: (key: K, value: V) => boolean) => K \| undefined - Find first key matching predicate
+- **findValue**: (predicate: (key: K, value: V) => boolean) => V \| undefined - Find first value matching predicate
+
+**Debug:**
+- **debug**: boolean - Debug mode flag
+
+## Usage Examples
+
+\`\`\`tsx
+// Basic map operations
+const [map, operations] = useMap<string, number>({ initialValue: [['apple', 1], ['banana', 2]] });
+
+const handleSet = () => operations.set('orange', 3);
+const handleGet = () => alert('apple의 값: ' + operations.get('apple'));
+const handleDelete = () => operations.delete('apple');
+const handleHas = () => alert('banana가 있나요? ' + operations.has('banana'));
+const handleClear = () => operations.clear();
+
+return (
+  <div>
+    <p>Map: {JSON.stringify(Array.from(map.entries()))}</p>
+    <button onClick={handleSet}>추가</button>
+    <button onClick={handleGet}>조회</button>
+    <button onClick={handleDelete}>제거</button>
+    <button onClick={handleHas}>확인</button>
+    <button onClick={handleClear}>초기화</button>
+  </div>
+);
+
+// Convenience methods
+const [map, operations] = useMap<string, number>();
+
+const handleToggle = () => operations.toggle('apple', 1);
+const handleSetMultiple = () => operations.setMultiple([['apple', 1], ['banana', 2], ['orange', 3]]);
+const handleDeleteMultiple = () => operations.deleteMultiple(['apple', 'banana']);
+const handleUpdate = () => operations.update('apple', (value) => (value || 0) + 1);
+
+return (
+  <div>
+    <p>Map: {JSON.stringify(Array.from(map.entries()))}</p>
+    <button onClick={handleToggle}>토글</button>
+    <button onClick={handleSetMultiple}>여러 개 추가</button>
+    <button onClick={handleDeleteMultiple}>여러 개 제거</button>
+    <button onClick={handleUpdate}>업데이트</button>
+  </div>
+);
+
+// Query methods
+const [map, operations] = useMap<string, number>({ initialValue: [['apple', 1], ['banana', 2], ['orange', 3]] });
+
+return (
+  <div>
+    <p>Map: {JSON.stringify(Array.from(map.entries()))}</p>
+    <p>크기: {operations.size}</p>
+    <p>비어있나요? {operations.isEmpty ? '예' : '아니오'}</p>
+    <p>키들: {JSON.stringify(operations.keys)}</p>
+    <p>값들: {JSON.stringify(operations.values)}</p>
+    <p>엔트리들: {JSON.stringify(operations.entries)}</p>
+  </div>
+);
+
+// Transformation methods
+const [map, operations] = useMap<string, number>({ initialValue: [['apple', 1], ['banana', 2], ['orange', 3], ['grape', 4]] });
+
+const handleFilter = () => {
+  const filtered = operations.filter((key, value) => value > 2);
+  alert('2보다 큰 값들: ' + JSON.stringify(filtered));
+};
+
+const handleMap = () => {
+  const mapped = operations.map((key, value) => \`\${key}: \${value * 2}\`);
+  alert('값을 2배로 변환: ' + JSON.stringify(mapped));
+};
+
+const handleFind = () => {
+  const found = operations.find((key, value) => value === 3);
+  alert('값이 3인 엔트리: ' + JSON.stringify(found));
+};
+
+const handleFindKey = () => {
+  const foundKey = operations.findKey((key, value) => value === 2);
+  alert('값이 2인 키: ' + foundKey);
+};
+
+const handleFindValue = () => {
+  const foundValue = operations.findValue((key, value) => key === 'banana');
+  alert('키가 banana인 값: ' + foundValue);
+};
+
+return (
+  <div>
+    <p>Map: {JSON.stringify(Array.from(map.entries()))}</p>
+    <button onClick={handleFilter}>필터링</button>
+    <button onClick={handleMap}>변환</button>
+    <button onClick={handleFind}>찾기</button>
+    <button onClick={handleFindKey}>키 찾기</button>
+    <button onClick={handleFindValue}>값 찾기</button>
+  </div>
+);
+
+// Complex object map
+interface User {
+  id: number;
+  name: string;
+  age: number;
+}
+
+const [userMap, operations] = useMap<number, User>();
+
+const user1 = { id: 1, name: 'Alice', age: 25 };
+const user2 = { id: 2, name: 'Bob', age: 30 };
+
+const handleAddUser = () => {
+  operations.set(1, user1);
+  operations.set(2, user2);
+};
+
+const handleGetUser = () => {
+  const user = operations.get(1);
+  alert('User 1: ' + JSON.stringify(user));
+};
+
+const handleCheckUser = () => {
+  alert('User 2가 있나요? ' + operations.has(2));
+};
+
+const handleDeleteUser = () => {
+  operations.delete(1);
+};
+
+return (
+  <div>
+    <p>Map: {JSON.stringify(Array.from(userMap.entries()))}</p>
+    <button onClick={handleAddUser}>사용자 추가</button>
+    <button onClick={handleGetUser}>사용자 조회</button>
+    <button onClick={handleCheckUser}>사용자 확인</button>
+    <button onClick={handleDeleteUser}>사용자 제거</button>
+  </div>
+);
+
+// Debug mode
+const [map, operations] = useMap<string, number>({ debug: true });
+
+const handleAdd = () => operations.set('apple', 1);
+const handleDelete = () => operations.delete('apple');
+
+return (
+  <div>
+    <p>Map: {JSON.stringify(Array.from(map.entries()))}</p>
+    <p>콘솔을 확인하여 디버그 로그를 보세요!</p>
+    <button onClick={handleAdd}>추가</button>
+    <button onClick={handleDelete}>제거</button>
+  </div>
+);
+\`\`\`
+`,
 			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
 		},
 	},
 };

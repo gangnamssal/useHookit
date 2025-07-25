@@ -9,41 +9,100 @@ export default {
 		docs: {
 			description: {
 				component: `
-## useIntersectionObserver 훅
+A React hook that detects when an element enters or leaves the viewport using the Intersection Observer API. Perfect for implementing infinite scroll, lazy loading, and visibility-based animations.
 
-요소의 가시성을 감지하는 훅입니다.
+### API
 
-### 기본 사용법
+#### Parameters
+- **options**: IntersectionObserverOptions (optional) - Configuration options for the observer
+  - **root**: Element | null (optional, default: null) - Root element for intersection calculations
+  - **rootMargin**: string (optional, default: '0px') - Margin around the root element
+  - **threshold**: number | number[] (optional, default: 0) - Percentage of element visibility (0-1)
+  - **initialIsIntersecting**: boolean (optional, default: false) - Initial intersection state
+- **Usage Example**: useIntersectionObserver({ threshold: 0.5, rootMargin: '50px' });
+
+#### Return Value
+- **Type**: { isIntersecting: boolean, intersectionRatio: number, intersectionRect: DOMRectReadOnly | null, boundingClientRect: DOMRectReadOnly | null, rootBounds: DOMRectReadOnly | null, ref: (node: Element | null) => void, observer: IntersectionObserver | null }
+- **Description**: Returns intersection state, related information, and ref for target element
+- **Usage Example**: const { ref, isIntersecting, intersectionRatio } = useIntersectionObserver();
+
+#### Return Value Properties
+
+- **isIntersecting**: boolean - Whether the element is currently intersecting
+- **intersectionRatio**: number - Percentage of element visibility (0-1)
+- **intersectionRect**: DOMRectReadOnly | null - Intersection area bounding rectangle
+- **boundingClientRect**: DOMRectReadOnly | null - Target element bounding rectangle
+- **rootBounds**: DOMRectReadOnly | null - Root element bounding rectangle
+- **ref**: (node: Element | null) => void - Ref callback for target element
+- **observer**: IntersectionObserver | null - Observer instance
+
+### Usage Examples
 
 \`\`\`tsx
-import { useIntersectionObserver } from 'useHookit';
+// Basic visibility detection
+const { ref, isIntersecting, intersectionRatio } = useIntersectionObserver({
+  threshold: 0.5,
+  rootMargin: '50px'
+});
 
-function MyComponent() {
-  const [isVisible, setIsVisible] = useState(false);
-  const ref = useIntersectionObserver((entries) => {
-    setIsVisible(entries[0].isIntersecting);
-  });
+return (
+  <div ref={ref}>
+    {isIntersecting ? 'Visible' : 'Hidden'}
+    <p>Visibility: {(intersectionRatio * 100).toFixed(0)}%</p>
+  </div>
+);
 
-  return (
-    <div>
-      <div ref={ref}>
-        {isVisible ? '보임' : '안 보임'}
-      </div>
-    </div>
-  );
-}
+// Lazy loading implementation
+const [isLoaded, setIsLoaded] = useState(false);
+const { ref, isIntersecting } = useIntersectionObserver({
+  threshold: 0.1,
+  rootMargin: '100px'
+});
+
+useEffect(() => {
+  if (isIntersecting && !isLoaded) {
+    setIsLoaded(true);
+  }
+}, [isIntersecting, isLoaded]);
+
+return (
+  <div ref={ref}>
+    {isLoaded ? <img src="image.jpg" /> : <div>Loading...</div>}
+  </div>
+);
+
+// Infinite scroll trigger
+const { ref, isIntersecting } = useIntersectionObserver({
+  threshold: 0.1
+});
+
+useEffect(() => {
+  if (isIntersecting) {
+    loadMoreItems();
+  }
+}, [isIntersecting]);
+
+return (
+  <div>
+    {/* Content items */}
+    <div ref={ref}>Loading more...</div>
+  </div>
+);
 \`\`\`
-
-### 매개변수
-
-- \`callback\`: 교차 시 실행할 콜백 함수
-- \`options\`: IntersectionObserver 옵션
-
-### 반환값
-
-- \`ref\`: 감지할 요소에 연결할 ref
 				`,
 			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
 		},
 	},
 };

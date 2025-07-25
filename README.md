@@ -12,6 +12,8 @@ A comprehensive collection of **40+ production-ready React hooks** designed to a
 - **Tree Shakeable** - Import only what you need, keep your bundle size minimal
 - **Interactive Docs** - Live examples and documentation with Storybook
 
+---
+
 ## 🚀 Quick Start
 
 ```bash
@@ -28,12 +30,14 @@ import { useDebounce, useLocalStorage, useClickOutside } from 'use-hookit';
 // Debounce search input
 const debouncedSearch = useDebounce(searchTerm, 300);
 
-// Persistent state
+// Persistent state (localStorage)
 const [theme, setTheme, removeTheme] = useLocalStorage('theme', 'light');
 
 // Click outside detection
 const ref = useClickOutside(() => setModalOpen(false));
 ```
+
+---
 
 ## 📚 Hook Categories
 
@@ -64,6 +68,12 @@ import {
 	useNetworkStatus,
 	useGeolocation, // Browser APIs
 } from 'use-hookit/utility';
+
+// Boolean state
+const { value, toggle, setTrue, setFalse } = useBoolean({ initialValue: false });
+
+// Loading state
+const { isLoading, startLoading, stopLoading } = useLoading();
 ```
 
 ### Performance Hooks - Optimization
@@ -82,7 +92,18 @@ import { useIsMounted, usePrevious } from 'use-hookit/lifecycle';
 
 ```typescript
 import { useLocalStorage, useSessionStorage } from 'use-hookit/storage';
+
+// LocalStorage (with TypeScript generic)
+const [user, setUser, removeUser] = useLocalStorage<{ name: string; email: string }>('user', {
+	name: '',
+	email: '',
+});
+
+// SessionStorage
+const [token, setToken, removeToken] = useSessionStorage('token', '');
 ```
+
+---
 
 ## 🎯 Featured Hooks
 
@@ -90,16 +111,34 @@ import { useLocalStorage, useSessionStorage } from 'use-hookit/storage';
 
 ```typescript
 // Array management with 20+ methods
-const [array, { push, pop, filter, map, sort, reverse }] = useArray([1, 2, 3]);
+const [array, { push, pop, filter, map, sort, reverse }] = useArray({
+	initialValue: [1, 2, 3],
+}); // [T[], ArrayOperations<T>]
 
 // Object state management
-const [obj, { set, get, has, remove, merge, pick, omit }] = useObject({ name: 'John' });
+const [obj, { set, has, remove, merge, pick, omit }] = useObject({
+	initialValue: { name: 'John' },
+}); // [T, ObjectOperations<T>]
 
 // Set operations
-const [set, { add, delete, union, intersection, difference }] = useSet(['apple', 'banana']);
+const [set, { add, delete: remove, union, intersection, difference }] = useSet({
+	initialValue: ['apple', 'banana'],
+}); // [Set<T>, SetOperations<T>]
 
 // Map key-value management
-const [map, { set, get, has, delete, filter, map: mapValues }] = useMap([['key', 'value']]);
+const [map, { set, get, has, delete: remove, filter, map: mapValues }] = useMap({
+	initialValue: [['key', 'value']],
+}); // [Map<K, V>, MapOperations<K, V>]
+```
+
+### TypeScript Generic Example
+
+```typescript
+// useArray<number>
+const [numbers, { push }] = useArray<number>({ initialValue: [1, 2, 3] });
+
+// useMap<string, number>
+const [scoreMap, { set }] = useMap<string, number>({ initialValue: [['math', 100]] });
 ```
 
 ### UI Interaction Hooks
@@ -146,9 +185,15 @@ const { isOnline, isOffline } = useNetworkStatus();
 const { position, loading, error } = useGeolocation();
 ```
 
+---
+
 ## 📖 Documentation
 
-Explore all hooks with live examples at our [Storybook documentation](https://use-hookit.vercel.app/).
+> **🔗 [Live Storybook Documentation & Examples](https://use-hookit.vercel.app/)**
+>
+> 모든 훅의 실시간 예제와 상세 문서를 Storybook에서 확인하세요.
+
+---
 
 ## 📦 Bundle Size
 

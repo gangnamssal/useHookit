@@ -222,6 +222,27 @@ pnpm run build
 - React 18.0.0 or higher
 - TypeScript 4.5+ (recommended)
 
+## 🔄 CI/CD Pipeline
+
+This project uses automated CI/CD pipeline powered by GitHub Actions:
+
+- **Automated Testing** - All PRs and pushes trigger comprehensive tests
+- **Automated Building** - TypeScript compilation and bundle optimization
+- **Automated Deployment** - NPM package and Storybook deployment on tag releases
+
+### Release Commands
+
+```bash
+# Patch release (bug fixes, docs)
+pnpm release:patch
+
+# Minor release (new features)
+pnpm release:minor
+
+# Major release (breaking changes)
+pnpm release:major
+```
+
 ## 📄 License
 
 MIT © [useHookit](https://github.com/usehookit)

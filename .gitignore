@@ -25,3 +25,7 @@ pnpm-debug.log*
 *.local 
 *storybook.log
 storybook-static
+
+# Vitest
+vitest.config.*
+vitest.setup.*

@@ -246,3 +246,4 @@ pnpm release:major
 ## 📄 License
 
 MIT © [useHookit](https://github.com/usehookit)
+# GitHub Actions 테스트

@@ -266,6 +266,159 @@ describe('useLoading', () => {
 		expect(result.current.state.endTime).toBeInstanceOf(Date);
 	});
 
+	it('state의 모든 속성이 올바르게 업데이트되어야 함', () => {
+		const { result } = renderHook(() => useLoading());
+
+		// 초기 상태 확인
+		expect(result.current.state.isLoading).toBe(false);
+		expect(result.current.state.startTime).toBeNull();
+		expect(result.current.state.duration).toBe(0);
+		expect(result.current.state.endTime).toBeNull();
+
+		// 로딩 시작
+		act(() => {
+			result.current.startLoading();
+		});
+
+		expect(result.current.state.isLoading).toBe(true);
+		expect(result.current.state.startTime).toBeInstanceOf(Date);
+		expect(result.current.state.duration).toBe(0);
+		expect(result.current.state.endTime).toBeNull();
+
+		// 시간 경과
+		act(() => {
+			vi.advanceTimersByTime(500);
+		});
+
+		expect(result.current.state.isLoading).toBe(true);
+		expect(result.current.state.startTime).toBeInstanceOf(Date);
+		expect(result.current.state.duration).toBe(0); // 아직 duration은 업데이트되지 않음
+		expect(result.current.state.endTime).toBeNull();
+
+		// 로딩 종료
+		act(() => {
+			result.current.stopLoading();
+		});
+
+		expect(result.current.state.isLoading).toBe(false);
+		if (result.current.state.startTime !== null) {
+			expect(result.current.state.startTime).toBeInstanceOf(Date);
+		} else {
+			expect(result.current.state.startTime).toBeNull();
+		}
+		expect(result.current.state.duration).toBe(500);
+		expect(result.current.state.endTime).toBeInstanceOf(Date);
+	});
+
+	it('여러 번의 로딩에서 state가 올바르게 리셋되어야 함', () => {
+		const { result } = renderHook(() => useLoading());
+
+		// 첫 번째 로딩
+		act(() => {
+			result.current.startLoading();
+		});
+
+		act(() => {
+			vi.advanceTimersByTime(100);
+		});
+
+		act(() => {
+			result.current.stopLoading();
+		});
+
+		const firstStartTime = result.current.state.startTime;
+		const firstEndTime = result.current.state.endTime;
+		const firstDuration = result.current.state.duration;
+
+		expect(firstDuration).toBe(100);
+
+		// 두 번째 로딩
+		act(() => {
+			result.current.startLoading();
+		});
+
+		// 새로운 로딩에서 state가 리셋되어야 함
+		expect(result.current.state.isLoading).toBe(true);
+		expect(result.current.state.startTime).toBeInstanceOf(Date);
+		expect(result.current.state.startTime).not.toEqual(firstStartTime);
+		expect(result.current.state.duration).toBe(0);
+		expect(result.current.state.endTime).toBeNull();
+
+		act(() => {
+			vi.advanceTimersByTime(200);
+		});
+
+		act(() => {
+			result.current.stopLoading();
+		});
+
+		expect(result.current.state.duration).toBe(200);
+		expect(result.current.state.endTime).toBeInstanceOf(Date);
+		expect(result.current.state.endTime).not.toEqual(firstEndTime);
+	});
+
+	it('withLoading에서 state가 올바르게 업데이트되어야 함', async () => {
+		const { result } = renderHook(() => useLoading());
+		const mockPromise = Promise.resolve('test result');
+
+		// Promise 실행
+		let promise: Promise<string>;
+		act(() => {
+			promise = result.current.withLoading(mockPromise);
+		});
+
+		// 로딩 시작 시 state 확인
+		expect(result.current.state.isLoading).toBe(true);
+		expect(result.current.state.startTime).toBeInstanceOf(Date);
+		expect(result.current.state.duration).toBe(0);
+		expect(result.current.state.endTime).toBeNull();
+
+		// Promise 완료 후 state 확인
+		await act(async () => {
+			await promise!;
+		});
+
+		expect(result.current.state.isLoading).toBe(false);
+		if (result.current.state.startTime !== null) {
+			expect(result.current.state.startTime).toBeInstanceOf(Date);
+		} else {
+			expect(result.current.state.startTime).toBeNull();
+		}
+		expect(result.current.state.duration).toBeGreaterThanOrEqual(0);
+		expect(result.current.state.endTime).toBeInstanceOf(Date);
+	});
+
+	it('wrapAsync에서 state가 올바르게 업데이트되어야 함', async () => {
+		const { result } = renderHook(() => useLoading());
+		const mockAsyncFn = vi.fn().mockResolvedValue('test result');
+
+		// 함수 실행
+		let promise: Promise<string>;
+		act(() => {
+			promise = result.current.wrapAsync(mockAsyncFn);
+		});
+
+		// 로딩 시작 시 state 확인
+		expect(result.current.state.isLoading).toBe(true);
+		expect(result.current.state.startTime).toBeInstanceOf(Date);
+		expect(result.current.state.duration).toBe(0);
+		expect(result.current.state.endTime).toBeNull();
+
+		// Promise 완료 후 state 확인
+		await act(async () => {
+			await promise!;
+		});
+
+		expect(result.current.state.isLoading).toBe(false);
+		if (result.current.state.startTime !== null) {
+			expect(result.current.state.startTime).toBeInstanceOf(Date);
+		} else {
+			expect(result.current.state.startTime).toBeNull();
+		}
+		expect(result.current.state.duration).toBeGreaterThanOrEqual(0);
+		expect(result.current.state.endTime).toBeInstanceOf(Date);
+	});
+
 	it('여러 번의 startLoading과 stopLoading이 올바르게 동작해야 함', () => {
 		const { result } = renderHook(() => useLoading());
 

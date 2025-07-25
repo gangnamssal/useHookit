@@ -65,7 +65,11 @@
 		"publish:dry": "pnpm build && npm publish --dry-run",
 		"test": "vitest",
 		"storybook": "pnpm --filter ./storybook storybook",
-		"build-storybook": "pnpm --filter ./storybook build-storybook"
+		"build-storybook": "pnpm --filter ./storybook build-storybook",
+		"release:patch": "npm version patch && git push origin main --tags",
+		"release:minor": "npm version minor && git push origin main --tags",
+		"release:major": "npm version major && git push origin main --tags",
+		"deploy": "pnpm test && pnpm build && pnpm publish:lib"
 	},
 	"repository": {
 		"type": "git",

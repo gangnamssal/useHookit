@@ -30,7 +30,7 @@ jobs:
         run: pnpm install
 
       - name: Run tests
-        run: pnpm test
+        run: pnpm vitest run --reporter=verbose
 
   build:
     name: Build

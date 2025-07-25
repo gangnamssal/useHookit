@@ -83,7 +83,7 @@
 	"bugs": {
 		"url": "https://github.com/gangnamssal/useHookit/issues"
 	},
-	"homepage": "https://github.com/gangnamssal/useHookit#readme",
+	"homepage": "https://use-hookit.vercel.app/",
 	"storybook": {
 		"url": "https://use-hookit.vercel.app/"
 	}

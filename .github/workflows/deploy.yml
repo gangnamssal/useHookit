@@ -30,7 +30,7 @@ jobs:
         run: pnpm install
 
       - name: Run tests
-        run: pnpm vitest run
+        run: pnpm vitest run --config vitest.config.ts
 
   build:
     name: Build

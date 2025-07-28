@@ -66,7 +66,7 @@ A React hook that provides declarative URL query parameter management with compr
 - **Automatic URL sync**: Query changes automatically update URL
 - **History management**: Support for push/replace history modes
 - **Encoding options**: Flexible encoding for query parameter parsing (decodeURIComponent, decodeURI, none)
-- **SSR support**: Graceful handling in server-side rendering environments
+
 - **Popstate handling**: Browser back/forward button support
 - **Hash preservation**: URL hash is preserved during query updates
 - **Initial URL parsing**: URL query parameters override initial values on mount
@@ -81,6 +81,7 @@ A React hook that provides declarative URL query parameter management with compr
 - **Empty value handling**: Consistent empty value detection (undefined, null, '', empty arrays)
 - **Conditional rendering**: batchUpdate only available when batchUpdates: true
 - **URL filtering**: Only non-empty values are added to URL query string
+
 
 ### Usage Examples
 
@@ -290,16 +291,15 @@ return (
   </div>
 );
 
-// SSR support and encoding options
+// Encoding options example
 const { query, set } = useUrlQuery(
   { page: 1, search: '' },
   { encoding: 'decodeURIComponent' }
 );
 
-// Works in both client and server environments
-const handleSSRSafe = () => {
+const handleEncodingTest = () => {
   set('page', 5);
-  set('search', 'SSR safe');
+  set('search', 'special chars: &?=#');
 };
 
 const handleDifferentEncoding = () => {
@@ -310,10 +310,9 @@ const handleDifferentEncoding = () => {
 return (
   <div>
     <p>Query: {JSON.stringify(query)}</p>
-    <p>Works in SSR environments</p>
     <p>Supports different encoding options</p>
-    <button onClick={handleSSRSafe}>SSR Safe Update</button>
-    <button onClick={handleDifferentEncoding}>Encoding Test</button>
+    <button onClick={handleEncodingTest}>Encoding Test</button>
+    <button onClick={handleDifferentEncoding}>Special Characters</button>
   </div>
 );
 

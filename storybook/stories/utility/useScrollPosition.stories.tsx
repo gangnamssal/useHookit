@@ -11,9 +11,9 @@ export default {
 				component: `
 A React hook that provides comprehensive scroll position tracking with throttling support and scroll control utilities. Simplifies scroll position monitoring in React components with automatic cleanup and real-time updates.
 
-## API
+### API
 
-### Parameters
+#### Parameters
 - **options**: UseScrollPositionOptions (optional) - Configuration options for scroll tracking
 - **options.element**: HTMLElement | null (optional, default: window) - Element to track scroll position for
 - **options.throttle**: number (optional, default: 16) - Throttle delay in milliseconds (60fps)
@@ -21,12 +21,12 @@ A React hook that provides comprehensive scroll position tracking with throttlin
 - **options.enabled**: boolean (optional, default: true) - Whether to enable scroll tracking
 - **Usage Example**: useScrollPosition({ element: containerRef.current, throttle: 100 });
 
-### Return Value
+#### Return Value
 - **Type**: { x: number; y: number; isScrolling: boolean; scrollTo: (x: number, y: number, behavior?: ScrollBehavior) => void; scrollToTop: (behavior?: ScrollBehavior) => void; scrollToBottom: (behavior?: ScrollBehavior) => void; scrollToLeft: (behavior?: ScrollBehavior) => void; scrollToRight: (behavior?: ScrollBehavior) => void; }
 - **Description**: Returns current scroll position and utility functions
 - **Usage Example**: const { x, y, isScrolling } = useScrollPosition();
 
-### Return Value Properties
+#### Return Value Properties
 - **x**: number - Current horizontal scroll position
 - **y**: number - Current vertical scroll position
 - **isScrolling**: boolean - Whether currently scrolling (auto-reset after 150ms)
@@ -36,7 +36,7 @@ A React hook that provides comprehensive scroll position tracking with throttlin
 - **scrollToLeft**: (behavior?: ScrollBehavior) => void - Scroll to left
 - **scrollToRight**: (behavior?: ScrollBehavior) => void - Scroll to right
 
-## Usage Examples
+### Usage Examples
 
 \`\`\`tsx
 // Basic scroll position tracking

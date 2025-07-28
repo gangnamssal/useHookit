@@ -10,15 +10,15 @@ export default {
 				component: `
 A React hook that provides declarative array state management with comprehensive array manipulation methods. Simplifies array operations like adding, removing, modifying, searching, and sorting while maintaining immutability.
 
-## API
+### API
 
-### Parameters
+#### Parameters
 - **options**: UseArrayOptions<T> (optional) - Configuration options for array management
 - **options.initialValue**: T[] (optional, default: []) - Initial array value
 - **options.debug**: boolean (optional, default: false) - Enable debug logging
 - **Usage Example**: useArray<number>({ initialValue: [1, 2, 3], debug: true });
 
-### Return Value
+#### Return Value
 - **Type**: [T[], ArrayOperations<T>]
 - **Description**: Returns current array and operations object
 - **Return Value Properties**:
@@ -26,7 +26,7 @@ A React hook that provides declarative array state management with comprehensive
   - **operations**: ArrayOperations<T> - Object containing all array manipulation methods
 - **Usage Example**: const [array, operations] = useArray<number>({ initialValue: [1, 2, 3] });
 
-### ArrayOperations Methods
+#### ArrayOperations Methods
 
 **Basic Operations:**
 - **push**: (item: T) => void - Add item to end of array
@@ -60,7 +60,7 @@ A React hook that provides declarative array state management with comprehensive
 - **isNotEmpty**: boolean - Check if array is not empty (memoized)
 - **length**: number - Get array length (memoized)
 
-## Usage Examples
+### Usage Examples
 
 \`\`\`tsx
 // Basic array operations

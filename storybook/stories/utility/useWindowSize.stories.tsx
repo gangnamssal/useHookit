@@ -10,21 +10,21 @@ export default {
 				component: `
 A React hook that provides comprehensive window size tracking with responsive breakpoint detection and orientation monitoring. Simplifies window size monitoring in React components with automatic cleanup and real-time updates.
 
-## API
+### API
 
-### Parameters
+#### Parameters
 - **options**: UseWindowSizeOptions (optional) - Configuration options for window size tracking
 - **options.initialSize**: WindowSize (optional, default: { width: 0, height: 0 }) - Initial window size for SSR
 - **options.debounceMs**: number (optional, default: 100) - Debounce delay in milliseconds for resize events
 - **options.listenerOptions**: AddEventListenerOptions (optional, default: { passive: true }) - Event listener options
 - **Usage Example**: useWindowSize({ debounceMs: 200, listenerOptions: { passive: false } });
 
-### Return Value
+#### Return Value
 - **Type**: { width: number; height: number; isMobile: boolean; isTablet: boolean; isDesktop: boolean; isLargeScreen: boolean; orientation: 'portrait' | 'landscape'; }
 - **Description**: Returns current window size and responsive breakpoint information
 - **Usage Example**: const { width, height, isMobile, isDesktop } = useWindowSize();
 
-### Return Value Properties
+#### Return Value Properties
 - **width**: number - Current window width in pixels
 - **height**: number - Current window height in pixels
 - **isMobile**: boolean - Whether window width is ≤ 767px
@@ -33,7 +33,7 @@ A React hook that provides comprehensive window size tracking with responsive br
 - **isLargeScreen**: boolean - Whether window width is ≥ 1440px
 - **orientation**: 'portrait' | 'landscape' - Screen orientation based on width vs height
 
-## Usage Examples
+### Usage Examples
 
 \`\`\`tsx
 // Basic window size tracking

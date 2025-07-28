@@ -11,20 +11,20 @@ export default {
 				component: `
 A React hook that provides clipboard copy functionality with state management and error handling. Simplifies copying text to clipboard with success/failure feedback and automatic timeout reset.
 
-## API
+### API
 
-### Parameters
+#### Parameters
 - **timeout**: number (optional, default: 2000) - Time in milliseconds to reset copy state (must be non-negative)
 - **successMessage**: string (optional, default: 'Copied!') - Success message to display
 - **errorMessage**: string (optional, default: 'Copy failed') - Error message to display
 - **Usage Example**: useCopyToClipboard({ timeout: 3000, successMessage: 'Copied to clipboard!', errorMessage: 'Cannot copy' });
 
-### Return Value
+#### Return Value
 - **Type**: { copyToClipboard: (text: string) => Promise<boolean>, isCopied: boolean, isCopying: boolean, message: string, reset: () => void }
 - **Description**: Returns clipboard copy function and comprehensive state management
 - **Usage Example**: const { copyToClipboard, isCopied, isCopying, message, reset } = useCopyToClipboard();
 
-### Return Value Properties
+#### Return Value Properties
 
 | Property | Type | Description |
 |----------|------|-------------|
@@ -34,7 +34,7 @@ A React hook that provides clipboard copy functionality with state management an
 | message | string | Current status message |
 | reset | () => void | Function to reset all states |
 
-## Usage Examples
+### Usage Examples
 
 \`\`\`tsx
 // Basic clipboard copy

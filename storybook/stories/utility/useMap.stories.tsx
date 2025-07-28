@@ -236,27 +236,27 @@ export default {
 				component: `
 A React hook that provides declarative Map state management with comprehensive map manipulation methods. Simplifies Map operations like adding, removing, updating, searching, and transforming key-value pairs while maintaining immutability and performance.
 
-## API
+### API
 
-### Parameters
+#### Parameters
 - **options**: UseMapOptions<K, V> (optional) - Configuration options for map management
 - **options.initialValue**: [K, V][] (optional, default: []) - Initial map entries
 - **options.debug**: boolean (optional, default: false) - Enable debug logging (performance optimized)
 - **Usage Example**: useMap<string, number>({ initialValue: [['a', 1], ['b', 2]], debug: true });
 
-### Return Value
+#### Return Value
 - **Type**: [Map<K, V>, MapOperations<K, V>]
 - **Description**: Returns current Map and operations object
 - **Usage Example**: const [map, operations] = useMap<string, number>({ initialValue: [['a', 1]] });
 
-### Return Value Properties
+#### Return Value Properties
 
 | Property | Type | Description |
 |----------|------|-------------|
 | map | Map<K, V> | Current Map value |
 | operations | MapOperations<K, V> | Object containing all map manipulation methods |
 
-### MapOperations Methods
+#### MapOperations Methods
 
 **Basic Operations:**
 - **set**: (key: K, value: V) => void - Set a key-value pair
@@ -288,7 +288,7 @@ A React hook that provides declarative Map state management with comprehensive m
 **Debug:**
 - **debug**: boolean - Debug mode flag
 
-## Usage Examples
+### Usage Examples
 
 \`\`\`tsx
 // Basic map operations

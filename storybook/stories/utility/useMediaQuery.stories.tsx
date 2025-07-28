@@ -21,41 +21,41 @@ export default {
 				component: `
 A React hook that provides comprehensive media query management for responsive design and user preference detection. Simplifies CSS media queries in React components with automatic cleanup and real-time updates.
 
-## API
+### API
 
-### Parameters
+#### Parameters
 - **query**: string - Valid CSS media query string (e.g., '(max-width: 767px)', '(orientation: portrait)')
 - **Usage Example**: useMediaQuery('(max-width: 767px)');
 
-### Return Value
+#### Return Value
 - **Type**: boolean
 - **Description**: Returns true if the media query matches the current environment, false otherwise
 - **Usage Example**: const isMobile = useMediaQuery('(max-width: 767px)');
 
-## Helper Hooks
+#### Helper Hooks
 
-### Screen Size Hooks
+##### Screen Size Hooks
 - **useIsMobile()**: boolean - Returns true for screens ≤ 767px
 - **useIsTablet()**: boolean - Returns true for screens 768px - 1023px
 - **useIsDesktop()**: boolean - Returns true for screens ≥ 1024px
 - **useIsLargeScreen()**: boolean - Returns true for screens ≥ 1440px
 
-### Orientation Hooks
+##### Orientation Hooks
 - **useIsPortrait()**: boolean - Returns true for portrait orientation
 - **useIsLandscape()**: boolean - Returns true for landscape orientation
 
-### User Preference Hooks
+##### User Preference Hooks
 - **usePrefersDarkMode()**: boolean - Returns true if user prefers dark mode
 - **usePrefersReducedMotion()**: boolean - Returns true if user prefers reduced motion
 
-### Input Support Hooks
+##### Input Support Hooks
 - **useIsHoverSupported()**: boolean - Returns true if hover is supported
 - **useIsTouchSupported()**: boolean - Returns true if touch input is supported
 
-### Breakpoint Hook
+##### Breakpoint Hook
 - **useBreakpoint()**: 'mobile' | 'tablet' | 'desktop' | 'large' - Returns current breakpoint string (defaults to 'desktop')
 
-## Usage Examples
+### Usage Examples
 
 \`\`\`tsx
 // Basic media query usage
@@ -139,31 +139,6 @@ return (
   </div>
 );
 \`\`\`
-
-### Key Features
-
-- **Browser compatibility**: Checks for matchMedia support and provides warnings for unsupported browsers
-- **Input validation**: Validates query string and provides helpful error messages
-- **Real-time updates**: Automatically updates when media query conditions change
-- **Memory-safe operations**: Properly cleans up event listeners on unmount
-- **Error handling**: Graceful error handling with try-catch blocks
-- **Event listener management**: Uses addEventListener/removeEventListener for MediaQueryListEvent
-- **Default fallback**: useBreakpoint defaults to 'desktop' when no conditions match
-- **Comprehensive helper hooks**: Covers screen sizes, orientation, user preferences, and input support
-- **Type safety**: Full TypeScript support with proper return types
-- **Performance optimized**: Efficient event listener management and state updates
-
-### Implementation Details
-
-- **matchMedia validation**: Checks for window.matchMedia support before creating queries
-- **Query validation**: Validates query string is non-empty and is a string
-- **Event listener pattern**: Uses MediaQueryListEvent for real-time updates
-- **Cleanup mechanism**: Removes event listeners in useEffect cleanup
-- **Error boundary**: Wraps media query creation in try-catch for error handling
-- **State management**: Uses useState for tracking matches state
-- **Effect dependency**: useEffect depends on query parameter for re-initialization
-- **Memory leak prevention**: Proper cleanup prevents memory leaks
-- **Real-time responsiveness**: Immediate updates when media query conditions change
 `,
 			},
 			// Canvas 완전히 숨기기

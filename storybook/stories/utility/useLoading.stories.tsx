@@ -11,21 +11,21 @@ export default {
 				component: `
 A React hook that provides comprehensive loading state management for asynchronous operations. Simplifies loading state control, async operation wrapping, and user experience optimization with automatic cleanup.
 
-## API
+### API
 
-### Parameters
+#### Parameters
 - **initialLoading**: boolean (optional, default: false) - Initial loading state
 - **delay**: number (optional, default: 0) - Delay before loading state changes (ms, must be non-negative)
 - **minLoadingTime**: number (optional, default: 0) - Minimum loading display time (ms, must be non-negative)
 - **onLoadingChange**: (loading: boolean) => void (optional) - Loading state change callback
 - **Usage Example**: useLoading({ delay: 200, minLoadingTime: 1000 });
 
-### Return Value
+#### Return Value
 - **Type**: { isLoading: boolean, startLoading: () => void, stopLoading: () => void, toggleLoading: () => void, state: LoadingState, withLoading: <T>(promise: Promise<T>) => Promise<T>, wrapAsync: <T>(asyncFn: () => Promise<T>) => Promise<T> }
 - **Description**: Returns comprehensive loading state management object with control functions and async wrappers
 - **Usage Example**: const { isLoading, withLoading, wrapAsync } = useLoading();
 
-### Return Value Properties
+#### Return Value Properties
 
 **State Properties:**
 - **isLoading**: boolean - Current loading state
@@ -40,7 +40,7 @@ A React hook that provides comprehensive loading state management for asynchrono
 - **withLoading**: <T>(promise: Promise<T>) => Promise<T> - Wrap promise with loading state
 - **wrapAsync**: <T>(asyncFn: () => Promise<T>) => Promise<T> - Wrap async function with loading state. Returns a function that can be called directly or used inline.
 
-### LoadingState Properties
+#### LoadingState Properties
 
 **Timing Information:**
 - **isLoading**: boolean - Current loading state
@@ -48,7 +48,7 @@ A React hook that provides comprehensive loading state management for asynchrono
 - **duration**: number - Loading duration in milliseconds
 - **endTime**: Date | null - Loading end time
 
-## Usage Examples
+### Usage Examples
 
 \`\`\`tsx
 // Basic loading usage

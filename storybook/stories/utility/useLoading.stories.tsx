@@ -38,7 +38,7 @@ A React hook that provides comprehensive loading state management for asynchrono
 
 **Async Wrappers:**
 - **withLoading**: <T>(promise: Promise<T>) => Promise<T> - Wrap promise with loading state
-- **wrapAsync**: <T>(asyncFn: () => Promise<T>) => Promise<T> - Wrap async function with loading state
+- **wrapAsync**: <T>(asyncFn: () => Promise<T>) => Promise<T> - Wrap async function with loading state. Returns a function that can be called directly or used inline.
 
 ### LoadingState Properties
 
@@ -69,7 +69,9 @@ return (
   </button>
 );
 
-// Using withLoading
+// Using withLoading - Direct promise wrapping
+// withLoading takes a Promise and wraps it with loading state
+// Use this when you already have a Promise
 const { isLoading, withLoading } = useLoading();
 
 const handleSubmit = async () => {
@@ -82,7 +84,9 @@ return (
   </button>
 );
 
-// Using wrapAsync
+// Using wrapAsync - Method 1: Direct function wrapping
+// wrapAsync takes an async function and returns a function that can be called directly
+// Use this when you want to create a reusable handler function
 const { isLoading, wrapAsync } = useLoading();
 
 const handleSubmit = wrapAsync(async () => {
@@ -95,6 +99,17 @@ return (
     {isLoading ? 'Submitting...' : 'Submit'}
   </button>
 );
+
+// Using wrapAsync - Method 2: Inline wrapping
+// wrapAsync can be used inline within async functions for more complex logic
+// Use this when you need more control over the async flow
+const handleSubmit2 = async () => {
+  const result = await wrapAsync(async () => {
+    const data = await submitData();
+    return data;
+  });
+  return result;
+};
 
 // With options
 const { isLoading, withLoading } = useLoading({

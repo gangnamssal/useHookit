@@ -11,21 +11,21 @@ export default {
 				component: `
 A React hook that provides comprehensive location management using the browser's Geolocation API. Simplifies getting current position, watching location changes, and handling location errors with automatic state management.
 
-## API
+### API
 
-### Parameters
+#### Parameters
 - **enableHighAccuracy**: boolean (optional, default: false) - Whether to request high accuracy location
 - **timeout**: number (optional, default: 10000) - Timeout for location request in milliseconds
 - **maximumAge**: number (optional, default: 0) - Maximum age of cached location in milliseconds
 - **watch**: boolean (optional, default: false) - Whether to automatically watch location
 - **Usage Example**: useGeolocation({ enableHighAccuracy: true, timeout: 15000, maximumAge: 300000, watch: true });
 
-### Return Value
+#### Return Value
 - **Type**: { position: GeolocationPosition | null, error: GeolocationError | null, loading: boolean, supported: boolean, getCurrentPosition: (options?: PositionOptions) => Promise<GeolocationPosition>, startWatching: (options?: PositionOptions) => void, stopWatching: () => void, isWatching: boolean }
 - **Description**: Returns comprehensive location management object with position data, error handling, and control functions
 - **Usage Example**: const { position, error, loading, supported, getCurrentPosition, startWatching, stopWatching, isWatching } = useGeolocation();
 
-### Return Value Properties
+#### Return Value Properties
 
 **State Properties:**
 - **position**: GeolocationPosition | null - Current location information (latitude, longitude, accuracy, etc.)
@@ -39,7 +39,7 @@ A React hook that provides comprehensive location management using the browser's
 - **stopWatching**: () => void - Function to stop location watching (with cleanup)
 - **isWatching**: boolean - Whether location watching is active
 
-### GeolocationPosition Properties
+#### GeolocationPosition Properties
 
 **Core Location Data:**
 - **latitude**: number - Latitude in decimal degrees
@@ -53,7 +53,7 @@ A React hook that provides comprehensive location management using the browser's
 - **speed**: number | null - Speed in meters per second
 - **timestamp**: number - Position timestamp
 
-### Error Codes
+#### Error Codes
 
 **Permission Issues:**
 - **1 - PERMISSION_DENIED**: 위치 정보 접근 권한이 거부되었습니다.
@@ -62,7 +62,7 @@ A React hook that provides comprehensive location management using the browser's
 - **2 - POSITION_UNAVAILABLE**: 위치 정보를 사용할 수 없습니다.
 - **3 - TIMEOUT**: 위치 정보 요청 시간이 초과되었습니다.
 
-## Usage Examples
+### Usage Examples
 
 \`\`\`tsx
 // Basic location usage

@@ -11,27 +11,27 @@ export default {
 				component: `
 A React hook that provides declarative object state management with comprehensive object manipulation methods. Simplifies object operations like adding, removing, updating, searching, and transforming properties while maintaining immutability and performance.
 
-## API
+### API
 
-### Parameters
+#### Parameters
 - **options**: UseObjectOptions<T> (optional) - Configuration options for object management
 - **options.initialValue**: T (optional, default: {}) - Initial object value
 - **options.debug**: boolean (optional, default: false) - Enable debug logging
 - **Usage Example**: useObject<User>({ initialValue: { name: 'John', age: 30 }, debug: true });
 
-### Return Value
+#### Return Value
 - **Type**: [T, ObjectOperations<T>]
 - **Description**: Returns current object and operations object
 - **Usage Example**: const [object, operations] = useObject<User>({ initialValue: { name: 'John' } });
 
-### Return Value Properties
+#### Return Value Properties
 
 | Property | Type | Description |
 |----------|------|-------------|
 | object | T | Current object value |
 | operations | ObjectOperations<T> | Object containing all object manipulation methods |
 
-### ObjectOperations Methods
+#### ObjectOperations Methods
 
 **Basic Operations:**
 - **set**: (key: keyof T, value: T[keyof T]) => void - Set a property
@@ -66,7 +66,7 @@ A React hook that provides declarative object state management with comprehensiv
 **Debug:**
 - **debug**: boolean - Debug mode flag
 
-## Usage Examples
+### Usage Examples
 
 \`\`\`tsx
 // Basic object operations

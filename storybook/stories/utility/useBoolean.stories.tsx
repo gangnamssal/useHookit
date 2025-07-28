@@ -11,20 +11,20 @@ export default {
 				component: `
 A React hook that provides declarative boolean state management with toggle, set, and callback functionality. Simplifies boolean state handling for UI components like modals, checkboxes, and toggle buttons.
 
-## API
+### API
 
-### Parameters
+#### Parameters
 - **options**: UseBooleanOptions (optional) - Configuration options for boolean management
 - **options.initialValue**: boolean (optional, default: false) - Initial boolean value
 - **options.onChange**: (value: boolean) => void (optional) - Callback when value changes
 - **Usage Example**: useBoolean({ initialValue: true, onChange: (value) => console.log(value) });
 
-### Return Value
+#### Return Value
 - **Type**: { value: boolean, toggle: () => void, setTrue: () => void, setFalse: () => void, setValue: (value: boolean) => void }
 - **Description**: Returns object with current boolean value and control functions
 - **Usage Example**: const { value, toggle, setTrue, setFalse } = useBoolean({ initialValue: false });
 
-### Return Value Properties
+#### Return Value Properties
 
 | Property | Type | Description |
 |----------|------|-------------|
@@ -34,7 +34,7 @@ A React hook that provides declarative boolean state management with toggle, set
 | setFalse | () => void | Function to set value to false (optimized: only updates if not already false) |
 | setValue | (value: boolean) => void | Function to set value directly (forces boolean type conversion) |
 
-## Usage Examples
+### Usage Examples
 
 \`\`\`tsx
 // Basic boolean state management

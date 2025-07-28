@@ -10,24 +10,24 @@ export default {
 				component: `
 A React hook that provides comprehensive network status management for detecting online/offline connectivity. Simplifies network status monitoring in React components with automatic cleanup and real-time updates.
 
-## API
+### API
 
-### Parameters
+#### Parameters
 - **options**: UseNetworkStatusOptions - Network status configuration options
 - **Usage Example**: useNetworkStatus({ onlineMessage: 'Connected', offlineMessage: 'Disconnected' });
 
-### Return Value
+#### Return Value
 - **Type**: NetworkStatusInfo
 - **Description**: Returns network status information including online/offline state and timestamps
 - **Usage Example**: const { isOnline, isOffline, statusMessage } = useNetworkStatus();
 
-### Parameters Properties
+#### Parameters Properties
 - **initialOnline**: boolean (optional) - Initial online status (default: navigator.onLine)
 - **onlineMessage**: string (optional) - Online status message (default: '온라인')
 - **offlineMessage**: string (optional) - Offline status message (default: '오프라인')
 - **showStatusMessage**: boolean (optional) - Whether to log status changes to console (default: false)
 
-### Return Value Properties
+#### Return Value Properties
 - **isOnline**: boolean - Whether the device is currently online
 - **isOffline**: boolean - Whether the device is currently offline
 - **statusMessage**: string - Current status message (online or offline message)
@@ -35,7 +35,7 @@ A React hook that provides comprehensive network status management for detecting
 - **lastOffline**: Date | null - Timestamp of last offline event
 - **refreshStatus**: () => void - Function to manually refresh network status
 
-## Usage Examples
+### Usage Examples
 
 \`\`\`tsx
 // Basic network status usage
@@ -107,36 +107,6 @@ return (
   </div>
 );
 \`\`\`
-
-### Key Features
-
-- **Browser compatibility**: Checks for window and navigator.onLine support with fallback to true
-- **Initial state handling**: Complex initialization logic with hasInitialOnline check
-- **Real-time updates**: Automatically updates when network status changes via online/offline events
-- **Memory-safe operations**: Properly cleans up event listeners on unmount
-- **Error handling**: Graceful error handling with try-catch blocks in event handlers
-- **Event listener management**: Uses addEventListener/removeEventListener for online/offline events
-- **State change optimization**: Only updates state when status actually changes
-- **Timestamp tracking**: Records lastOnline and lastOffline timestamps
-- **Console logging**: Optional status change logging with showStatusMessage option
-- **Manual refresh**: Provides refreshStatus function for manual status updates
-- **Type safety**: Full TypeScript support with proper interface definitions
-- **Performance optimized**: Efficient event listener management and state updates
-
-### Implementation Details
-
-- **Window validation**: Checks for typeof window !== 'undefined' before accessing navigator
-- **Navigator validation**: Checks for typeof navigator.onLine === 'boolean' support
-- **Initial state logic**: Uses hasInitialOnline flag to determine initial state source
-- **State change detection**: Only updates state when online status actually changes
-- **Event listener pattern**: Uses online/offline events for real-time updates
-- **Cleanup mechanism**: Removes event listeners in useEffect cleanup
-- **Error boundary**: Wraps event handlers in try-catch for error handling
-- **State management**: Uses useState for tracking online status and timestamps
-- **Callback optimization**: Uses useCallback for updateNetworkStatus and refreshStatus
-- **Memory leak prevention**: Proper cleanup prevents memory leaks
-- **Real-time responsiveness**: Immediate updates when network status changes
-- **Fallback mechanism**: Defaults to true when navigator.onLine is not available
 				`,
 			},
 			// Canvas 완전히 숨기기

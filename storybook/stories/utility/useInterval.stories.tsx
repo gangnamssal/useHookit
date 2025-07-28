@@ -11,19 +11,19 @@ export default {
 				component: `
 A React hook that provides comprehensive timer management including intervals, timeouts, and controlled timers. Simplifies periodic execution, delayed execution, and manual timer control with automatic cleanup.
 
-## API
+### API
 
-### Parameters
+#### Parameters
 - **callback**: () => void - Function to execute periodically or after delay
 - **delay**: number | null - Interval/delay in milliseconds, null to disable (must be non-negative)
 - **Usage Example**: useInterval(() => console.log('tick'), 1000);
 
-### Return Value
+#### Return Value
 - **Type**: void (for useInterval/useTimeout) or { start: () => void, stop: () => void, isRunning: boolean } (for controlled versions)
 - **Description**: No return value for basic hooks, control functions for controlled versions
 - **Usage Example**: const { start, stop, isRunning } = useControlledInterval(callback, delay);
 
-### Hook Variants
+#### Hook Variants
 
 **Basic Hooks:**
 - **useInterval**: (callback: () => void, delay: number | null) => void - Periodic execution (auto-cleanup)
@@ -33,7 +33,7 @@ A React hook that provides comprehensive timer management including intervals, t
 - **useControlledInterval**: (callback: () => void, delay: number | null) => { start: () => void, stop: () => void, isRunning: boolean } - Manual interval control (prevents duplicate calls)
 - **useControlledTimeout**: (callback: () => void, delay: number | null) => { start: () => void, stop: () => void, isRunning: boolean } - Manual timeout control (prevents duplicate calls)
 
-## Usage Examples
+### Usage Examples
 
 \`\`\`tsx
 // Basic interval usage

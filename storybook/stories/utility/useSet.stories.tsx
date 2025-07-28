@@ -10,27 +10,27 @@ export default {
 				component: `
 A React hook that provides declarative Set state management with comprehensive Set manipulation methods. Simplifies Set operations like adding, removing, querying, and performing set operations while maintaining immutability and performance.
 
-## API
+### API
 
-### Parameters
+#### Parameters
 - **options**: UseSetOptions<T> (optional) - Configuration options for Set management
 - **options.initialValue**: T[] (optional, default: []) - Initial Set values
 - **options.debug**: boolean (optional, default: false) - Enable debug logging
 - **Usage Example**: useSet<string>({ initialValue: ['apple', 'banana'], debug: true });
 
-### Return Value
+#### Return Value
 - **Type**: [Set<T>, SetOperations<T>]
 - **Description**: Returns current Set and operations object
 - **Usage Example**: const [set, operations] = useSet<string>({ initialValue: ['apple'] });
 
-### Return Value Properties
+#### Return Value Properties
 
 | Property | Type | Description |
 |----------|------|-------------|
 | set | Set<T> | Current Set value |
 | operations | SetOperations<T> | Object containing all Set manipulation methods |
 
-### SetOperations Methods
+#### SetOperations Methods
 
 **Basic Operations:**
 - **add**: (value: T) => void - Add a value to Set (ignores if already exists)
@@ -61,7 +61,7 @@ A React hook that provides declarative Set state management with comprehensive S
 **Debug:**
 - **debug**: boolean - Debug mode flag
 
-## Usage Examples
+### Usage Examples
 
 \`\`\`tsx
 // Basic Set operations

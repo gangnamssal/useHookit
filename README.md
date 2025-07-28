@@ -67,6 +67,7 @@ import {
 	useMediaQuery,
 	useNetworkStatus,
 	useGeolocation, // Browser APIs
+	useUrlQuery, // URL query management
 } from 'use-hookit/utility';
 
 // Boolean state
@@ -185,6 +186,26 @@ const { isOnline, isOffline } = useNetworkStatus();
 const { position, loading, error } = useGeolocation();
 ```
 
+### URL Query Management
+
+```typescript
+// URL 쿼리 파라미터 관리
+const { query, set, get, clear, isEmpty } = useUrlQuery({
+	page: 1,
+	search: '',
+	category: 'all',
+});
+
+// 특정 파라미터 설정
+set('page', 2);
+
+// 파라미터 값 가져오기
+const currentPage = get('page');
+
+// 모든 파라미터 제거
+clear();
+```
+
 ---
 
 ## 📖 Documentation
@@ -246,4 +267,5 @@ pnpm release:major
 ## 📄 License
 
 MIT © [useHookit](https://github.com/usehookit)
+
 # GitHub Actions 테스트

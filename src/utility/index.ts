@@ -13,3 +13,4 @@ export * from './useObject';
 export * from './useSet';
 export * from './useMap';
 export * from './useUrlQuery';
+export * from './useCounter';

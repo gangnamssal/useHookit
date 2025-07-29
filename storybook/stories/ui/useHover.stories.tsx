@@ -68,6 +68,18 @@ return <div ref={ref} {...hoverProps}>Hover event handler usage</div>;
 \`\`\`
 `,
 			},
+			// Canvas 완전히 숨기기
+			canvas: {
+				sourceState: 'none',
+				hidden: true,
+			},
+			// 스토리 렌더링 비활성화
+			story: {
+				iframeHeight: '0px',
+				inline: false,
+			},
+			// 스토리 자체를 Docs에서 비활성화
+			disable: true,
 		},
 	},
 };

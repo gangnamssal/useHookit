@@ -32,6 +32,8 @@ import { useEffect, useState, useCallback } from 'react';
  *   }
  * };
  * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/lifecycle-useismounted--docs
  */
 export function useIsMounted(): boolean {
 	const [isMounted, setIsMounted] = useState(false);
@@ -45,24 +47,21 @@ export function useIsMounted(): boolean {
 }
 
 /**
- *
- * 마운트된 상태에서만 안전하게 setState를 호출할 수 있는 커스텀 훅입니다.
- *
  * A custom hook that allows safe setState calls only when the component is mounted.
  *
- * @template T - 상태의 타입 / Type of the state
+ * @template T - Type of the state
  *
- * @param {T} initialValue - 상태의 초기값 / Initial value for the state
+ * @param {T} initialValue - Initial value for the state
  *
- * @returns {[T, (value: T | ((val: T) => T)) => void]} [state, setState] 형태의 배열 / Array in [state, setState] format
+ * @returns {[T, (value: T | ((val: T) => T)) => void]} Array in [state, setState] format
  *
- * @returns {T} state - 현재 상태값 / Current state value
+ * @returns {T} state - Current state value
  *
- * @returns {(value: T | ((val: T) => T)) => void} setState - 안전한 상태 업데이트 함수 / Safe state update function
+ * @returns {(value: T | ((val: T) => T)) => void} setState - Safe state update function
  *
  * @example
  * ```tsx
- * // 기본 사용법 / Basic usage
+ * // Basic usage
  * const [count, setCount] = useSafeState(0);
  *
  * const handleClick = () => {
@@ -73,14 +72,16 @@ export function useIsMounted(): boolean {
  *
  * @example
  * ```tsx
- * // 비동기 작업에서 안전한 상태 업데이트 / Safe state update in async operations
+ * // Safe state update in async operations
  * const [data, setData] = useSafeState(null);
  *
  * const fetchData = async () => {
  *   const result = await api.getData();
- *   setData(result); // 컴포넌트가 마운트된 상태에서만 실행됨 / Only executes if component is mounted
+ *   setData(result); // Only executes if component is mounted
  * };
  * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/lifecycle-useismounted--docs#related-hooks
  */
 export function useSafeState<T>(initialValue: T): [T, (value: T | ((val: T) => T)) => void] {
 	const [state, setState] = useState<T>(initialValue);
@@ -96,22 +97,19 @@ export function useSafeState<T>(initialValue: T): [T, (value: T | ((val: T) => T
 }
 
 /**
- *
- * 마운트된 상태에서만 콜백이 동작하도록 보장하는 커스텀 훅입니다.
- *
  * A custom hook that ensures callbacks only work when the component is mounted.
  *
- * @template T - 콜백 함수의 타입 / Type of the callback function
+ * @template T - Type of the callback function
  *
- * @param {T} callback - 실행할 콜백 함수 / Callback function to execute
+ * @param {T} callback - Callback function to execute
  *
- * @returns {T} 마운트된 상태에서만 동작하는 콜백 함수 / Callback function that only works when mounted
+ * @returns {T} Callback function that only works when mounted
  *
  * @example
  * ```tsx
- * // 기본 사용법 / Basic usage
+ * // Basic usage
  * const safeCallback = useSafeCallback((value: string) => {
- *   console.log('안전한 콜백:', value);
+ *   console.log('Safe callback:', value);
  * });
  *
  * safeCallback('test');
@@ -119,10 +117,10 @@ export function useSafeState<T>(initialValue: T): [T, (value: T | ((val: T) => T
  *
  * @example
  * ```tsx
- * // 비동기 콜백에서 사용 / Usage in async callbacks
+ * // Usage in async callbacks
  * const safeFetchData = useSafeCallback(async (id: number) => {
  *   const data = await api.getData(id);
- *   setData(data); // 컴포넌트가 마운트된 상태에서만 실행됨 / Only executes if component is mounted
+ *   setData(data); // Only executes if component is mounted
  * });
  *
  * useEffect(() => {
@@ -130,6 +128,7 @@ export function useSafeState<T>(initialValue: T): [T, (value: T | ((val: T) => T
  * }, []);
  * ```
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/lifecycle-useismounted--docs#related-hooks
  */
 export function useSafeCallback<T extends (...args: any[]) => any>(callback: T): T {
 	const isMounted = useIsMounted();

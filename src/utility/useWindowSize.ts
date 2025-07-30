@@ -1,15 +1,20 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 
 export interface WindowSize {
+	/** Window width */
 	width: number;
+
+	/** Window height */
 	height: number;
 }
 
 export interface UseWindowSizeOptions {
 	/** Initial window size (default: { width: 0, height: 0 }) */
 	initialSize?: WindowSize;
+
 	/** Debounce time for resize events (ms, default: 100) */
 	debounceMs?: number;
+
 	/** Resize event listener options (default: { passive: true }) */
 	listenerOptions?: AddEventListenerOptions;
 }
@@ -17,19 +22,30 @@ export interface UseWindowSizeOptions {
 /**
  * A hook that detects browser window size in real-time
  *
- * @param options - Window size detection options
- * @param options.initialSize - Initial window size (used in SSR environment, default: { width: 0, height: 0 })
- * @param options.debounceMs - Debounce time for resize events (ms, default: 100)
- * @param options.throttleMs - Throttle time for resize events (ms, default: 0 - throttle disabled)
- * @param options.listenerOptions - Resize event listener options (default: { passive: true })
+ * @param {UseWindowSizeOptions} [options] - Window size detection options
  *
- * @returns Current window size and related information
+ * @param {WindowSize} [options.initialSize] - Initial window size (used in SSR environment, default: { width: 0, height: 0 })
+ *
+ * @param {number} [options.debounceMs] - Debounce time for resize events (ms, default: 100)
+ *
+ * @param {number} [options.throttleMs] - Throttle time for resize events (ms, default: 0 - throttle disabled)
+ *
+ * @param {AddEventListenerOptions} [options.listenerOptions] - Resize event listener options (default: { passive: true })
+ *
  * @returns {number} width - Current window width
+ *
  * @returns {number} height - Current window height
+ *
+ * @returns {WindowSize} windowSize - Current window size
+ *
  * @returns {boolean} isMobile - Whether it's mobile size (≤ 767px)
+ *
  * @returns {boolean} isTablet - Whether it's tablet size (768px - 1023px)
+ *
  * @returns {boolean} isDesktop - Whether it's desktop size (≥ 1024px)
+ *
  * @returns {boolean} isLargeScreen - Whether it's large screen (≥ 1440px)
+ *
  * @returns {'portrait' | 'landscape'} orientation - Screen orientation
  *
  * @example
@@ -54,6 +70,8 @@ export interface UseWindowSizeOptions {
  *   listenerOptions: { passive: false }
  * });
  * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-usewindowsize--docs
  */
 export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize & {
 	isMobile: boolean;

@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
  *
  * @param {string} query - Valid CSS media query string (e.g., '(max-width: 767px)', '(orientation: portrait)')
  *
- * @returns {boolean} Returns true if the media query matches the current environment, false otherwise
+ * @returns {boolean} matches - Whether the media query matches the current environment
  *
  * @example
  * ```tsx
@@ -27,18 +27,20 @@ import { useState, useEffect } from 'react';
  * const [screenSize, setScreenSize] = useState('(max-width: 768px)');
  * const matches = useMediaQuery(screenSize);
  * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-usemediaquery--docs
  */
 export function useMediaQuery(query: string): boolean {
 	const [matches, setMatches] = useState(false);
 
 	useEffect(() => {
-		// matchMedia 지원 여부 체크
+		// Check if matchMedia is supported
 		if (!window.matchMedia) {
 			console.warn('useMediaQuery: matchMedia is not supported in this browser');
 			return;
 		}
 
-		// 쿼리 유효성 검사
+		// Validate query
 		if (!query || typeof query !== 'string') {
 			console.warn('useMediaQuery: query must be a non-empty string');
 			return;
@@ -65,137 +67,129 @@ export function useMediaQuery(query: string): boolean {
 }
 
 /**
- *
- * 모바일 화면 여부를 반환합니다. (max-width: 767px)
+ * Returns whether the screen is mobile (max-width: 767px)
  *
  * @returns {boolean}
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-usemediaquery--docs
  */
 export function useIsMobile(): boolean {
 	return useMediaQuery('(max-width: 767px)');
 }
 
 /**
- *
- * 태블릿 화면 여부를 반환합니다. (min-width: 768px) and (max-width: 1023px)
+ * Returns whether the screen is tablet (min-width: 768px) and (max-width: 1023px)
  *
  * @returns {boolean}
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-usemediaquery--docs
  */
 export function useIsTablet(): boolean {
 	return useMediaQuery('(min-width: 768px) and (max-width: 1023px)');
 }
 
 /**
- *
- * 데스크탑 화면 여부를 반환합니다. (min-width: 1024px)
+ * Returns whether the screen is desktop (min-width: 1024px)
  *
  * @returns {boolean}
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-usemediaquery--docs
  */
 export function useIsDesktop(): boolean {
 	return useMediaQuery('(min-width: 1024px)');
 }
 
 /**
- *
- * 대형 화면 여부를 반환합니다. (min-width: 1440px)
+ * Returns whether the screen is large (min-width: 1440px)
  *
  * @returns {boolean}
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-usemediaquery--docs
  */
 export function useIsLargeScreen(): boolean {
 	return useMediaQuery('(min-width: 1440px)');
 }
 
 /**
- *
- * 세로(포트레이트) 방향 여부를 반환합니다.
+ * Returns whether the screen is in portrait orientation
  *
  * @returns {boolean}
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-usemediaquery--docs
  */
 export function useIsPortrait(): boolean {
 	return useMediaQuery('(orientation: portrait)');
 }
 
 /**
- *
- * 가로(랜드스케이프) 방향 여부를 반환합니다.
+ * Returns whether the screen is in landscape orientation
  *
  * @returns {boolean}
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-usemediaquery--docs
  */
 export function useIsLandscape(): boolean {
 	return useMediaQuery('(orientation: landscape)');
 }
 
 /**
- *
- * 사용자가 다크 모드를 선호하는지 여부를 반환합니다.
+ * Returns whether the user prefers dark mode
  *
  * @returns {boolean}
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-usemediaquery--docs
  */
 export function usePrefersDarkMode(): boolean {
 	return useMediaQuery('(prefers-color-scheme: dark)');
 }
 
 /**
- *
- * 사용자가 모션 감소를 선호하는지 여부를 반환합니다.
+ * Returns whether the user prefers reduced motion
  *
  * @returns {boolean}
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-usemediaquery--docs
  */
 export function usePrefersReducedMotion(): boolean {
 	return useMediaQuery('(prefers-reduced-motion: reduce)');
 }
 
 /**
- *
- * 호버(마우스 오버) 기능이 지원되는지 여부를 반환합니다.
+ * Returns whether hover is supported
  *
  * @returns {boolean}
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-usemediaquery--docs
  */
 export function useIsHoverSupported(): boolean {
 	return useMediaQuery('(hover: hover)');
 }
 
 /**
- *
- * 터치 입력이 지원되는지 여부를 반환합니다.
+ * Returns whether touch is supported
  *
  * @returns {boolean}
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-usemediaquery--docs
  */
 export function useIsTouchSupported(): boolean {
 	return useMediaQuery('(pointer: coarse)');
 }
 
 /**
- *
- * 현재 반응형 브레이크포인트를 반환합니다.
- *
- * 'mobile' | 'tablet' | 'desktop' | 'large'
+ * Returns the current breakpoint based on screen size
  *
  * @returns {'mobile' | 'tablet' | 'desktop' | 'large'}
  *
- * @example
- * const breakpoint = useBreakpoint();
- * if (breakpoint === 'mobile') { ... }
- *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-usemediaquery--docs
  */
 export function useBreakpoint(): 'mobile' | 'tablet' | 'desktop' | 'large' {
 	const isMobile = useIsMobile();
 	const isTablet = useIsTablet();
-	const isDesktop = useIsDesktop();
 	const isLargeScreen = useIsLargeScreen();
 
 	if (isMobile) return 'mobile';
 	if (isTablet) return 'tablet';
-	if (isDesktop) return 'desktop';
 	if (isLargeScreen) return 'large';
-
-	return 'desktop'; // Default value
+	return 'desktop';
 }

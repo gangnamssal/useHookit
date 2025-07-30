@@ -1,26 +1,33 @@
 import { useCallback, useRef, useEffect, useState } from 'react';
 
 interface UseLongPressOptions {
-	/** 롱 프레스로 인식할 최소 시간 (밀리초) */
+	/** Minimum time to recognize as long press (milliseconds) */
 	delay?: number;
-	/** 롱 프레스 시작 시 호출될 콜백 */
+
+	/** Callback to execute on long press */
 	onLongPress?: () => void;
-	/** 롱 프레스 시작 시 호출될 콜백 (이벤트 객체 포함) */
+
+	/** Callback to execute when long press starts (with event object) */
 	onLongPressStart?: (event: MouseEvent | TouchEvent) => void;
-	/** 롱 프레스 종료 시 호출될 콜백 */
+
+	/** Callback to execute when long press ends */
 	onLongPressEnd?: () => void;
-	/** 롱 프레스 중 취소 시 호출될 콜백 */
+
+	/** Callback to execute when long press is cancelled */
 	onLongPressCancel?: () => void;
-	/** 클릭 이벤트도 허용할지 여부 */
+
+	/** Whether to allow click events */
 	preventDefault?: boolean;
-	/** 터치 이벤트에서 스크롤 허용할지 여부 */
+
+	/** Whether to prevent default on touch events */
 	shouldPreventDefault?: boolean;
-	/** 이동 감지 임계값 (픽셀) */
+
+	/** Movement threshold in pixels */
 	moveThreshold?: number;
 }
 
 interface UseLongPressReturn {
-	/** 롱 프레스 이벤트 핸들러들을 포함한 객체 */
+	/** Object containing long press event handlers */
 	handlers: {
 		onMouseDown: (event: React.MouseEvent) => void;
 		onMouseUp: (event: React.MouseEvent) => void;
@@ -29,7 +36,8 @@ interface UseLongPressReturn {
 		onTouchEnd: (event: React.TouchEvent) => void;
 		onTouchCancel: (event: React.TouchEvent) => void;
 	};
-	/** 현재 롱 프레스가 활성화되어 있는지 여부 */
+
+	/** Whether long press is currently active */
 	isLongPressing: boolean;
 }
 
@@ -40,19 +48,27 @@ type Position = { x: number; y: number };
  *
  * Detects when a mouse/touch event is held for a specified duration and executes callbacks.
  *
- * @param {Object} options - Long press options
- * @param {number} options.delay - Minimum time to recognize as long press (ms, default: 500)
- * @param {() => void} options.onLongPress - Callback to execute on long press
- * @param {(event: MouseEvent | TouchEvent) => void} options.onLongPressStart - Callback to execute when long press starts
- * @param {() => void} options.onLongPressEnd - Callback to execute when long press ends
- * @param {() => void} options.onLongPressCancel - Callback to execute when long press is cancelled
- * @param {boolean} options.preventDefault - Whether to prevent default events (default: true)
- * @param {boolean} options.shouldPreventDefault - Whether to prevent default on touch events (default: true)
- * @param {number} options.moveThreshold - Movement threshold in pixels to cancel long press (default: 10)
+ * @param {Object} [options] - Long press options
  *
- * @returns {Object} Long press handlers and state
- * @returns {Object} returns.handlers - Event handlers to spread on DOM element
- * @returns {boolean} returns.isLongPressing - Current long press state
+ * @param {number} [options.delay] - Minimum time to recognize as long press (ms, default: 500)
+ *
+ * @param {() => void} [options.onLongPress] - Callback to execute on long press
+ *
+ * @param {(event: MouseEvent | TouchEvent) => void} [options.onLongPressStart] - Callback to execute when long press starts
+ *
+ * @param {() => void} [options.onLongPressEnd] - Callback to execute when long press ends
+ *
+ * @param {() => void} [options.onLongPressCancel] - Callback to execute when long press is cancelled
+ *
+ * @param {boolean} [options.preventDefault] - Whether to prevent default events (default: true)
+ *
+ * @param {boolean} [options.shouldPreventDefault] - Whether to prevent default on touch events (default: true)
+ *
+ * @param {number} [options.moveThreshold] - Movement threshold in pixels to cancel long press (default: 10)
+ *
+ * @returns {Object} handlers - Event handlers to spread on DOM element to assign to the DOM element
+ *
+ * @returns {boolean} isLongPressing - Current long press state
  *
  * @example
  * ```tsx
@@ -93,6 +109,8 @@ type Position = { x: number; y: number };
  *   </div>
  * );
  * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/ui-uselongpress--docs
  */
 export function useLongPress({
 	delay = 500,
@@ -136,7 +154,7 @@ export function useLongPress({
 
 			onLongPressStart?.(event);
 
-			// 0ms 이하의 지연 시간은 즉시 실행
+			// Execute immediately if delay is 0ms or less
 			if (delay <= 0) {
 				if (!hasMovedRef.current) {
 					onLongPress?.();
@@ -182,7 +200,7 @@ export function useLongPress({
 		[cancelLongPress, getEventPosition, moveThreshold],
 	);
 
-	// 이벤트 핸들러 생성 함수
+	// Event handler creation function
 	const createEventHandler = useCallback(
 		(handler: (event: MouseEvent | TouchEvent) => void) =>
 			(event: React.MouseEvent | React.TouchEvent) => {
@@ -194,7 +212,7 @@ export function useLongPress({
 		[preventDefault],
 	);
 
-	// 마우스 이벤트 핸들러
+	// Mouse event handlers
 	const handleMouseDown = useCallback(createEventHandler(startLongPress), [
 		createEventHandler,
 		startLongPress,
@@ -210,7 +228,7 @@ export function useLongPress({
 		cancelLongPress,
 	]);
 
-	// 터치 이벤트 핸들러
+	// Touch event handlers
 	const handleTouchStart = useCallback(createEventHandler(startLongPress), [
 		createEventHandler,
 		startLongPress,
@@ -226,7 +244,7 @@ export function useLongPress({
 		cancelLongPress,
 	]);
 
-	// 이동 감지 이벤트 리스너
+	// Movement detection event listeners
 	useEffect(() => {
 		const handleTouchMove = (event: TouchEvent) => {
 			checkMovement(event);

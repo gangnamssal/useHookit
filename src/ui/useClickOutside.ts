@@ -4,12 +4,16 @@ import { useEffect, useRef } from 'react';
  * A custom hook that executes a callback when clicking outside a specified DOM element.
  *
  * @template T - HTMLElement or its subtype
- * @param {() => void} callback - Callback function to execute on outside click
- * @param {Object} options - Options object
- * @param {boolean} options.enabled - Whether the hook is enabled (default: true)
- * @param {'mousedown' | 'click' | 'touchstart'} options.eventType - Event type to detect (default: 'mousedown')
  *
- * @returns {React.RefObject<T>} Ref to assign to the DOM element to detect
+ * @param {() => void} callback - Callback function to execute on outside click
+ *
+ * @param {Object} [options] - Options object
+ *
+ * @param {boolean} [options.enabled] - Whether the hook is enabled (default: true)
+ *
+ * @param {'mousedown' | 'click' | 'touchstart'} [options.eventType] - Event type to detect (default: 'mousedown')
+ *
+ * @returns {React.RefObject<T>} ref - Ref to assign to the DOM element to detect
  *
  * @example
  * ```tsx
@@ -33,6 +37,8 @@ import { useEffect, useRef } from 'react';
  *   eventType: 'click'
  * });
  * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/ui-useclickoutside--docs
  */
 export function useClickOutside<T extends HTMLElement = HTMLElement>(
 	callback: () => void,
@@ -45,7 +51,7 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
 	const ref = useRef<T>(null);
 
 	useEffect(() => {
-		// document 지원 여부 체크
+		// Check if document is supported
 		if (!document || !document.addEventListener) {
 			console.warn(
 				'useClickOutside: document is not available or does not support addEventListener',
@@ -53,7 +59,7 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
 			return;
 		}
 
-		// 이벤트 타입 유효성 검사
+		// Validate event type
 		if (!['mousedown', 'click', 'touchstart'].includes(eventType)) {
 			console.warn('useClickOutside: eventType must be one of: mousedown, click, touchstart');
 			return;
@@ -83,26 +89,23 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
 }
 
 /**
- *
- * 여러 개의 DOM 요소 외부를 클릭했을 때 콜백을 실행하는 커스텀 훅입니다.
- *
  * A custom hook that executes a callback when clicking outside multiple DOM elements.
  *
- * @template T - HTMLElement 또는 그 하위 타입 / HTMLElement or its subtype
+ * @template T - HTMLElement or its subtype
  *
- * @param {() => void} callback - 외부 클릭 시 실행할 콜백 함수 / Callback function to execute on outside click
+ * @param {() => void} callback - Callback function to execute on outside click
  *
- * @param {React.RefObject<T>[]} refs - 감지할 여러 DOM 요소의 ref 배열 / Array of refs for multiple DOM elements to detect
+ * @param {React.RefObject<T>[]} refs - Array of refs for multiple DOM elements to detect
  *
- * @param {Object} options - 옵션 객체 / Options object
+ * @param {Object} [options] - Options object
  *
- * @param {boolean} options.enabled - 훅 활성화 여부 (기본값: true) / Whether the hook is enabled (default: true)
+ * @param {boolean} [options.enabled] - Whether the hook is enabled (default: true)
  *
- * @param {'mousedown' | 'click' | 'touchstart'} options.eventType - 감지할 이벤트 타입 (기본값: 'mousedown') / Event type to detect (default: 'mousedown')
+ * @param {'mousedown' | 'click' | 'touchstart'} [options.eventType] - Event type to detect (default: 'mousedown')
  *
  * @example
  * ```tsx
- * // 기본 사용법 / Basic usage
+ * // Basic usage
  * const ref1 = useRef(null);
  * const ref2 = useRef(null);
  *
@@ -110,24 +113,26 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
  *
  * return (
  *   <>
- *     <div ref={ref1}>첫 번째 요소</div>
- *     <div ref={ref2}>두 번째 요소</div>
+ *     <div ref={ref1}>First element</div>
+ *     <div ref={ref2}>Second element</div>
  *   </>
  * );
  * ```
  *
  * @example
  * ```tsx
- * // 커스텀 옵션 사용 / Custom options usage
+ * // Custom options usage
  * const refs = [ref1, ref2, ref3];
  *
  * useClickOutsideMultiple(() => {
- *   console.log('모든 요소 외부 클릭됨');
+ *   console.log('Clicked outside all elements');
  * }, refs, {
  *   enabled: isActive,
  *   eventType: 'click'
  * });
  * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/ui-useclickoutside--docs#related-hooks
  */
 export function useClickOutsideMultiple<T extends HTMLElement = HTMLElement>(
 	callback: () => void,
@@ -140,7 +145,7 @@ export function useClickOutsideMultiple<T extends HTMLElement = HTMLElement>(
 	const { enabled = true, eventType = 'mousedown' } = options;
 
 	useEffect(() => {
-		// SSR 환경 체크
+		// Check SSR environment
 		if (typeof window === 'undefined') {
 			if (typeof console !== 'undefined' && console.warn) {
 				console.warn('useClickOutsideMultiple: window is not available (SSR environment)');
@@ -148,7 +153,7 @@ export function useClickOutsideMultiple<T extends HTMLElement = HTMLElement>(
 			return;
 		}
 
-		// document 지원 여부 체크
+		// Check if document is supported
 		if (!document || !document.addEventListener) {
 			if (typeof console !== 'undefined' && console.warn) {
 				console.warn(
@@ -158,7 +163,7 @@ export function useClickOutsideMultiple<T extends HTMLElement = HTMLElement>(
 			return;
 		}
 
-		// 이벤트 타입 유효성 검사
+		// Validate event type
 		if (!['mousedown', 'click', 'touchstart'].includes(eventType)) {
 			if (typeof console !== 'undefined' && console.warn) {
 				console.warn(
@@ -168,7 +173,7 @@ export function useClickOutsideMultiple<T extends HTMLElement = HTMLElement>(
 			return;
 		}
 
-		// refs 배열 유효성 검사
+		// Validate refs array
 		if (!Array.isArray(refs) || refs.length === 0) {
 			if (typeof console !== 'undefined' && console.warn) {
 				console.warn('useClickOutsideMultiple: refs must be a non-empty array');

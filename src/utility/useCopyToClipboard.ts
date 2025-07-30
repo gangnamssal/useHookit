@@ -11,8 +11,13 @@ import { useState, useCallback } from 'react';
  *
  */
 interface UseCopyToClipboardOptions {
+	/** Time to keep success status (ms) */
 	timeout?: number;
+
+	/** Success message to display */
 	successMessage?: string;
+
+	/** Error message to display */
 	errorMessage?: string;
 }
 
@@ -20,15 +25,21 @@ interface UseCopyToClipboardOptions {
  * A custom hook that copies text to clipboard and returns the copy success status.
  *
  * @param {UseCopyToClipboardOptions} [options] - Hook options
+ *
  * @param {number} [options.timeout] - Time to keep success status (ms) (default: 2000)
+ *
  * @param {string} [options.successMessage] - Success message to display (default: 'Copied!')
+ *
  * @param {string} [options.errorMessage] - Error message to display (default: 'Copy failed')
  *
- * @returns {Object} Object containing copy-related states and functions
  * @returns {boolean} isCopied - Whether copy was successful
+ *
  * @returns {boolean} isCopying - Whether copy is in progress
+ *
  * @returns {string} message - Current status message
+ *
  * @returns {(text: string) => Promise<boolean>} copyToClipboard - Function to copy to clipboard
+ *
  * @returns {() => void} reset - Function to reset state
  *
  * @example
@@ -84,6 +95,7 @@ interface UseCopyToClipboardOptions {
  * };
  * ```
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-usecopytoclipboard--docs
  */
 export function useCopyToClipboard(options: UseCopyToClipboardOptions = {}): {
 	isCopied: boolean;

@@ -9,11 +9,18 @@ export interface UseLocalStorageOptions extends UseStorageOptions {}
  * A custom hook that synchronizes localStorage with React state.
  *
  * @template T - Type of the value to store
+ *
  * @param {string} key - Key to store in localStorage
+ *
  * @param {T} initialValue - Initial value
+ *
  * @param {UseLocalStorageOptions} [options] - Serialization/deserialization function options
  *
- * @returns {[T, (value: T | ((val: T) => T)) => void, () => void]} Array in [current value, set value function, remove value function] format
+ * @returns {T} value - Current value
+ *
+ * @returns {(value: T | ((val: T) => T)) => void} setValue - Function to set value
+ *
+ * @returns {() => void} removeValue - Function to remove value
  *
  * @example
  * ```tsx
@@ -51,6 +58,7 @@ export interface UseLocalStorageOptions extends UseStorageOptions {}
  * });
  * ```
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/storage-uselocalstorage--docs
  */
 export function useLocalStorage<T>(
 	key: string,

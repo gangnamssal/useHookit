@@ -4,7 +4,10 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
  * Scroll position interface
  */
 interface ScrollPosition {
+	/** X position */
 	x: number;
+
+	/** Y position */
 	y: number;
 }
 
@@ -16,14 +19,17 @@ interface UseScrollPositionOptions {
 	 * Element to track scroll position for. Defaults to window.
 	 */
 	element?: HTMLElement | null;
+
 	/**
 	 * Throttle delay in milliseconds. Defaults to 16 (60fps).
 	 */
 	throttle?: number;
+
 	/**
 	 * Callback function called when scroll position changes
 	 */
 	onChange?: (position: ScrollPosition) => void;
+
 	/**
 	 * Whether to enable scroll tracking. Defaults to true.
 	 */
@@ -39,8 +45,29 @@ const DEFAULT_THROTTLE = 16;
 /**
  * Hook to track scroll position with throttling support
  *
- * @param options - Configuration options for scroll tracking
- * @returns Current scroll position and utility functions
+ * @param {UseScrollPositionOptions} [options] - Configuration options for scroll tracking
+ *
+ * @param {HTMLElement | null} [options.element] - Element to track scroll position for. Defaults to window.
+ *
+ * @param {number} [options.throttle] - Throttle delay in milliseconds. Defaults to 16 (60fps).
+ *
+ * @param {() => void} [options.onChange] - Callback function called when scroll position changes
+ *
+ * @param {boolean} [options.enabled] - Whether to enable scroll tracking. Defaults to true.
+ *
+ * @returns {ScrollPosition} position - Current scroll position
+ *
+ * @returns {boolean} isScrolling - Whether the element is currently scrolling
+ *
+ * @returns {() => void} scrollTo - Function to scroll to a specific position
+ *
+ * @returns {() => void} scrollToTop - Function to scroll to the top of the element
+ *
+ * @returns {() => void} scrollToBottom - Function to scroll to the bottom of the element
+ *
+ * @returns {() => void} scrollToLeft - Function to scroll to the left of the element
+ *
+ * @returns {() => void} scrollToRight - Function to scroll to the right of the element
  *
  * @example
  * ```tsx
@@ -52,6 +79,8 @@ const DEFAULT_THROTTLE = 16;
  *   throttle: 100
  * });
  * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-usescrollposition--docs
  */
 export function useScrollPosition(options: UseScrollPositionOptions = {}) {
 	const { element, throttle = DEFAULT_THROTTLE, onChange, enabled = true } = options;

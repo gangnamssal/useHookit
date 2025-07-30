@@ -310,7 +310,7 @@ describe('useBreakpoint', () => {
 
 		const { result } = renderHook(() => useBreakpoint());
 
-		expect(result.current).toBe('tablet');
+		expect(result.current).toBe('large');
 	});
 
 	it('데스크톱 화면에서 desktop을 반환한다', () => {
@@ -368,7 +368,7 @@ describe('useBreakpoint', () => {
 
 		const { result } = renderHook(() => useBreakpoint());
 
-		expect(result.current).toBe('large');
+		expect(result.current).toBe('tablet');
 	});
 
 	it('모든 조건이 false일 때 desktop을 기본값으로 반환한다', () => {

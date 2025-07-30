@@ -124,14 +124,14 @@ describe('useGeolocation', () => {
 			} catch (error) {
 				expect(error).toEqual({
 					code: 1,
-					message: 'PERMISSION_DENIED: 위치 정보 접근 권한이 거부되었습니다.',
+					message: 'PERMISSION_DENIED: Location access permission denied.',
 				});
 			}
 		});
 
 		expect(result.current.error).toEqual({
 			code: 1,
-			message: 'PERMISSION_DENIED: 위치 정보 접근 권한이 거부되었습니다.',
+			message: 'PERMISSION_DENIED: Location access permission denied.',
 		});
 		expect(result.current.loading).toBe(false);
 	});
@@ -274,9 +274,9 @@ describe('useGeolocation', () => {
 
 	it('에러 코드에 따른 적절한 메시지를 반환해야 한다', async () => {
 		const errorCases = [
-			{ code: 1, expectedMessage: 'PERMISSION_DENIED: 위치 정보 접근 권한이 거부되었습니다.' },
-			{ code: 2, expectedMessage: 'POSITION_UNAVAILABLE: 위치 정보를 사용할 수 없습니다.' },
-			{ code: 3, expectedMessage: 'TIMEOUT: 위치 정보 요청 시간이 초과되었습니다.' },
+			{ code: 1, expectedMessage: 'PERMISSION_DENIED: Location access permission denied.' },
+			{ code: 2, expectedMessage: 'POSITION_UNAVAILABLE: Location information unavailable.' },
+			{ code: 3, expectedMessage: 'TIMEOUT: Location request timeout.' },
 		];
 
 		for (const { code, expectedMessage } of errorCases) {
@@ -341,7 +341,7 @@ describe('useGeolocation', () => {
 			message: 'Position unavailable',
 		};
 
-		mockGeolocation.watchPosition.mockImplementation((success, error) => {
+		mockGeolocation.watchPosition.mockImplementation((_, error) => {
 			error(mockError);
 			return 123;
 		});
@@ -354,7 +354,7 @@ describe('useGeolocation', () => {
 
 		expect(result.current.error).toEqual({
 			code: 2,
-			message: 'POSITION_UNAVAILABLE: 위치 정보를 사용할 수 없습니다.',
+			message: 'POSITION_UNAVAILABLE: Location information unavailable.',
 		});
 	});
 

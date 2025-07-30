@@ -1,30 +1,39 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
 export interface IntersectionObserverOptions {
-	/** 루트 요소 (기본값: null, 브라우저 뷰포트) */
+	/** Root element (default: null, browser viewport) */
 	root?: Element | null;
-	/** 루트 요소의 마진 (기본값: '0px') */
+
+	/** Root element margin (default: '0px') */
 	rootMargin?: string;
-	/** 임계값 배열 (기본값: [0]) */
+
+	/** Threshold array (default: [0]) */
 	threshold?: number | number[];
-	/** 초기 상태 (기본값: false) */
+
+	/** Initial state (default: false) */
 	initialIsIntersecting?: boolean;
 }
 
 export interface UseIntersectionObserverReturn {
-	/** 현재 교차 상태 */
+	/** Current intersection state */
 	isIntersecting: boolean;
-	/** 교차 비율 (0-1) */
+
+	/** Intersection ratio (0-1) */
 	intersectionRatio: number;
-	/** 교차 영역의 경계 사각형 */
+
+	/** Intersection area bounding rectangle */
 	intersectionRect: DOMRectReadOnly | null;
-	/** 대상 요소의 경계 사각형 */
+
+	/** Target element bounding rectangle */
 	boundingClientRect: DOMRectReadOnly | null;
-	/** 루트 요소의 경계 사각형 */
+
+	/** Root element bounding rectangle */
 	rootBounds: DOMRectReadOnly | null;
-	/** 대상 요소에 대한 ref */
+
+	/** Ref for target element */
 	ref: (node: Element | null) => void;
-	/** Observer 인스턴스 */
+
+	/** Observer instance */
 	observer: IntersectionObserver | null;
 }
 
@@ -32,19 +41,28 @@ export interface UseIntersectionObserverReturn {
  * A hook that detects element visibility using the Intersection Observer API
  *
  * @param {IntersectionObserverOptions} options - Intersection Observer options
+ *
  * @param {Element | null} options.root - Root element (default: null, browser viewport)
+ *
  * @param {string} options.rootMargin - Root element margin (default: '0px')
+ *
  * @param {number | number[]} options.threshold - Threshold array (default: [0])
+ *
  * @param {boolean} options.initialIsIntersecting - Initial state (default: false)
  *
- * @returns {UseIntersectionObserverReturn} Object containing intersection state and related information
  * @returns {boolean} isIntersecting - Current intersection state
+ *
  * @returns {number} intersectionRatio - Intersection ratio (0-1)
+ *
  * @returns {DOMRectReadOnly | null} intersectionRect - Intersection area bounding rectangle
+ *
  * @returns {DOMRectReadOnly | null} boundingClientRect - Target element bounding rectangle
+ *
  * @returns {DOMRectReadOnly | null} rootBounds - Root element bounding rectangle
- * @returns {(node: Element | null) => void} ref - Ref for target element
- * @returns {IntersectionObserver | null} observer - Observer instance
+ *
+ * @returns {(node: Element | null) => void} ref - Ref for target element to assign to the DOM element
+ *
+ * @returns {IntersectionObserver | null} observer - Intersection Observer instance
  *
  * @example
  * ```tsx
@@ -81,6 +99,8 @@ export interface UseIntersectionObserverReturn {
  *   </div>
  * );
  * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/ui-useintersectionobserver--docs
  */
 export function useIntersectionObserver(
 	options: IntersectionObserverOptions = {},
@@ -104,7 +124,7 @@ export function useIntersectionObserver(
 	const [observer, setObserver] = useState<IntersectionObserver | null>(null);
 	const elementRef = useRef<Element | null>(null);
 
-	// Intersection Observer 콜백
+	// Intersection Observer callback
 	const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
 		const entry = entries[0];
 		if (entry) {
@@ -118,9 +138,9 @@ export function useIntersectionObserver(
 		}
 	}, []);
 
-	// Observer 생성
+	// Create Observer
 	useEffect(() => {
-		// IntersectionObserver 지원 여부 체크
+		// Check if IntersectionObserver is supported
 		if (!window.IntersectionObserver) {
 			console.warn(
 				'useIntersectionObserver: IntersectionObserver is not supported in this browser',
@@ -128,7 +148,7 @@ export function useIntersectionObserver(
 			return;
 		}
 
-		// 옵션 유효성 검사
+		// Validate options
 		if (
 			threshold !== undefined &&
 			(Array.isArray(threshold)
@@ -148,7 +168,7 @@ export function useIntersectionObserver(
 
 			setObserver(observer);
 
-			// 현재 요소가 있다면 observe 시작
+			// Start observing if current element exists
 			if (elementRef.current) {
 				observer.observe(elementRef.current);
 			}
@@ -161,16 +181,16 @@ export function useIntersectionObserver(
 		}
 	}, [root, rootMargin, threshold, handleIntersection]);
 
-	// ref 콜백
+	// Ref callback
 	const ref = useCallback(
 		(node: Element | null) => {
 			elementRef.current = node;
 
 			if (observer) {
-				// 기존 요소 관찰 해제
+				// Disconnect existing element observation
 				observer.disconnect();
 
-				// 새 요소 관찰 시작
+				// Start observing new element
 				if (node) {
 					observer.observe(node);
 				}

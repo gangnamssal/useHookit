@@ -61,7 +61,7 @@ describe('useNetworkStatus', () => {
 
 		expect(result.current.isOnline).toBe(true);
 		expect(result.current.isOffline).toBe(false);
-		expect(result.current.statusMessage).toBe('온라인');
+		expect(result.current.statusMessage).toBe('Online');
 	});
 
 	it('오프라인 상태에서 올바른 값을 반환해야 함', () => {
@@ -74,7 +74,7 @@ describe('useNetworkStatus', () => {
 
 		expect(result.current.isOnline).toBe(false);
 		expect(result.current.isOffline).toBe(true);
-		expect(result.current.statusMessage).toBe('오프라인');
+		expect(result.current.statusMessage).toBe('Offline');
 	});
 
 	it('온라인 이벤트가 발생하면 상태가 업데이트되어야 함', async () => {

@@ -1,28 +1,43 @@
 import { useState, useEffect, useCallback } from 'react';
 
 interface UseNetworkStatusOptions {
+	/** Initial online status (default: navigator.onLine) */
 	initialOnline?: boolean;
+
+	/** Online status message (default: 'Online') */
 	onlineMessage?: string;
+
+	/** Offline status message (default: 'Offline') */
 	offlineMessage?: string;
+
+	/** Whether to log status changes to console (default: false) */
 	showStatusMessage?: boolean;
 }
 
 /**
  * A hook that detects network connection status
  *
- * @param options - Hook options
- * @param options.initialOnline - Initial online status (default: navigator.onLine)
- * @param options.onlineMessage - Online status message (default: 'Online')
- * @param options.offlineMessage - Offline status message (default: 'Offline')
- * @param options.showStatusMessage - Whether to log status changes to console (default: false)
+ * @param {UseNetworkStatusOptions} [options] - Hook options
  *
- * @returns Network status information
- * @returns isOnline - Whether online
- * @returns isOffline - Whether offline
- * @returns statusMessage - Current status message
- * @returns lastOnline - Last online time
- * @returns lastOffline - Last offline time
- * @returns refreshStatus - Status refresh function
+ * @param {boolean} [options.initialOnline] - Initial online status (default: navigator.onLine)
+ *
+ * @param {string} [options.onlineMessage] - Online status message (default: 'Online')
+ *
+ * @param {string} [options.offlineMessage] - Offline status message (default: 'Offline')
+ *
+ * @param {boolean} [options.showStatusMessage] - Whether to log status changes to console (default: false)
+ *
+ * @returns {boolean} isOnline - Whether online
+ *
+ * @returns {boolean} isOffline - Whether offline
+ *
+ * @returns {string} statusMessage - Current status message
+ *
+ * @returns {Date} lastOnline - Last online time
+ *
+ * @returns {Date} lastOffline - Last offline time
+ *
+ * @returns {() => void} refreshStatus - Status refresh function
  *
  * @example
  * ```tsx
@@ -85,19 +100,20 @@ interface UseNetworkStatusOptions {
  *     // Data synchronization logic
  *     syncData();
  *   } else {
- *     console.log('네트워크 연결 끊김:', lastOffline);
- *     // 오프라인 모드 활성화
+ *     console.log('Network disconnected:', lastOffline);
+ *     // Enable offline mode
  *     enableOfflineMode();
  *   }
  * }, [isOnline, lastOnline, lastOffline]);
  * ```
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-usenetworkstatus--docs
  */
 export function useNetworkStatus(options: UseNetworkStatusOptions = {}) {
 	const {
 		initialOnline,
-		onlineMessage = '온라인',
-		offlineMessage = '오프라인',
+		onlineMessage = 'Online',
+		offlineMessage = 'Offline',
 		showStatusMessage = false,
 	} = options;
 

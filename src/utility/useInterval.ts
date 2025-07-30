@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
  * If delay is null, the timer is disabled.
  *
  * @param {() => void} callback - Function to execute periodically
+ *
  * @param {number | null} delay - Interval in milliseconds, null to disable
  *
  * @example
@@ -25,6 +26,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
  * }, isActive ? 5000 : null);
  * ```
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-useinterval--docs
  */
 export function useInterval(callback: () => void, delay: number | null): void {
 	const savedCallback = useRef(callback);
@@ -38,7 +40,7 @@ export function useInterval(callback: () => void, delay: number | null): void {
 			return;
 		}
 
-		// 음수 delay에 대한 경고
+		// Warning for negative delay
 		if (delay < 0) {
 			console.warn('useInterval: delay must be non-negative');
 			return;
@@ -58,6 +60,7 @@ export function useInterval(callback: () => void, delay: number | null): void {
  * If delay is null, the timer is disabled.
  *
  * @param {() => void} callback - Function to execute after delay
+ *
  * @param {number | null} delay - Delay in milliseconds, null to disable
  *
  * @example
@@ -77,6 +80,7 @@ export function useInterval(callback: () => void, delay: number | null): void {
  * }, shouldShow ? null : 2000);
  * ```
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-useinterval--docs#related-hooks
  */
 export function useTimeout(callback: () => void, delay: number | null): void {
 	const savedCallback = useRef(callback);
@@ -90,7 +94,7 @@ export function useTimeout(callback: () => void, delay: number | null): void {
 			return;
 		}
 
-		// 음수 delay에 대한 경고
+		// Warning for negative delay
 		if (delay < 0) {
 			console.warn('useTimeout: delay must be non-negative');
 			return;
@@ -108,11 +112,13 @@ export function useTimeout(callback: () => void, delay: number | null): void {
  * A hook that provides a manually controllable interval timer.
  *
  * @param {() => void} callback - Function to execute periodically
+ *
  * @param {number | null} delay - Interval in milliseconds, null to disable
  *
- * @returns {Object} Timer control object
  * @returns {() => void} start - Function to start the timer
+ *
  * @returns {() => void} stop - Function to stop the timer
+ *
  * @returns {boolean} isRunning - Whether the timer is running
  *
  * @example
@@ -146,6 +152,7 @@ export function useTimeout(callback: () => void, delay: number | null): void {
  * }, [isActive]);
  * ```
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-useinterval--docs#related-hooks
  */
 export function useControlledInterval(
 	callback: () => void,
@@ -194,17 +201,31 @@ export function useControlledInterval(
 /**
  * A hook that provides manual control over timeout timers.
  *
- * @param callback - Function to execute after delay
- * @param delay - Delay in milliseconds, null to disable
+ * @param {() => void} callback - Function to execute after delay
  *
- * @returns
- *   start: Function to start the timer
- *   stop: Function to stop the timer
- *   isRunning: Whether the timer is running
+ * @param {number | null} delay - Delay in milliseconds, null to disable
+ *
+ * @returns {() => void} start - Function to start the timer
+ *
+ * @returns {() => void} stop - Function to stop the timer
+ *
+ * @returns {boolean} isRunning - Whether the timer is running
  *
  * @example
- * const { start, stop, isRunning } = useControlledTimeout(() => { ... }, 1000);
+ * ```tsx
+ * const { start, stop, isRunning } = useControlledTimeout(() => {
+ *   console.log('Executing after 3 seconds');
+ * }, 3000);
+ * ```
  *
+ * @example
+ * ```tsx
+ * const { start, stop, isRunning } = useControlledTimeout(() => {
+ *   setShouldShow(true);
+ * }, shouldShow ? null : 2000);
+ * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-useinterval--docs#related-hooks
  */
 export function useControlledTimeout(
 	callback: () => void,

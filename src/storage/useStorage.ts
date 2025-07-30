@@ -4,7 +4,10 @@ import { useState, useEffect, useCallback } from 'react';
  * Storage hook options type
  */
 export interface UseStorageOptions {
+	/** Serializer function */
 	serializer?: (value: any) => string;
+
+	/** Deserializer function */
 	deserializer?: (value: string) => any;
 }
 
@@ -17,9 +20,16 @@ export type StorageType = 'localStorage' | 'sessionStorage';
  * Common storage logic handler function
  */
 export function useStorage<T>(
+	/** Storage type */
 	storageType: StorageType,
+
+	/** Storage key */
 	key: string,
+
+	/** Initial value */
 	initialValue: T,
+
+	/** Storage options */
 	options: UseStorageOptions = {},
 ): [T, (value: T | ((val: T) => T)) => void, () => void] {
 	const { serializer = JSON.stringify, deserializer = JSON.parse } = options;
@@ -105,10 +115,10 @@ export function useStorage<T>(
 		}
 	}, [key, checkEnvironment, storageType]);
 
-	// 초기값 설정
+	// Set initial value
 	const [storedValue, setStoredValueState] = useState<T>(getStoredValue);
 
-	// 스토리지 변경 이벤트 처리
+	// Handle storage change events
 	useEffect(() => {
 		const handleStorageChange = (e: StorageEvent) => {
 			if (e.key === key && e.newValue !== null) {
@@ -125,7 +135,7 @@ export function useStorage<T>(
 		return () => window.removeEventListener('storage', handleStorageChange);
 	}, [key, deserializer, storageType]);
 
-	// 값 설정 함수
+	// Function to set value
 	const setValue = useCallback(
 		(value: T | ((val: T) => T)) => {
 			const valueToStore = value instanceof Function ? value(storedValue) : value;
@@ -135,7 +145,7 @@ export function useStorage<T>(
 		[storedValue, setStoredValue],
 	);
 
-	// 값 제거 함수
+	// Function to remove value
 	const removeValue = useCallback(() => {
 		setStoredValueState(initialValue);
 		removeStoredValue();

@@ -4,7 +4,9 @@ import { useRef, useCallback, useState, useEffect } from 'react';
  * A custom hook that throttles a callback function to execute only once during the specified delay(ms).
  *
  * @template T - Type of the callback function
+ *
  * @param {T} callback - Callback function to throttle
+ *
  * @param {number} delay - Throttle interval (ms)
  *
  * @returns {T} Throttled callback function
@@ -32,12 +34,13 @@ import { useRef, useCallback, useState, useEffect } from 'react';
  * }, [throttledScrollHandler]);
  * ```
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/performance-usethrottle--docs
  */
 export function useThrottle<T extends (...args: any[]) => any>(callback: T, delay: number): T {
 	const lastRun = useRef<number>(0);
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-	// delay 유효성 검사
+	// Validate delay
 	if (delay < 0) {
 		console.warn('useThrottle: delay must be non-negative');
 		return useCallback(
@@ -53,7 +56,7 @@ export function useThrottle<T extends (...args: any[]) => any>(callback: T, dela
 			const now = Date.now();
 
 			if (lastRun.current && now - lastRun.current < delay) {
-				// 아직 throttle 시간이 지나지 않았으면 마지막 호출을 스케줄링
+				// Schedule the last call if throttle time hasn't passed yet
 				if (timeoutRef.current) {
 					clearTimeout(timeoutRef.current);
 				}
@@ -63,7 +66,7 @@ export function useThrottle<T extends (...args: any[]) => any>(callback: T, dela
 					callback(...args);
 				}, delay - (now - lastRun.current));
 			} else {
-				// throttle 시간이 지났으면 즉시 실행
+				// Execute immediately if throttle time has passed
 				lastRun.current = now;
 				callback(...args);
 			}
@@ -78,7 +81,9 @@ export function useThrottle<T extends (...args: any[]) => any>(callback: T, dela
  * A custom hook that returns a throttled value that updates only once during the specified delay(ms) when the input value changes.
  *
  * @template T - Type of the value to throttle
+ *
  * @param {T} value - Value to throttle
+ *
  * @param {number} delay - Throttle interval (ms)
  *
  * @returns {T} Throttled value
@@ -115,6 +120,7 @@ export function useThrottle<T extends (...args: any[]) => any>(callback: T, dela
  * );
  * ```
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/performance-usethrottle--docs#related-hooks
  */
 export function useThrottleValue<T>(value: T, delay: number): T {
 	const [throttledValue, setThrottledValue] = useState<T>(value);

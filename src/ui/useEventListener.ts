@@ -9,9 +9,13 @@ type EventListenerOptions = boolean | AddEventListenerOptions;
  * Even when the handler changes, the latest handler is always called.
  *
  * @template T - Target type for event registration (Window, Document, HTMLElement, etc.)
+ *
  * @param {string} eventName - Event name to register (e.g., 'click', 'keydown', 'resize')
+ *
  * @param {(event: Event) => void} handler - Callback function to execute when event occurs
- * @param {T} element - Target to register event on (default: window)
+ *
+ * @param {T} [element] - Target to register event on (default: window)
+ *
  * @param {EventListenerOptions} [options] - addEventListener options (passive, capture, etc.)
  *
  * @example
@@ -42,6 +46,7 @@ type EventListenerOptions = boolean | AddEventListenerOptions;
  * }, window, { passive: true });
  * ```
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/ui-useeventlistener--docs
  */
 export function useEventListener<T extends EventTarget>(
 	eventName: string,
@@ -51,13 +56,13 @@ export function useEventListener<T extends EventTarget>(
 ): void {
 	const savedHandler = useRef(handler);
 
-	// handler가 변경될 때마다 ref를 최신으로 유지
+	// Keep ref up to date when handler changes
 	useEffect(() => {
 		savedHandler.current = handler;
 	}, [handler]);
 
 	useEffect(() => {
-		// 입력값 유효성 검사
+		// Input validation
 		if (!eventName || typeof eventName !== 'string') {
 			console.warn('useEventListener: eventName must be a non-empty string');
 			return;
@@ -70,7 +75,7 @@ export function useEventListener<T extends EventTarget>(
 
 		const targetElement = element || window;
 
-		// addEventListener 지원 여부 체크
+		// Check if addEventListener is supported
 		if (!targetElement || !targetElement.addEventListener) {
 			console.warn('useEventListener: target element does not support addEventListener');
 			return;
@@ -93,7 +98,7 @@ export function useEventListener<T extends EventTarget>(
 }
 
 /**
- * 특정 이벤트 타입에 대한 이벤트 리스너를 생성하는 팩토리 함수
+ * Factory function to create typed event listeners
  */
 function createTypedEventListener<T extends EventTarget, E extends Event>(
 	eventName: string,
@@ -105,77 +110,99 @@ function createTypedEventListener<T extends EventTarget, E extends Event>(
 }
 
 /**
- * 키보드 이벤트 리스너
+ * Keyboard event listener
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/ui-useeventlistener--docs
  */
 export function useKeyDown(handler: (event: KeyboardEvent) => void, element?: EventTarget): void {
 	createTypedEventListener('keydown', handler, element);
 }
 
 /**
- * 키보드 이벤트 리스너 (키 업)
+ * Keyboard event listener (key up)
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/ui-useeventlistener--docs
  */
 export function useKeyUp(handler: (event: KeyboardEvent) => void, element?: EventTarget): void {
 	createTypedEventListener('keyup', handler, element);
 }
 
 /**
- * 마우스 클릭 이벤트 리스너
+ * Mouse click event listener
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/ui-useeventlistener--docs
  */
 export function useClick(handler: (event: MouseEvent) => void, element?: EventTarget): void {
 	createTypedEventListener('click', handler, element);
 }
 
 /**
- * 마우스 다운 이벤트 리스너
+ * Mouse down event listener
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/ui-useeventlistener--docs
  */
 export function useMouseDown(handler: (event: MouseEvent) => void, element?: EventTarget): void {
 	createTypedEventListener('mousedown', handler, element);
 }
 
 /**
- * 마우스 업 이벤트 리스너
+ * Mouse up event listener
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/ui-useeventlistener--docs
  */
 export function useMouseUp(handler: (event: MouseEvent) => void, element?: EventTarget): void {
 	createTypedEventListener('mouseup', handler, element);
 }
 
 /**
- * 마우스 이동 이벤트 리스너
+ * Mouse move event listener
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/ui-useeventlistener--docs
  */
 export function useMouseMove(handler: (event: MouseEvent) => void, element?: EventTarget): void {
 	createTypedEventListener('mousemove', handler, element);
 }
 
 /**
- * 리사이즈 이벤트 리스너
+ * Resize event listener
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/ui-useeventlistener--docs
  */
 export function useResize(handler: (event: UIEvent) => void, element?: EventTarget): void {
 	createTypedEventListener('resize', handler, element);
 }
 
 /**
- * 스크롤 이벤트 리스너
+ * Scroll event listener
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/ui-useeventlistener--docs
  */
 export function useScroll(handler: (event: Event) => void, element?: EventTarget): void {
 	createTypedEventListener('scroll', handler, element);
 }
 
 /**
- * 터치 시작 이벤트 리스너
+ * Touch start event listener
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/ui-useeventlistener--docs
  */
 export function useTouchStart(handler: (event: TouchEvent) => void, element?: EventTarget): void {
 	createTypedEventListener('touchstart', handler, element);
 }
 
 /**
- * 터치 이동 이벤트 리스너
+ * Touch move event listener
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/ui-useeventlistener--docs
  */
 export function useTouchMove(handler: (event: TouchEvent) => void, element?: EventTarget): void {
 	createTypedEventListener('touchmove', handler, element);
 }
 
 /**
- * 터치 종료 이벤트 리스너
+ * Touch end event listener
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/ui-useeventlistener--docs
  */
 export function useTouchEnd(handler: (event: TouchEvent) => void, element?: EventTarget): void {
 	createTypedEventListener('touchend', handler, element);

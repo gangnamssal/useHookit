@@ -3,16 +3,22 @@ import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 interface UseCounterOptions {
 	/** Initial counter value (default: 0) */
 	initialValue?: number;
+
 	/** Minimum value limit */
 	min?: number;
+
 	/** Maximum value limit */
 	max?: number;
+
 	/** Step value for increment/decrement (default: 1) */
 	step?: number;
+
 	/** Callback when value changes */
 	onChange?: (value: number) => void;
+
 	/** Callback when reaching min value */
 	onMin?: (value: number) => void;
+
 	/** Callback when reaching max value */
 	onMax?: (value: number) => void;
 }
@@ -20,22 +26,34 @@ interface UseCounterOptions {
 /**
  * A hook for declaratively managing counter states with bounds and step control
  *
- * @param options - Hook options
- * @param options.initialValue - Initial counter value (default: 0)
- * @param options.min - Minimum value limit
- * @param options.max - Maximum value limit
- * @param options.step - Step value for increment/decrement (default: 1)
- * @param options.onChange - Callback when value changes
- * @param options.onMin - Callback when reaching min value
- * @param options.onMax - Callback when reaching max value
+ * @param {UseCounterOptions} [options] - Hook options
  *
- * @returns Counter state management object
+ * @param {number} [options.initialValue] - Initial counter value (default: 0)
+ *
+ * @param {number} [options.min] - Minimum value limit
+ *
+ * @param {number} [options.max] - Maximum value limit
+ *
+ * @param {number} [options.step] - Step value for increment/decrement (default: 1)
+ *
+ * @param {Function} [options.onChange] - Callback when value changes
+ *
+ * @param {Function} [options.onMin] - Callback when reaching min value
+ *
+ * @param {Function} [options.onMax] - Callback when reaching max value
+ *
  * @returns {number} value - Current counter value
+ *
  * @returns {() => void} increment - Function to increment the value
+ *
  * @returns {() => void} decrement - Function to decrement the value
+ *
  * @returns {() => void} reset - Function to reset to initial value
+ *
  * @returns {(value: number) => void} setValue - Function to set value directly
+ *
  * @returns {boolean} isMin - Whether the value is at minimum
+ *
  * @returns {boolean} isMax - Whether the value is at maximum
  *
  * @example
@@ -69,6 +87,8 @@ interface UseCounterOptions {
  *   onMax: (value) => console.log('Reached maximum:', value)
  * });
  * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-usecounter--docs
  */
 export function useCounter(options: UseCounterOptions = {}): {
 	value: number;

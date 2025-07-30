@@ -3,6 +3,7 @@ import { useState, useCallback, useRef } from 'react';
 interface UseBooleanOptions {
 	/** Initial boolean value (default: false) */
 	initialValue?: boolean;
+
 	/** Callback when value changes */
 	onChange?: (value: boolean) => void;
 }
@@ -10,20 +11,27 @@ interface UseBooleanOptions {
 /**
  * A hook for declaratively managing boolean states
  *
- * @param options - Hook options
- * @param options.initialValue - Initial boolean value (default: false)
- * @param options.onChange - Callback when value changes
+ * @param {UseBooleanOptions} [options] - Hook options
  *
- * @returns Boolean state management object
+ * @param {boolean} [options.initialValue] - Initial boolean value (default: false)
+ *
+ * @param {Function} [options.onChange] - Callback when value changes
+ *
+ * @returns {Object} Object containing boolean state management methods
+ *
  * @returns {boolean} value - Current boolean value
+ *
  * @returns {() => void} toggle - Function to toggle the value
+ *
  * @returns {() => void} setTrue - Function to set value to true
+ *
  * @returns {() => void} setFalse - Function to set value to false
+ *
  * @returns {(value: boolean) => void} setValue - Function to set value directly
  *
  * @example
  * ```tsx
- * const { value, toggle, setTrue, setFalse } = useBoolean();
+ * const { value, toggle, setTrue, setFalse, setValue } = useBoolean();
  *
  * return (
  *   <div>
@@ -34,6 +42,8 @@ interface UseBooleanOptions {
  *   </div>
  * );
  * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-useboolean--docs
  */
 export function useBoolean(options: UseBooleanOptions = {}): {
 	value: boolean;
@@ -47,7 +57,7 @@ export function useBoolean(options: UseBooleanOptions = {}): {
 	const [value, setValueState] = useState(initialValue);
 	const onChangeRef = useRef(onChange);
 
-	// onChange ref 업데이트
+	// Update onChange ref
 	onChangeRef.current = onChange;
 
 	/**

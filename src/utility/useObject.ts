@@ -8,6 +8,7 @@ interface UseObjectOptions<T extends Record<string, any>> {
 	 * Initial object value
 	 */
 	initialValue?: T;
+
 	/**
 	 * Whether to enable object operations logging
 	 */
@@ -22,38 +23,47 @@ interface ObjectOperations<T extends Record<string, any>> {
 	 * Set a property in the object
 	 */
 	set: (key: keyof T, value: T[keyof T]) => void;
+
 	/**
 	 * Set multiple properties at once
 	 */
 	setMultiple: (updates: Partial<T>) => void;
+
 	/**
 	 * Remove a property from the object
 	 */
 	remove: (key: keyof T) => void;
+
 	/**
 	 * Remove multiple properties at once
 	 */
 	removeMultiple: (keys: (keyof T)[]) => void;
+
 	/**
 	 * Update a property using a function
 	 */
 	update: (key: keyof T, updater: (value: T[keyof T]) => T[keyof T]) => void;
+
 	/**
 	 * Update multiple properties using functions
 	 */
 	updateMultiple: (updaters: { [K in keyof T]?: (value: T[K]) => T[K] }) => void;
+
 	/**
 	 * Toggle a boolean property
 	 */
 	toggle: (key: keyof T) => void;
+
 	/**
 	 * Clear all properties from the object
 	 */
 	clear: () => void;
+
 	/**
 	 * Replace the entire object
 	 */
 	replace: (newObject: T) => void;
+
 	/**
 	 * Merge with another object
 	 */
@@ -63,46 +73,57 @@ interface ObjectOperations<T extends Record<string, any>> {
 	 * Check if a property exists
 	 */
 	has: (key: keyof T) => boolean;
+
 	/**
 	 * Get all keys
 	 */
 	keys: () => (keyof T)[];
+
 	/**
 	 * Get all values
 	 */
 	values: () => T[keyof T][];
+
 	/**
 	 * Get all entries
 	 */
 	entries: () => [keyof T, T[keyof T]][];
+
 	/**
 	 * Get object size (number of properties)
 	 */
 	size: number;
+
 	/**
 	 * Check if object is empty
 	 */
 	isEmpty: boolean;
+
 	/**
 	 * Check if object is not empty
 	 */
 	isNotEmpty: boolean;
+
 	/**
 	 * Pick specific properties
 	 */
 	pick: (keys: (keyof T)[]) => Partial<T>;
+
 	/**
 	 * Omit specific properties
 	 */
 	omit: (keys: (keyof T)[]) => Partial<T>;
+
 	/**
 	 * Transform object using a function
 	 */
 	transform: <R>(transformer: (obj: T) => R) => R;
+
 	/**
 	 * Filter object properties
 	 */
 	filter: (predicate: (value: T[keyof T], key: keyof T) => boolean) => Partial<T>;
+
 	/**
 	 * Map object values
 	 */
@@ -112,8 +133,11 @@ interface ObjectOperations<T extends Record<string, any>> {
 /**
  * Hook to manage object state with common object operations
  *
- * @param options - Configuration options for object management
- * @returns Object state and utility functions
+ * @param {UseObjectOptions<T>} [options] - Configuration options for object management
+ *
+ * @returns {T} object - Object state
+ *
+ * @returns {ObjectOperations<T>} operations - Object operations
  *
  * @example
  * ```tsx
@@ -130,6 +154,8 @@ interface ObjectOperations<T extends Record<string, any>> {
  * // Clear all properties
  * clear();
  * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-useobject--docs
  */
 export function useObject<T extends Record<string, any>>(
 	options: UseObjectOptions<T> = {},

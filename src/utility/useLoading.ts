@@ -3,10 +3,13 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 interface UseLoadingOptions {
 	/** Initial loading state (default: false) */
 	initialLoading?: boolean;
+
 	/** Delay before loading state changes (milliseconds, default: 0) */
 	delay?: number;
+
 	/** Minimum loading display time (milliseconds, default: 0) */
 	minLoadingTime?: number;
+
 	/** Callback when loading state changes */
 	onLoadingChange?: (loading: boolean) => void;
 }
@@ -14,10 +17,13 @@ interface UseLoadingOptions {
 interface LoadingState {
 	/** Current loading state */
 	isLoading: boolean;
+
 	/** Loading start time */
 	startTime: Date | null;
+
 	/** Loading duration (milliseconds) */
 	duration: number;
+
 	/** Loading end time */
 	endTime: Date | null;
 }
@@ -25,19 +31,28 @@ interface LoadingState {
 /**
  * A hook for declaratively managing loading states
  *
- * @param options - Hook options
- * @param options.initialLoading - Initial loading state (default: false)
- * @param options.delay - Delay before loading state changes (ms, default: 0)
- * @param options.minLoadingTime - Minimum loading display time (ms, default: 0)
- * @param options.onLoadingChange - Callback when loading state changes
+ * @param {UseLoadingOptions} [options] - Hook options
  *
- * @returns Loading state management object
+ * @param {boolean} [options.initialLoading] - Initial loading state (default: false)
+ *
+ * @param {number} [options.delay] - Delay before loading state changes (ms, default: 0)
+ *
+ * @param {number} [options.minLoadingTime] - Minimum loading display time (ms, default: 0)
+ *
+ * @param {() => void} [options.onLoadingChange] - Callback when loading state changes
+ *
  * @returns {boolean} isLoading - Current loading state
+ *
  * @returns {() => void} startLoading - Function to start loading
+ *
  * @returns {() => void} stopLoading - Function to stop loading
+ *
  * @returns {() => void} toggleLoading - Function to toggle loading state
+ *
  * @returns {LoadingState} state - Detailed loading state information
+ *
  * @returns {<T>(promise: Promise<T>) => Promise<T>} withLoading - Function to execute promise with loading state
+ *
  * @returns {<T>(asyncFn: () => Promise<T>) => Promise<T>} wrapAsync - Function to wrap async function with loading state
  *
  * @example
@@ -89,17 +104,17 @@ interface LoadingState {
  *
  * return (
  *   <button onClick={handleSubmit} disabled={isLoading}>
- *     {isLoading ? '제출 중...' : '제출'}
+ *     {isLoading ? 'Submitting...' : 'Submit'}
  *   </button>
  * );
  * ```
  *
  * @example
  * ```tsx
- * // 지연 시간과 최소 로딩 시간 설정 / Setting delay and minimum loading time
+ * // Setting delay and minimum loading time
  * const { isLoading, withLoading } = useLoading({
- *   delay: 200, // 200ms 후에 로딩 상태 표시
- *   minLoadingTime: 1000, // 최소 1초간 로딩 표시
+ *   delay: 200, // Show loading state after 200ms
+ *   minLoadingTime: 1000, // Show loading for at least 1 second
  * });
  *
  * const handleSubmit = async () => {
@@ -109,10 +124,10 @@ interface LoadingState {
  *
  * @example
  * ```tsx
- * // 로딩 상태 변경 콜백 / Loading state change callback
+ * // Loading state change callback
  * const { isLoading, withLoading } = useLoading({
  *   onLoadingChange: (loading) => {
- *     console.log(`로딩 상태: ${loading ? '시작' : '완료'}`);
+ *     console.log(`Loading state: ${loading ? 'started' : 'completed'}`);
  *   },
  * });
  *
@@ -123,7 +138,7 @@ interface LoadingState {
  *
  * @example
  * ```tsx
- * // 여러 로딩 상태 관리 / Managing multiple loading states
+ * // Managing multiple loading states
  * const { isLoading: isSubmitting, withLoading: withSubmitting } = useLoading();
  * const { isLoading: isDeleting, withLoading: withDeleting } = useLoading();
  *
@@ -133,17 +148,19 @@ interface LoadingState {
  *       onClick={() => withSubmitting(submitData())}
  *       disabled={isSubmitting || isDeleting}
  *     >
- *       {isSubmitting ? '제출 중...' : '제출'}
+ *       {isSubmitting ? 'Submitting...' : 'Submit'}
  *     </button>
  *     <button
  *       onClick={() => withDeleting(deleteData())}
  *       disabled={isSubmitting || isDeleting}
  *     >
- *       {isDeleting ? '삭제 중...' : '삭제'}
+ *       {isDeleting ? 'Deleting...' : 'Delete'}
  *     </button>
  *   </div>
  * );
  * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-useloading--docs
  */
 export function useLoading(options: UseLoadingOptions = {}): {
 	isLoading: boolean;
@@ -156,7 +173,7 @@ export function useLoading(options: UseLoadingOptions = {}): {
 } {
 	const { initialLoading = false, delay = 0, minLoadingTime = 0, onLoadingChange } = options;
 
-	// 음수 값에 대한 경고
+	// Warning for negative values
 	useEffect(() => {
 		if (delay < 0) {
 			console.warn('useLoading: delay must be non-negative');

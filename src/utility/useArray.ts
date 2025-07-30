@@ -8,6 +8,7 @@ interface UseArrayOptions<T> {
 	 * Initial array value
 	 */
 	initialValue?: T[];
+
 	/**
 	 * Whether to enable array operations logging
 	 */
@@ -22,86 +23,107 @@ interface ArrayOperations<T> {
 	 * Add item to the end of array
 	 */
 	push: (item: T) => void;
+
 	/**
 	 * Add item to the beginning of array
 	 */
 	unshift: (item: T) => void;
+
 	/**
 	 * Remove last item from array
 	 */
 	pop: () => T | undefined;
+
 	/**
 	 * Remove first item from array
 	 */
 	shift: () => T | undefined;
+
 	/**
 	 * Remove item at specific index
 	 */
 	removeAt: (index: number) => T | undefined;
+
 	/**
 	 * Remove items that match the predicate
 	 */
 	remove: (predicate: (item: T, index: number) => boolean) => T[];
+
 	/**
 	 * Update item at specific index
 	 */
 	updateAt: (index: number, item: T) => void;
+
 	/**
 	 * Insert item at specific index
 	 */
 	insertAt: (index: number, item: T) => void;
+
 	/**
 	 * Clear all items from array
 	 */
 	clear: () => void;
+
 	/**
 	 * Replace entire array with new items
 	 */
 	set: (items: T[]) => void;
+
 	/**
 	 * Filter array based on predicate
 	 */
 	filter: (predicate: (item: T, index: number) => boolean) => void;
+
 	/**
 	 * Sort array
 	 */
 	sort: (compareFn?: (a: T, b: T) => number) => void;
+
 	/**
 	 * Reverse array order
 	 */
 	reverse: () => void;
+
 	/**
 	 * Find first item that matches predicate
 	 */
 	find: (predicate: (item: T, index: number) => boolean) => T | undefined;
+
 	/**
 	 * Find index of first item that matches predicate
 	 */
 	findIndex: (predicate: (item: T, index: number) => boolean) => number;
+
 	/**
 	 * Check if array includes item
 	 */
 	includes: (item: T) => boolean;
+
 	/**
 	 * Get item at specific index
 	 */
 	get: (index: number) => T | undefined;
+
 	/**
 	 * Get first item
 	 */
 	first: () => T | undefined;
+
 	/**
 	 * Get last item
 	 */
 	last: () => T | undefined;
+
 	/**
 	 * Get array length
 	 */
 	length: number;
+
 	/**
 	 * Check if array is empty
 	 */
 	isEmpty: boolean;
+
 	/**
 	 * Check if array is not empty
 	 */
@@ -111,22 +133,31 @@ interface ArrayOperations<T> {
 /**
  * Hook to manage array state with common array operations
  *
- * @param options - Configuration options for array management
- * @returns Array state and utility functions
+ * @param {UseArrayOptions<T>} [options] - Configuration options for array management
+ *
+ * @param {T[]} [options.initialValue] - Initial array value (default: [])
+ *
+ * @param {boolean} [options.debug] - Whether to enable debug logging for array operations (default: false)
+ *
+ * @returns {T[]} array - Current array value
+ *
+ * @returns {ArrayOperations<T>} operations - Array operations
  *
  * @example
  * ```tsx
- * const { array, push, pop, removeAt, clear } = useArray({ initialValue: [1, 2, 3] });
+ * const [array, operations] = useArray({ initialValue: [1, 2, 3] });
  *
  * // Add item
- * push(4);
+ * operations.push(4);
  *
  * // Remove item at index
- * removeAt(1);
+ * operations.removeAt(1);
  *
  * // Clear array
- * clear();
+ * operations.clear();
  * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-usearray--docs
  */
 export function useArray<T>(options: UseArrayOptions<T> = {}): [T[], ArrayOperations<T>] {
 	const { initialValue = [], debug = false } = options;

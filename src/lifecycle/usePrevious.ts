@@ -8,9 +8,13 @@ interface UsePreviousOptions<T> {
  * A hook that returns the value from the previous render.
  *
  * @template T - Type of the value to track
+ *
  * @param {T} value - Current value to track
+ *
  * @param {UsePreviousOptions<T>} options - Options configuration
+ *
  * @param {T} options.initialValue - Initial value (returned on first render)
+ *
  * @returns {T | undefined} Value from previous render
  *
  * @example
@@ -48,6 +52,8 @@ interface UsePreviousOptions<T> {
  *   }
  * }, [isVisible, prevIsVisible]);
  * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/lifecycle-useprevious--docs
  */
 export function usePrevious<T>(value: T, options: UsePreviousOptions<T> = {}): T | undefined {
 	const { initialValue } = options;

@@ -6,14 +6,19 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 interface UseKeyPressOptions {
 	/** Target element to listen for key events (default: document) */
 	target?: EventTarget | null;
+
 	/** Whether to prevent default behavior (default: false) */
 	preventDefault?: boolean;
+
 	/** Whether the hook is enabled (default: true) */
 	enabled?: boolean;
+
 	/** Whether to listen for keydown events (default: true) */
 	keydown?: boolean;
+
 	/** Whether to listen for keyup events (default: true) */
 	keyup?: boolean;
+
 	/** Custom key mappings for different keyboard layouts */
 	keyMappings?: Record<string, string>;
 }
@@ -24,10 +29,13 @@ interface UseKeyPressOptions {
 interface UseKeyPressReturn {
 	/** Whether the key is currently pressed */
 	isPressed: boolean;
+
 	/** Key code of the pressed key (null when not pressed) */
 	keyCode: string | null;
+
 	/** Timestamp when the key was pressed (null when not pressed) */
 	pressedAt: number | null;
+
 	/** Duration the key has been held in milliseconds (null when not pressed) */
 	holdDuration: number | null;
 }
@@ -38,15 +46,28 @@ interface UseKeyPressReturn {
  * Features automatic cleanup, key normalization, and hold duration tracking.
  *
  * @param {string | string[]} key - Key(s) to listen for (case insensitive)
+ *
  * @param {UseKeyPressOptions} [options] - Configuration options
+ *
  * @param {EventTarget | null} [options.target] - Target element (default: document)
+ *
  * @param {boolean} [options.preventDefault] - Prevent default behavior (default: false)
+ *
  * @param {boolean} [options.enabled] - Whether the hook is enabled (default: true)
+ *
  * @param {boolean} [options.keydown] - Listen for keydown events (default: true)
+ *
  * @param {boolean} [options.keyup] - Listen for keyup events (default: true)
+ *
  * @param {Record<string, string>} [options.keyMappings] - Custom key mappings for different keyboard layouts
  *
- * @returns {UseKeyPressReturn} Object containing key press state and metadata
+ * @returns {boolean} isPressed - Whether the key is currently pressed
+ *
+ * @returns {string | null} keyCode - Key code of the pressed key (null when not pressed)
+ *
+ * @returns {number | null} pressedAt - Timestamp when the key was pressed (null when not pressed)
+ *
+ * @returns {number | null} holdDuration - Duration the key has been held in milliseconds (null when not pressed)
  *
  * @example
  * ```tsx
@@ -55,9 +76,9 @@ interface UseKeyPressReturn {
  *
  * return (
  *   <div>
- *     <p>상태: {isPressed ? '눌림' : '떼어짐'}</p>
- *     <p>키: {keyCode || '없음'}</p>
- *     <p>홀드 시간: {holdDuration ? `${holdDuration}ms` : '0ms'}</p>
+ *     <p>Status: {isPressed ? 'Pressed' : 'Released'}</p>
+ *     <p>Key: {keyCode || 'None'}</p>
+ *     <p>Hold Duration: {holdDuration ? `${holdDuration}ms` : '0ms'}</p>
  *   </div>
  * );
  * ```
@@ -69,8 +90,8 @@ interface UseKeyPressReturn {
  *
  * return (
  *   <div>
- *     {isPressed ? 'Ctrl+A 감지됨!' : 'Ctrl+A를 눌러보세요'}
- *     <p>감지된 키: {keyCode || '없음'}</p>
+ *     {isPressed ? 'Ctrl+A detected!' : 'Press Ctrl+A'}
+ *     <p>Detected key: {keyCode || 'None'}</p>
  *   </div>
  * );
  * ```
@@ -84,7 +105,7 @@ interface UseKeyPressReturn {
  *
  * return (
  *   <div>
- *     <p>A 키 상태: {isPressed ? '감지됨' : '없음'}</p>
+ *     <p>A key status: {isPressed ? 'Detected' : 'None'}</p>
  *   </div>
  * );
  * ```
@@ -100,11 +121,13 @@ interface UseKeyPressReturn {
  *
  * return (
  *   <div>
- *     <input ref={setInputRef} placeholder="Escape를 눌러보세요" />
- *     <p>Escape 키 상태: {isPressed ? '눌림' : '떼어짐'}</p>
+ *     <input ref={setInputRef} placeholder="Press Escape" />
+ *     <p>Escape key status: {isPressed ? 'Pressed' : 'Released'}</p>
  *   </div>
  * );
  * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/ui-usekeypress--docs
  */
 export function useKeyPress(
 	key: string | string[],
@@ -219,7 +242,7 @@ export function useKeyPress(
 				keyboardEvent.preventDefault();
 			}
 
-			// 이미 눌린 키인지 확인 (키 반복 이벤트 방지)
+			// Check if key is already pressed (prevent key repeat events)
 			if (pressedKeysRef.current.has(mappedKey)) {
 				return;
 			}

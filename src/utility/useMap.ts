@@ -4,52 +4,68 @@ import { useState, useCallback, useMemo } from 'react';
  * Interface providing methods for Map operations
  *
  * @template K - The type of keys in the Map
+ *
  * @template V - The type of values in the Map
  */
 export interface MapOperations<K, V> {
 	// Basic Map methods
 	/** Sets a key-value pair in the Map. */
 	set: (key: K, value: V) => void;
+
 	/** Gets a value by key from the Map. */
 	get: (key: K) => V | undefined;
+
 	/** Removes a key-value pair from the Map. */
 	delete: (key: K) => void;
+
 	/** Checks if a key exists in the Map. */
 	has: (key: K) => boolean;
+
 	/** Removes all key-value pairs from the Map. */
 	clear: () => void;
 
 	// Convenience methods
 	/** Toggles a key-value pair: removes if exists, sets if not exists. */
 	toggle: (key: K, value: V) => void;
+
 	/** Sets multiple key-value pairs at once. */
 	setMultiple: (entries: [K, V][]) => void;
+
 	/** Removes multiple keys at once. */
 	deleteMultiple: (keys: K[]) => void;
+
 	/** Updates a value if the key exists, otherwise sets a new key-value pair. */
 	update: (key: K, updater: (value: V | undefined) => V) => void;
 
 	// Query methods
 	/** Returns the size of the Map. */
 	size: number;
+
 	/** Checks if the Map is empty. */
 	isEmpty: boolean;
+
 	/** Returns all keys as an array. */
 	keys: K[];
+
 	/** Returns all values as an array. */
 	values: V[];
+
 	/** Returns all entries as an array. */
 	entries: [K, V][];
 
 	// Transformation methods
 	/** Filters entries based on a predicate and returns as an array. */
 	filter: (predicate: (key: K, value: V) => boolean) => [K, V][];
+
 	/** Transforms all entries using a mapper function and returns as an array. */
 	map: <U>(mapper: (key: K, value: V) => U) => U[];
+
 	/** Finds the first entry that matches the predicate. */
 	find: (predicate: (key: K, value: V) => boolean) => [K, V] | undefined;
+
 	/** Finds the first key that matches the predicate. */
 	findKey: (predicate: (key: K, value: V) => boolean) => K | undefined;
+
 	/** Finds the first value that matches the predicate. */
 	findValue: (predicate: (key: K, value: V) => boolean) => V | undefined;
 
@@ -62,7 +78,14 @@ export interface MapOperations<K, V> {
  * Interface defining configuration options for the useMap hook
  *
  * @template K - The type of keys in the Map
+ *
  * @template V - The type of values in the Map
+ *
+ * @param {UseMapOptions<K, V>} [options] - Configuration options for useMap
+ *
+ * @param {K[]} [options.initialValue] - Array of initial entries for the Map (default: [])
+ *
+ * @param {boolean} [options.debug] - Whether debug mode is enabled (default: false)
  */
 export interface UseMapOptions<K, V> {
 	/** Array of initial entries for the Map */
@@ -78,11 +101,18 @@ export interface UseMapOptions<K, V> {
  * convenience methods, query methods, and transformation capabilities.
  *
  * @template K - The type of keys in the Map
+ *
  * @template V - The type of values in the Map
- * @param options - Configuration options for useMap
- * @param options.initialValue - Array of initial entries for the Map (default: [])
- * @param options.debug - Whether debug mode is enabled (default: false)
- * @returns [Map<K, V>, MapOperations<K, V>] - Tuple containing the Map object and operation methods
+ *
+ * @param {UseMapOptions<K, V>} [options] - Configuration options for useMap
+ *
+ * @param {K[]} [options.initialValue] - Array of initial entries for the Map (default: [])
+ *
+ * @param {boolean} [options.debug] - Whether debug mode is enabled (default: false)
+ *
+ * @returns {Map<K, V>} map - The Map object
+ *
+ * @returns {MapOperations<K, V>} operations - The Map operations
  *
  * @example
  * ```tsx
@@ -138,6 +168,8 @@ export interface UseMapOptions<K, V> {
  * const user = userOperations.get(1); // User object
  * const hasUser = userOperations.has(2); // true
  * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-usemap--docs
  */
 export function useMap<K, V>(options: UseMapOptions<K, V> = {}): [Map<K, V>, MapOperations<K, V>] {
 	const { initialValue = [], debug = false } = options;

@@ -2,25 +2,25 @@ import { useCallback, useMemo, useState, useEffect } from 'react';
 
 interface UseUrlQueryOptions {
 	/**
-	 * URL 쿼리 파라미터를 자동으로 동기화할지 여부
+	 * Whether to automatically sync URL query parameters
 	 * @default true
 	 */
 	syncWithUrl?: boolean;
 
 	/**
-	 * URL 업데이트 시 히스토리 API 사용 방식
+	 * History API usage method when updating URL
 	 * @default 'push'
 	 */
 	historyMode?: 'push' | 'replace';
 
 	/**
-	 * 쿼리 파라미터 파싱 시 사용할 인코딩 방식
+	 * Encoding method to use when parsing query parameters
 	 * @default 'decodeURIComponent'
 	 */
 	encoding?: 'decodeURIComponent' | 'decodeURI' | 'none';
 
 	/**
-	 * 배치 업데이트를 사용할지 여부 (성능 최적화)
+	 * Whether to use batch updates (performance optimization)
 	 * @default false
 	 */
 	batchUpdates?: boolean;
@@ -28,70 +28,70 @@ interface UseUrlQueryOptions {
 
 interface UseUrlQueryReturn<T extends Record<string, any>> {
 	/**
-	 * 현재 쿼리 파라미터 객체
+	 * Current query parameters object
 	 */
 	query: T;
 
 	/**
-	 * 특정 쿼리 파라미터 값 가져오기
+	 * Get specific query parameter value
 	 */
 	get: (key: keyof T) => T[keyof T] | undefined;
 
 	/**
-	 * 특정 쿼리 파라미터 설정하기
+	 * Set specific query parameter
 	 */
 	set: (key: keyof T, value: T[keyof T]) => void;
 
 	/**
-	 * 여러 쿼리 파라미터 한번에 설정하기
+	 * Set multiple query parameters at once
 	 */
 	setMultiple: (params: Partial<T>) => void;
 
 	/**
-	 * 특정 쿼리 파라미터 제거하기
+	 * Remove specific query parameter
 	 */
 	remove: (key: keyof T) => void;
 
 	/**
-	 * 여러 쿼리 파라미터 제거하기
+	 * Remove multiple query parameters
 	 */
 	removeMultiple: (keys: (keyof T)[]) => void;
 
 	/**
-	 * 모든 쿼리 파라미터 제거하기
+	 * Clear all query parameters
 	 */
 	clear: () => void;
 
 	/**
-	 * 쿼리 파라미터가 비어있는지 확인
+	 * Check if query parameters are empty
 	 */
 	isEmpty: boolean;
 
 	/**
-	 * 현재 URL의 쿼리 스트링
+	 * Current URL query string
 	 */
 	queryString: string;
 
 	/**
-	 * 배치 업데이트를 위한 함수 (batchUpdates가 true일 때만 사용)
+	 * Function for batch updates (only used when batchUpdates is true)
 	 */
 	batchUpdate?: (updates: Array<{ key: keyof T; value: T[keyof T] | undefined }>) => void;
 }
 
 /**
- * 안전한 JSON 직렬화 함수
+ * Safe JSON stringify function
  */
 const safeStringify = (value: any): string => {
 	try {
 		return JSON.stringify(value);
 	} catch (error) {
-		// 순환 참조나 복잡한 객체의 경우 fallback
+		// Fallback for circular references or complex objects
 		return String(value);
 	}
 };
 
 /**
- * 안전한 JSON 파싱 함수
+ * Safe JSON parse function
  */
 const safeParse = (value: string, fallback: any): any => {
 	try {
@@ -102,7 +102,7 @@ const safeParse = (value: string, fallback: any): any => {
 };
 
 /**
- * 값이 비어있는지 확인하는 함수
+ * Check if value is empty
  */
 const isEmptyValue = (value: any): boolean => {
 	return (
@@ -114,18 +114,40 @@ const isEmptyValue = (value: any): boolean => {
 };
 
 /**
- * 값을 문자열로 변환하는 함수
+ * Convert value to string
  */
 const valueToString = (value: any): string => {
 	return typeof value === 'object' && value !== null ? safeStringify(value) : String(value);
 };
 
 /**
- * URL 쿼리 파라미터를 쉽게 관리할 수 있는 훅
+ * Hook to easily manage URL query parameters
  *
- * @param initialQuery - 초기 쿼리 파라미터 객체
- * @param options - 옵션 설정
- * @returns 쿼리 파라미터 관리 함수들과 상태
+ * @param {T} initialQuery - Initial query parameters object
+ *
+ * @param {UseUrlQueryOptions} [options] - Options settings
+ *
+ * @returns {T} query - Current query parameters object
+ *
+ * @returns {UseUrlQueryReturn<T>} Query parameter management functions and state
+ *
+ * @returns {() => void} set - Function to set specific query parameter
+ *
+ * @returns {() => void} get - Function to get specific query parameter
+ *
+ * @returns {() => void} setMultiple - Function to set multiple query parameters at once
+ *
+ * @returns {() => void} remove - Function to remove specific query parameter
+ *
+ * @returns {() => void} removeMultiple - Function to remove multiple query parameters
+ *
+ * @returns {() => void} clear - Function to clear all query parameters
+ *
+ * @returns {() => void} batchUpdate - Function to batch update query parameters
+ *
+ * @returns {() => void} isEmpty - Function to check if query parameters are empty
+ *
+ * @returns {() => void} queryString - Function to get query string
  *
  * @example
  * ```tsx
@@ -135,15 +157,17 @@ const valueToString = (value: any): string => {
  *   category: 'all'
  * });
  *
- * // 특정 파라미터 설정
+ * // Set specific parameter
  * set('page', 2);
  *
- * // 파라미터 값 가져오기
+ * // Get parameter value
  * const currentPage = get('page');
  *
- * // 모든 파라미터 제거
+ * // Clear all parameters
  * clear();
  * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/utility-useurlquery--docs
  */
 export function useUrlQuery<T extends Record<string, any>>(
 	initialQuery: T,
@@ -156,7 +180,7 @@ export function useUrlQuery<T extends Record<string, any>>(
 		batchUpdates = false,
 	} = options;
 
-	// URL에서 쿼리 파라미터 파싱
+	// Parse query parameters from URL
 	const parseQueryFromUrl = useCallback((): Partial<T> => {
 		if (typeof window === 'undefined') return {};
 
@@ -167,14 +191,14 @@ export function useUrlQuery<T extends Record<string, any>>(
 			if (key in initialQuery) {
 				let parsedValue: any = value;
 
-				// 인코딩 방식 처리
+				// Encoding handling
 				if (encoding === 'decodeURI') {
 					parsedValue = decodeURI(value);
 				} else if (encoding === 'none') {
 					parsedValue = value;
 				}
 
-				// 타입 변환 시도
+				// Type conversion attempt
 				const originalValue = initialQuery[key as keyof T];
 				if (typeof originalValue === 'number') {
 					parsedValue = Number(parsedValue);
@@ -191,7 +215,7 @@ export function useUrlQuery<T extends Record<string, any>>(
 		return query;
 	}, [initialQuery, encoding]);
 
-	// 쿼리 파라미터를 URL에 동기화
+	// Sync query parameters to URL
 	const syncToUrl = useCallback(
 		(query: T) => {
 			if (typeof window === 'undefined' || !syncWithUrl) return;
@@ -217,13 +241,13 @@ export function useUrlQuery<T extends Record<string, any>>(
 		[syncWithUrl, historyMode],
 	);
 
-	// 초기 상태 설정
+	// Initial state setting
 	const [query, setQuery] = useState<T>(() => {
 		const urlQuery = parseQueryFromUrl();
 		return { ...initialQuery, ...urlQuery };
 	});
 
-	// URL 변경 감지
+	// URL change detection
 	useEffect(() => {
 		if (!syncWithUrl) return;
 
@@ -236,13 +260,13 @@ export function useUrlQuery<T extends Record<string, any>>(
 		return () => window.removeEventListener('popstate', handlePopState);
 	}, [syncWithUrl, parseQueryFromUrl]);
 
-	// 쿼리 변경 시 URL 동기화
+	// Sync URL when query changes
 	useEffect(() => {
 		if (!syncWithUrl) return;
 		syncToUrl(query);
 	}, [query, syncToUrl, syncWithUrl]);
 
-	// 특정 쿼리 파라미터 가져오기
+	// Get specific query parameter
 	const get = useCallback(
 		(key: keyof T): T[keyof T] | undefined => {
 			return query[key];
@@ -250,17 +274,17 @@ export function useUrlQuery<T extends Record<string, any>>(
 		[query],
 	);
 
-	// 특정 쿼리 파라미터 설정하기
+	// Set specific query parameter
 	const set = useCallback((key: keyof T, value: T[keyof T]) => {
 		setQuery((prev) => ({ ...prev, [key]: value }));
 	}, []);
 
-	// 여러 쿼리 파라미터 한번에 설정하기
+	// Set multiple query parameters at once
 	const setMultiple = useCallback((params: Partial<T>) => {
 		setQuery((prev) => ({ ...prev, ...params }));
 	}, []);
 
-	// 특정 쿼리 파라미터 제거하기
+	// Remove specific query parameter
 	const remove = useCallback((key: keyof T) => {
 		setQuery((prev) => {
 			const newQuery = { ...prev };
@@ -269,7 +293,7 @@ export function useUrlQuery<T extends Record<string, any>>(
 		});
 	}, []);
 
-	// 여러 쿼리 파라미터 제거하기
+	// Remove multiple query parameters
 	const removeMultiple = useCallback((keys: (keyof T)[]) => {
 		setQuery((prev) => {
 			const newQuery = { ...prev };
@@ -278,12 +302,12 @@ export function useUrlQuery<T extends Record<string, any>>(
 		});
 	}, []);
 
-	// 모든 쿼리 파라미터 제거하기
+	// Clear all query parameters
 	const clear = useCallback(() => {
 		setQuery(initialQuery);
 	}, [initialQuery]);
 
-	// 배치 업데이트 함수
+	// Batch update function
 	const batchUpdate = useCallback(
 		(updates: Array<{ key: keyof T; value: T[keyof T] | undefined }>) => {
 			setQuery((prev) => {
@@ -301,7 +325,7 @@ export function useUrlQuery<T extends Record<string, any>>(
 		[],
 	);
 
-	// 계산된 값들 (메모이제이션 최적화)
+	// Calculated values (memoization optimization)
 	const isEmpty = useMemo(() => {
 		return Object.values(query).every(isEmptyValue);
 	}, [query]);

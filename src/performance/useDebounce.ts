@@ -6,7 +6,9 @@ import { useState, useEffect, useRef } from 'react';
  * Only returns the latest value after delay(ms) when the input value changes.
  *
  * @template T - Type of the value to return
+ *
  * @param {T} value - Value to debounce
+ *
  * @param {number} delay - Debounce delay time (ms)
  *
  * @returns {T} Debounced value
@@ -43,6 +45,8 @@ import { useState, useEffect, useRef } from 'react';
  *   />
  * );
  * ```
+ *
+ * @link https://use-hookit.vercel.app/?path=/docs/performance-usedebounce--docs
  */
 export function useDebounce<T>(value: T, delay: number): T {
 	const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -66,28 +70,23 @@ export function useDebounce<T>(value: T, delay: number): T {
 }
 
 /**
- *
- * 주어진 콜백 함수를 지정한 시간(delay)만큼 디바운스하여 반환하는 커스텀 훅입니다.
- *
  * A custom hook that debounces a callback function by a specified time (delay) and returns it.
- *
- * 반환된 함수는 연속 호출 시 마지막 호출만 delay(ms) 후 실행됩니다.
  *
  * The returned function only executes the last call after delay(ms) when called continuously.
  *
- * @template T - 콜백 함수 타입 / Type of the callback function
+ * @template T - Type of the callback function
  *
- * @param {T} callback - 디바운스 처리할 콜백 함수 / Callback function to debounce
+ * @param {T} callback - Callback function to debounce
  *
- * @param {number} delay - 디바운스 지연 시간(ms) / Debounce delay time (ms)
+ * @param {number} delay - Debounce delay time (ms)
  *
- * @returns {T} 디바운스된 콜백 함수 / Debounced callback function
+ * @returns {T} Debounced callback function
  *
  * @example
  * ```tsx
- * // 기본 사용법 / Basic usage
+ * // Basic usage
  * const debouncedOnChange = useDebounceCallback((value) => {
- *   console.log('디바운스된 값:', value);
+ *   console.log('Debounced value:', value);
  * }, 300);
  *
  * return (
@@ -97,7 +96,7 @@ export function useDebounce<T>(value: T, delay: number): T {
  *
  * @example
  * ```tsx
- * // API 호출에서 사용 / Usage in API calls
+ * // Usage in API calls
  * const debouncedSearch = useDebounceCallback((searchTerm: string) => {
  *   if (searchTerm.trim()) {
  *     searchAPI(searchTerm);
@@ -109,6 +108,7 @@ export function useDebounce<T>(value: T, delay: number): T {
  * };
  * ```
  *
+ * @link https://use-hookit.vercel.app/?path=/docs/performance-usedebounce--docs#related-hooks
  */
 export function useDebounceCallback<T extends (...args: any[]) => any>(
 	callback: T,
@@ -116,7 +116,7 @@ export function useDebounceCallback<T extends (...args: any[]) => any>(
 ): T {
 	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-	// 훅 초기화 시 delay 검증
+	// Validate delay on hook initialization
 	useEffect(() => {
 		if (delay < 0) {
 			console.warn('useDebounce: delay must be non-negative');

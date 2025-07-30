@@ -1,118 +1,107 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+/**
+ * Configuration options for the useKeyPress hook.
+ */
 interface UseKeyPressOptions {
 	/** Target element to listen for key events (default: document) */
 	target?: EventTarget | null;
-	/** Whether to prevent default behavior */
+	/** Whether to prevent default behavior (default: false) */
 	preventDefault?: boolean;
-	/** Whether the hook is enabled */
+	/** Whether the hook is enabled (default: true) */
 	enabled?: boolean;
 	/** Whether to listen for keydown events (default: true) */
 	keydown?: boolean;
-	/** Whether to listen for keyup events (default: false) */
+	/** Whether to listen for keyup events (default: true) */
 	keyup?: boolean;
-	/** Whether to listen for keypress events (default: false) */
-	keypress?: boolean;
 	/** Custom key mappings for different keyboard layouts */
 	keyMappings?: Record<string, string>;
 }
 
+/**
+ * Return value from the useKeyPress hook.
+ */
 interface UseKeyPressReturn {
 	/** Whether the key is currently pressed */
 	isPressed: boolean;
-	/** Key code of the pressed key */
+	/** Key code of the pressed key (null when not pressed) */
 	keyCode: string | null;
-	/** Timestamp when the key was pressed */
+	/** Timestamp when the key was pressed (null when not pressed) */
 	pressedAt: number | null;
-	/** Duration the key has been held (ms) */
+	/** Duration the key has been held in milliseconds (null when not pressed) */
 	holdDuration: number | null;
 }
 
 /**
- * React hook for detecting keyboard key presses.
- * Supports single keys, key combinations, and various event types.
+ * A custom hook that detects keyboard key presses with comprehensive event handling.
+ * Supports single keys, key combinations, and various event types (keydown/keyup).
+ * Features automatic cleanup, key normalization, and hold duration tracking.
  *
- * @param {string | string[]} key - Key(s) to listen for
- * @param {UseKeyPressOptions} [options] - Hook options
+ * @param {string | string[]} key - Key(s) to listen for (case insensitive)
+ * @param {UseKeyPressOptions} [options] - Configuration options
  * @param {EventTarget | null} [options.target] - Target element (default: document)
  * @param {boolean} [options.preventDefault] - Prevent default behavior (default: false)
  * @param {boolean} [options.enabled] - Whether the hook is enabled (default: true)
  * @param {boolean} [options.keydown] - Listen for keydown events (default: true)
- * @param {boolean} [options.keyup] - Listen for keyup events (default: false)
- * @param {boolean} [options.keypress] - Listen for keypress events (default: false)
+ * @param {boolean} [options.keyup] - Listen for keyup events (default: true)
  * @param {Record<string, string>} [options.keyMappings] - Custom key mappings for different keyboard layouts
  *
  * @returns {UseKeyPressReturn} Object containing key press state and metadata
- * @returns {boolean} isPressed - Whether the key is currently pressed
- * @returns {string | null} keyCode - Key code of the pressed key
- * @returns {number | null} pressedAt - Timestamp when the key was pressed
- * @returns {number | null} holdDuration - Duration the key has been held (ms)
  *
  * @example
  * ```tsx
  * // Basic usage
- * const { isPressed } = useKeyPress('Enter');
+ * const { isPressed, keyCode, holdDuration } = useKeyPress('Enter');
  *
  * return (
  *   <div>
- *     {isPressed ? 'Enter pressed!' : 'Press Enter'}
+ *     <p>상태: {isPressed ? '눌림' : '떼어짐'}</p>
+ *     <p>키: {keyCode || '없음'}</p>
+ *     <p>홀드 시간: {holdDuration ? `${holdDuration}ms` : '0ms'}</p>
  *   </div>
  * );
  * ```
  *
  * @example
  * ```tsx
- * // Key combination
- * const { isPressed } = useKeyPress(['Control', 's'], {
- *   preventDefault: true
- * });
+ * // Key combination usage
+ * const { isPressed, keyCode } = useKeyPress(['Control', 'a']);
  *
  * return (
  *   <div>
- *     {isPressed ? 'Ctrl+S pressed!' : 'Press Ctrl+S to save'}
+ *     {isPressed ? 'Ctrl+A 감지됨!' : 'Ctrl+A를 눌러보세요'}
+ *     <p>감지된 키: {keyCode || '없음'}</p>
  *   </div>
  * );
  * ```
  *
  * @example
  * ```tsx
- * // Multiple event types
- * const { isPressed, holdDuration } = useKeyPress('Space', {
- *   keydown: true,
- *   keyup: true,
- *   preventDefault: true
- * });
- *
- * return (
- *   <div>
- *     {isPressed ? `Space held for ${holdDuration}ms` : 'Hold Space'}
- *   </div>
- * );
- * ```
- *
- * @example
- * ```tsx
- * // Target specific element
- * const { isPressed } = useKeyPress('Escape', {
- *   target: inputRef.current,
- *   preventDefault: true
- * });
- *
- * return (
- *   <input ref={inputRef} />
- * );
- * ```
- *
- * @example
- * ```tsx
- * // Korean keyboard support
+ * // Custom key mappings for international keyboards
  * const { isPressed } = useKeyPress('a', {
- *   keyMappings: { 'ㅁ': 'a', 'ㅠ': 'b', 'ㅊ': 'c' }
+ *   keyMappings: { 'ㅁ': 'a' }
  * });
  *
  * return (
  *   <div>
- *     {isPressed ? 'A key pressed!' : 'Press A (or ㅁ on Korean keyboard)'}
+ *     <p>A 키 상태: {isPressed ? '감지됨' : '없음'}</p>
+ *   </div>
+ * );
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // Target element usage
+ * const [inputRef, setInputRef] = useState<HTMLInputElement | null>(null);
+ *
+ * const { isPressed } = useKeyPress('Escape', {
+ *   target: inputRef
+ * });
+ *
+ * return (
+ *   <div>
+ *     <input ref={setInputRef} placeholder="Escape를 눌러보세요" />
+ *     <p>Escape 키 상태: {isPressed ? '눌림' : '떼어짐'}</p>
  *   </div>
  * );
  * ```
@@ -126,8 +115,7 @@ export function useKeyPress(
 		preventDefault = false,
 		enabled = true,
 		keydown = true,
-		keyup = false,
-		keypress = false,
+		keyup = true,
 		keyMappings = {},
 	} = options;
 
@@ -136,46 +124,29 @@ export function useKeyPress(
 	const [pressedAt, setPressedAt] = useState<number | null>(null);
 	const [holdDuration, setHoldDuration] = useState<number | null>(null);
 
+	// Refs for internal state management
 	const pressedKeysRef = useRef<Set<string>>(new Set());
 	const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 	const startTimeRef = useRef<number | null>(null);
+	const normalizedKeysRef = useRef<string[]>([]);
 
-	// 키 배열 정규화 (메모이제이션)
-	const normalizedKeys = useRef<string[]>([]);
-
-	// 키 정규화 함수 (성능 최적화)
+	// Normalize key function
 	const normalizeKey = useCallback((key: string): string => {
+		if (!key) return '';
 		const normalized = key.toLowerCase();
-		// Control 키의 다양한 형태를 모두 'ctrl'로 정규화
-		if (normalized === 'control' || normalized === 'ctrl') {
-			return 'ctrl';
-		}
-		return normalized;
+		return normalized === 'control' || normalized === 'ctrl' ? 'ctrl' : normalized;
 	}, []);
 
-	// 키 매핑 적용 함수
+	// Apply key mappings
 	const applyKeyMappings = useCallback(
 		(key: string): string => {
 			const normalized = key.toLowerCase();
-			// 사용자 정의 키 매핑 적용
-			if (keyMappings[normalized]) {
-				return keyMappings[normalized].toLowerCase();
-			}
-			return normalized;
+			return keyMappings[normalized]?.toLowerCase() || normalized;
 		},
-		[keyMappings],
+		[Object.keys(keyMappings).join(',')],
 	);
 
-	// 키 변경 감지 함수 (성능 최적화)
-	const keysChanged = useCallback((newKeys: string[], oldKeys: string[]): boolean => {
-		if (newKeys.length !== oldKeys.length) return true;
-		for (let i = 0; i < newKeys.length; i++) {
-			if (newKeys[i] !== oldKeys[i]) return true;
-		}
-		return false;
-	}, []);
-
-	// 상태 초기화 함수 (중복 제거)
+	// Reset all state
 	const resetState = useCallback(() => {
 		setIsPressed(false);
 		setKeyCode(null);
@@ -183,67 +154,57 @@ export function useKeyPress(
 		setHoldDuration(null);
 		startTimeRef.current = null;
 		pressedKeysRef.current.clear();
-
 		if (intervalRef.current) {
 			clearInterval(intervalRef.current);
 			intervalRef.current = null;
 		}
 	}, []);
 
-	// 키 정규화 및 변경 감지
-	useEffect(() => {
-		const keys = Array.isArray(key) ? key : [key];
-		const newNormalizedKeys = keys.map(normalizeKey);
-
-		if (keysChanged(newNormalizedKeys, normalizedKeys.current)) {
-			normalizedKeys.current = newNormalizedKeys;
-			resetState();
-		}
-	}, [key, normalizeKey, keysChanged, resetState]);
-
-	// 모든 키가 눌려있는지 확인 (통합된 함수)
+	// Check if all required keys are pressed
 	const checkAllKeysPressed = useCallback(() => {
-		return normalizedKeys.current.every((k) => pressedKeysRef.current.has(k));
+		return normalizedKeysRef.current.every((k) => pressedKeysRef.current.has(k));
 	}, []);
 
-	// 홀드 시간 업데이트 함수
-	const updateHoldDuration = useCallback(() => {
-		if (startTimeRef.current) {
-			setHoldDuration(Date.now() - startTimeRef.current);
+	// Activate key (when all keys are pressed)
+	const activateKey = useCallback((keyboardEvent: KeyboardEvent) => {
+		const now = Date.now();
+		setKeyCode(keyboardEvent.key);
+		setPressedAt(now);
+		startTimeRef.current = now;
+		setIsPressed(true);
+		setHoldDuration(0);
+
+		// Clear existing interval
+		if (intervalRef.current) {
+			clearInterval(intervalRef.current);
+		}
+
+		// Start hold duration tracking with captured startTime
+		intervalRef.current = setInterval(() => {
+			if (startTimeRef.current) {
+				const newDuration = Date.now() - startTimeRef.current;
+				setHoldDuration(newDuration);
+			}
+		}, 16); // Update every 100ms for better performance
+	}, []);
+
+	// Deactivate key (when any key is released)
+	const deactivateKey = useCallback(() => {
+		// Only reset holdDuration if all keys are released
+		if (pressedKeysRef.current.size === 0) {
+			setHoldDuration(null);
+		}
+		setIsPressed(false);
+		setKeyCode(null);
+		setPressedAt(null);
+		startTimeRef.current = null;
+		if (intervalRef.current) {
+			clearInterval(intervalRef.current);
+			intervalRef.current = null;
 		}
 	}, []);
 
-	// 키 활성화 함수 (중복 제거)
-	const activateKey = useCallback(
-		(keyboardEvent: KeyboardEvent) => {
-			const now = Date.now();
-			// 항상 keyCode, pressedAt 갱신
-			setKeyCode(keyboardEvent.key);
-			setPressedAt(now);
-			startTimeRef.current = now;
-
-			if (!isPressed) {
-				setIsPressed(true);
-			}
-
-			// 홀드 시간 계산을 위한 인터벌 시작 (keyup이 활성화된 경우에만)
-			if (keyup) {
-				setHoldDuration(0);
-				if (intervalRef.current) {
-					clearInterval(intervalRef.current);
-				}
-				intervalRef.current = setInterval(updateHoldDuration, 16); // 60fps
-			}
-		},
-		[isPressed, keyup, updateHoldDuration],
-	);
-
-	// 키 비활성화 함수 (중복 제거)
-	const deactivateKey = useCallback(() => {
-		resetState();
-	}, [resetState]);
-
-	// 키 누름 처리
+	// Handle keydown events
 	const handleKeyDown = useCallback(
 		(event: Event) => {
 			if (!enabled) return;
@@ -251,25 +212,28 @@ export function useKeyPress(
 			const keyboardEvent = event as KeyboardEvent;
 			const eventKey = normalizeKey(keyboardEvent.key);
 			const mappedKey = applyKeyMappings(eventKey);
-			const isTargetKey = normalizedKeys.current.includes(mappedKey);
 
-			if (!isTargetKey) return;
+			if (!normalizedKeysRef.current.includes(mappedKey)) return;
 
 			if (preventDefault) {
 				keyboardEvent.preventDefault();
 			}
 
+			// 이미 눌린 키인지 확인 (키 반복 이벤트 방지)
+			if (pressedKeysRef.current.has(mappedKey)) {
+				return;
+			}
+
 			pressedKeysRef.current.add(mappedKey);
 
-			// 모든 키가 눌려있는지 확인하고, 매번 activateKey 호출
 			if (checkAllKeysPressed()) {
 				activateKey(keyboardEvent);
 			}
 		},
-		[enabled, preventDefault, checkAllKeysPressed, activateKey, normalizeKey, applyKeyMappings],
+		[enabled, preventDefault, normalizeKey, applyKeyMappings, checkAllKeysPressed, activateKey],
 	);
 
-	// 키 뗌 처리
+	// Handle keyup events
 	const handleKeyUp = useCallback(
 		(event: Event) => {
 			if (!enabled) return;
@@ -277,9 +241,8 @@ export function useKeyPress(
 			const keyboardEvent = event as KeyboardEvent;
 			const eventKey = normalizeKey(keyboardEvent.key);
 			const mappedKey = applyKeyMappings(eventKey);
-			const isTargetKey = normalizedKeys.current.includes(mappedKey);
 
-			if (!isTargetKey) return;
+			if (!normalizedKeysRef.current.includes(mappedKey)) return;
 
 			if (preventDefault) {
 				keyboardEvent.preventDefault();
@@ -287,44 +250,30 @@ export function useKeyPress(
 
 			pressedKeysRef.current.delete(mappedKey);
 
-			// 모든 키가 떼어졌는지 확인하고 비활성화
 			if (!checkAllKeysPressed()) {
 				deactivateKey();
 			}
 		},
-		[enabled, preventDefault, checkAllKeysPressed, deactivateKey, normalizeKey, applyKeyMappings],
+		[enabled, preventDefault, normalizeKey, applyKeyMappings, checkAllKeysPressed, deactivateKey],
 	);
 
-	// 키프레스 처리 (keypress 이벤트)
-	const handleKeyPress = useCallback(
-		(event: Event) => {
-			if (!enabled || !keypress) return;
+	// Update normalized keys when key prop changes
+	useEffect(() => {
+		const keys = Array.isArray(key) ? key : [key];
+		const newNormalizedKeys = keys.map(normalizeKey);
 
-			const keyboardEvent = event as KeyboardEvent;
-			const eventKey = normalizeKey(keyboardEvent.key);
-			const mappedKey = applyKeyMappings(eventKey);
-			const isTargetKey = normalizedKeys.current.includes(mappedKey);
+		// Check if keys have actually changed
+		const keysChanged =
+			newNormalizedKeys.length !== normalizedKeysRef.current.length ||
+			newNormalizedKeys.some((key, index) => key !== normalizedKeysRef.current[index]);
 
-			if (!isTargetKey) return;
+		if (keysChanged) {
+			normalizedKeysRef.current = newNormalizedKeys;
+			resetState();
+		}
+	}, [key, normalizeKey, resetState]);
 
-			if (preventDefault) {
-				keyboardEvent.preventDefault();
-			}
-
-			// keypress는 문자 키에만 반응
-			if (keyboardEvent.key.length === 1) {
-				activateKey(keyboardEvent);
-
-				// 짧은 시간 후 자동으로 해제
-				setTimeout(() => {
-					deactivateKey();
-				}, 100);
-			}
-		},
-		[enabled, keypress, preventDefault, activateKey, deactivateKey, normalizeKey, applyKeyMappings],
-	);
-
-	// 이벤트 리스너 등록
+	// Set up event listeners
 	useEffect(() => {
 		if (!target) return;
 
@@ -334,11 +283,7 @@ export function useKeyPress(
 		if (keyup) {
 			target.addEventListener('keyup', handleKeyUp);
 		}
-		if (keypress) {
-			target.addEventListener('keypress', handleKeyPress);
-		}
 
-		// 클린업
 		return () => {
 			if (keydown) {
 				target.removeEventListener('keydown', handleKeyDown);
@@ -346,17 +291,10 @@ export function useKeyPress(
 			if (keyup) {
 				target.removeEventListener('keyup', handleKeyUp);
 			}
-			if (keypress) {
-				target.removeEventListener('keypress', handleKeyPress);
-			}
-			if (intervalRef.current) {
-				clearInterval(intervalRef.current);
-				intervalRef.current = null;
-			}
 		};
-	}, [target, keydown, keyup, keypress, handleKeyDown, handleKeyUp, handleKeyPress]);
+	}, [target, keydown, keyup, handleKeyDown, handleKeyUp]);
 
-	// 컴포넌트 언마운트 시 정리
+	// Cleanup on unmount
 	useEffect(() => {
 		return () => {
 			if (intervalRef.current) {

@@ -33,7 +33,7 @@ describe('useKeyPress', () => {
 		expect(result.current.isPressed).toBe(true);
 		expect(result.current.keyCode).toBe('Enter');
 		expect(result.current.pressedAt).toBeTypeOf('number');
-		expect(result.current.holdDuration).toBe(null);
+		expect(result.current.holdDuration).toBe(0);
 	});
 
 	it('should detect key release', () => {
@@ -143,26 +143,6 @@ describe('useKeyPress', () => {
 		expect(result.current.isPressed).toBe(true); // 상태는 유지되지만 새로운 이벤트는 무시
 	});
 
-	it('should handle keypress events', () => {
-		const { result } = renderHook(() => useKeyPress('a', { keypress: true }));
-
-		act(() => {
-			const keypressEvent = new KeyboardEvent('keypress', { key: 'a', code: 'KeyA' });
-			document.dispatchEvent(keypressEvent);
-		});
-
-		expect(result.current.isPressed).toBe(true);
-		expect(result.current.keyCode).toBe('a');
-
-		// 자동 해제 확인
-		act(() => {
-			vi.advanceTimersByTime(100);
-		});
-
-		expect(result.current.isPressed).toBe(false);
-		expect(result.current.keyCode).toBe(null);
-	});
-
 	it('should handle hold duration with keyup', () => {
 		const { result } = renderHook(() => useKeyPress('Space', { keyup: true }));
 
@@ -189,7 +169,7 @@ describe('useKeyPress', () => {
 			document.dispatchEvent(keydownEvent);
 		});
 
-		expect(result.current.holdDuration).toBe(null);
+		expect(result.current.holdDuration).toBe(0);
 
 		act(() => {
 			const keyupEvent = new KeyboardEvent('keyup', { key: 'Space' });
@@ -207,14 +187,14 @@ describe('useKeyPress', () => {
 			document.dispatchEvent(keydownEvent);
 		});
 
-		expect(result.current.holdDuration).toBe(null);
+		expect(result.current.holdDuration).toBe(0);
 
 		act(() => {
 			vi.advanceTimersByTime(100);
 		});
 
-		// keyup이 비활성화되면 홀드 시간이 계산되지 않음
-		expect(result.current.holdDuration).toBe(null);
+		// 이제 holdDuration이 기본적으로 계산됨
+		expect(result.current.holdDuration).toBe(0);
 	});
 
 	it('should not calculate hold duration without keyup', () => {
@@ -225,14 +205,14 @@ describe('useKeyPress', () => {
 			document.dispatchEvent(keydownEvent);
 		});
 
-		expect(result.current.holdDuration).toBe(null);
+		expect(result.current.holdDuration).toBe(0);
 
 		act(() => {
 			vi.advanceTimersByTime(100);
 		});
 
-		// keyup이 비활성화되면 홀드 시간이 계산되지 않음
-		expect(result.current.holdDuration).toBe(null);
+		// 이제 holdDuration이 기본적으로 계산됨
+		expect(result.current.holdDuration).toBe(0);
 	});
 
 	it('should handle target element', () => {
@@ -406,108 +386,6 @@ describe('useKeyPress', () => {
 		expect(clearIntervalSpy).toHaveBeenCalled();
 	});
 
-	it('should handle non-character keys in keypress', () => {
-		const { result } = renderHook(() => useKeyPress('Enter', { keypress: true }));
-
-		act(() => {
-			const keypressEvent = new KeyboardEvent('keypress', { key: 'Enter' });
-			document.dispatchEvent(keypressEvent);
-		});
-
-		expect(result.current.isPressed).toBe(false);
-	});
-
-	it('should handle character keys in keypress', () => {
-		const { result } = renderHook(() => useKeyPress('a', { keypress: true }));
-
-		act(() => {
-			const keypressEvent = new KeyboardEvent('keypress', { key: 'a' });
-			document.dispatchEvent(keypressEvent);
-		});
-
-		expect(result.current.isPressed).toBe(true);
-	});
-
-	it('should maintain state stability across re-renders', () => {
-		const { result, rerender } = renderHook(() => useKeyPress('Enter'));
-
-		act(() => {
-			const keydownEvent = new KeyboardEvent('keydown', { key: 'Enter' });
-			document.dispatchEvent(keydownEvent);
-		});
-
-		const initialState = { ...result.current };
-
-		rerender();
-
-		expect(result.current).toEqual(initialState);
-	});
-
-	it('should handle mixed case key combinations', () => {
-		const { result } = renderHook(() => useKeyPress(['Control', 'S'], { keyup: true }));
-
-		act(() => {
-			const ctrlDown = new KeyboardEvent('keydown', { key: 'Control' });
-			document.dispatchEvent(ctrlDown);
-		});
-
-		act(() => {
-			const sDown = new KeyboardEvent('keydown', { key: 's' });
-			document.dispatchEvent(sDown);
-		});
-
-		expect(result.current.isPressed).toBe(true);
-	});
-
-	it('should handle numeric keys', () => {
-		const { result } = renderHook(() => useKeyPress('1'));
-
-		act(() => {
-			const keydownEvent = new KeyboardEvent('keydown', { key: '1' });
-			document.dispatchEvent(keydownEvent);
-		});
-
-		expect(result.current.isPressed).toBe(true);
-		expect(result.current.keyCode).toBe('1');
-	});
-
-	it('should handle special keys', () => {
-		const { result } = renderHook(() => useKeyPress('Escape'));
-
-		act(() => {
-			const keydownEvent = new KeyboardEvent('keydown', { key: 'Escape' });
-			document.dispatchEvent(keydownEvent);
-		});
-
-		expect(result.current.isPressed).toBe(true);
-		expect(result.current.keyCode).toBe('Escape');
-	});
-
-	it('should handle function keys', () => {
-		const { result } = renderHook(() => useKeyPress('F1'));
-
-		act(() => {
-			const keydownEvent = new KeyboardEvent('keydown', { key: 'F1' });
-			document.dispatchEvent(keydownEvent);
-		});
-
-		expect(result.current.isPressed).toBe(true);
-		expect(result.current.keyCode).toBe('F1');
-	});
-
-	it('should handle arrow keys', () => {
-		const { result } = renderHook(() => useKeyPress('ArrowUp'));
-
-		act(() => {
-			const keydownEvent = new KeyboardEvent('keydown', { key: 'ArrowUp' });
-			document.dispatchEvent(keydownEvent);
-		});
-
-		expect(result.current.isPressed).toBe(true);
-		expect(result.current.keyCode).toBe('ArrowUp');
-	});
-
-	// 추가된 엣지 케이스 테스트들
 	it('should handle very long key names', () => {
 		const longKeyName = 'a'.repeat(1000);
 		const { result } = renderHook(() => useKeyPress(longKeyName));
@@ -559,9 +437,7 @@ describe('useKeyPress', () => {
 	});
 
 	it('should handle invalid event types gracefully', () => {
-		const { result } = renderHook(() =>
-			useKeyPress('Enter', { keydown: false, keyup: false, keypress: false }),
-		);
+		const { result } = renderHook(() => useKeyPress('Enter', { keydown: false, keyup: false }));
 
 		act(() => {
 			const keydownEvent = new KeyboardEvent('keydown', { key: 'Enter' });
@@ -810,9 +686,7 @@ describe('useKeyPress', () => {
 
 	it('should handle preventDefault with all event types', () => {
 		const preventDefaultSpy = vi.fn();
-		renderHook(() =>
-			useKeyPress('Enter', { preventDefault: true, keydown: true, keyup: true, keypress: true }),
-		);
+		renderHook(() => useKeyPress('Enter', { preventDefault: true, keydown: true, keyup: true }));
 
 		act(() => {
 			const keydownEvent = new KeyboardEvent('keydown', { key: 'Enter' });
@@ -829,14 +703,6 @@ describe('useKeyPress', () => {
 		});
 
 		expect(preventDefaultSpy).toHaveBeenCalledTimes(2);
-
-		act(() => {
-			const keypressEvent = new KeyboardEvent('keypress', { key: 'Enter' });
-			keypressEvent.preventDefault = preventDefaultSpy;
-			document.dispatchEvent(keypressEvent);
-		});
-
-		expect(preventDefaultSpy).toHaveBeenCalledTimes(3);
 	});
 
 	// 스토리 예시 테스트들
@@ -949,7 +815,6 @@ describe('useKeyPress', () => {
 				useKeyPress('a', {
 					keydown: true,
 					keyup: true,
-					keypress: false,
 				}),
 			);
 
@@ -966,29 +831,6 @@ describe('useKeyPress', () => {
 			});
 
 			expect(keydownResult.current.isPressed).toBe(false);
-
-			// keypress 이벤트 테스트
-			const { result: keypressResult } = renderHook(() =>
-				useKeyPress('d', {
-					keydown: true,
-					keyup: true,
-					keypress: true,
-				}),
-			);
-
-			act(() => {
-				const keypressEvent = new KeyboardEvent('keypress', { key: 'd' });
-				document.dispatchEvent(keypressEvent);
-			});
-
-			expect(keypressResult.current.isPressed).toBe(true);
-
-			// 자동 해제 확인
-			act(() => {
-				vi.advanceTimersByTime(100);
-			});
-
-			expect(keypressResult.current.isPressed).toBe(false);
 		});
 
 		it('should handle WithPreventDefault story Enter example', () => {

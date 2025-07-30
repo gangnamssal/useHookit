@@ -38,7 +38,6 @@ A React hook that provides comprehensive keyboard event detection including sing
 ### Usage Examples
 
 \`\`\`tsx
-// Basic key detection
 const { isPressed, keyCode, holdDuration } = useKeyPress('Enter');
 
 return (
@@ -73,7 +72,7 @@ Track how long a key has been held down. **Note:** Hold duration is automaticall
 
 **Usage Example**:
 \`\`\`tsx
-const { isPressed, holdDuration } = useKeyPress(' '); // Space 키 사용
+const { isPressed, holdDuration } = useKeyPress(' '); // Space 키
 
 return (
   <div>
@@ -141,7 +140,9 @@ return (
 
 // 간단한 키 감지 데모 컴포넌트
 function SimpleKeyDemo({ keyName }: { keyName: string }) {
-	const { isPressed, keyCode, holdDuration } = useKeyPress(keyName);
+	const { isPressed, keyCode, holdDuration } = useKeyPress(keyName, {
+		preventDefault: true,
+	});
 
 	return (
 		<div
@@ -215,28 +216,6 @@ return (
 export const WithKeyCombination = () => {
 	const { isPressed, keyCode, holdDuration } = useKeyPress(['Control', 'a']);
 
-	const simulateKeyCombination = () => {
-		// Control 키 누름
-		const ctrlDown = new KeyboardEvent('keydown', { key: 'Control' });
-		document.dispatchEvent(ctrlDown);
-
-		// A 키 누름
-		const aDown = new KeyboardEvent('keydown', { key: 'a' });
-		document.dispatchEvent(aDown);
-
-		// 100ms 후 A 키 뗌
-		setTimeout(() => {
-			const aUp = new KeyboardEvent('keyup', { key: 'a' });
-			document.dispatchEvent(aUp);
-		}, 100);
-
-		// 200ms 후 Control 키 뗌
-		setTimeout(() => {
-			const ctrlUp = new KeyboardEvent('keyup', { key: 'Control' });
-			document.dispatchEvent(ctrlUp);
-		}, 200);
-	};
-
 	return (
 		<ToggleComponent
 			title='키 조합 사용법'
@@ -288,23 +267,6 @@ return (
 						</p>
 					</div>
 				</div>
-
-				<button
-					onClick={simulateKeyCombination}
-					style={{
-						padding: '10px 20px',
-						backgroundColor: '#28a745',
-						color: 'white',
-						border: 'none',
-						borderRadius: '4px',
-						cursor: 'pointer',
-						fontSize: '14px',
-						marginTop: '15px',
-						width: '100%',
-					}}
-				>
-					시뮬레이션: Ctrl+A 조합
-				</button>
 			</div>
 		</ToggleComponent>
 	);
@@ -541,17 +503,9 @@ return (
 
 // 간소화된 holdDuration 데모 컴포넌트
 function HoldDurationDemo({ keyName = 'Space' }: { keyName?: string }) {
-	const { isPressed, holdDuration } = useKeyPress(keyName);
-
-	const simulateHold = () => {
-		const keydownEvent = new KeyboardEvent('keydown', { key: keyName });
-		document.dispatchEvent(keydownEvent);
-
-		setTimeout(() => {
-			const keyupEvent = new KeyboardEvent('keyup', { key: keyName });
-			document.dispatchEvent(keyupEvent);
-		}, 3000);
-	};
+	const { isPressed, holdDuration } = useKeyPress(keyName, {
+		preventDefault: true,
+	});
 
 	return (
 		<div style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '8px', margin: '10px' }}>
@@ -575,21 +529,6 @@ function HoldDurationDemo({ keyName = 'Space' }: { keyName?: string }) {
 					holdDuration: <strong>{holdDuration}ms</strong>
 				</p>
 			</div>
-			<button
-				onClick={simulateHold}
-				style={{
-					padding: '8px 16px',
-					backgroundColor: '#007bff',
-					color: 'white',
-					border: 'none',
-					borderRadius: '4px',
-					cursor: 'pointer',
-					fontSize: '12px',
-					marginTop: '10px',
-				}}
-			>
-				시뮬레이션: {keyName} 키 3초 홀드
-			</button>
 		</div>
 	);
 }
@@ -598,7 +537,7 @@ export const HoldDurationStory = () => (
 	<ToggleComponent
 		title='holdDuration 실시간 테스트'
 		description='키를 누르고 있는 동안 holdDuration(ms)이 실시간으로 증가하는지 확인할 수 있습니다. 시뮬레이션 버튼 또는 실제 키보드로 Space/ArrowUp/Enter 등을 눌러보세요.'
-		code={`const { isPressed, holdDuration } = useKeyPress(' '); // Space 키 사용
+		code={`const { isPressed, holdDuration } = useKeyPress(' '); // Space 키
 
 return (
   <div>
@@ -606,7 +545,7 @@ return (
   </div>
 );`}
 	>
-		<div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+		<div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px' }}>
 			<HoldDurationDemo keyName=' ' />
 			<HoldDurationDemo keyName='ArrowUp' />
 			<HoldDurationDemo keyName='Enter' />

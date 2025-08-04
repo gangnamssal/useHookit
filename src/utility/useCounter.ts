@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
+import { useIsMounted } from '../lifecycle/useIsMounted';
 
 interface UseCounterOptions {
 	/** Initial counter value (default: 0) */
@@ -101,6 +102,8 @@ export function useCounter(options: UseCounterOptions = {}): {
 } {
 	const { initialValue = 0, min, max, step = 1, onChange, onMin, onMax } = options;
 
+	const isMounted = useIsMounted();
+
 	// Memoize clamp function to avoid recreation
 	const clampValue = useCallback(
 		(newValue: number): number => {
@@ -122,13 +125,15 @@ export function useCounter(options: UseCounterOptions = {}): {
 
 	// Call initial callbacks if value was clamped
 	useEffect(() => {
-		if (initialClampedValue !== initialValue) {
+		if (initialClampedValue !== initialValue && isMounted) {
 			// onChange callback
 			if (onChangeRef.current) {
 				try {
 					onChangeRef.current(initialClampedValue);
 				} catch (error) {
-					console.warn('useCounter: onChange callback threw an error:', error);
+					if (isMounted) {
+						console.warn('useCounter: onChange callback threw an error:', error);
+					}
 				}
 			}
 
@@ -137,7 +142,9 @@ export function useCounter(options: UseCounterOptions = {}): {
 				try {
 					onMinRef.current(initialClampedValue);
 				} catch (error) {
-					console.warn('useCounter: onMin callback threw an error:', error);
+					if (isMounted) {
+						console.warn('useCounter: onMin callback threw an error:', error);
+					}
 				}
 			}
 
@@ -146,11 +153,13 @@ export function useCounter(options: UseCounterOptions = {}): {
 				try {
 					onMaxRef.current(initialClampedValue);
 				} catch (error) {
-					console.warn('useCounter: onMax callback threw an error:', error);
+					if (isMounted) {
+						console.warn('useCounter: onMax callback threw an error:', error);
+					}
 				}
 			}
 		}
-	}, []); // Only run once on mount
+	}, [initialClampedValue, initialValue, min, max, isMounted]); // Added isMounted to deps
 
 	// Use refs for callbacks to avoid unnecessary re-renders
 	const onChangeRef = useRef(onChange);
@@ -178,35 +187,44 @@ export function useCounter(options: UseCounterOptions = {}): {
 			if (clampedValue !== oldValue) {
 				setValueState(clampedValue);
 
-				// onChange callback
-				if (onChangeRef.current) {
-					try {
-						onChangeRef.current(clampedValue);
-					} catch (error) {
-						console.warn('useCounter: onChange callback threw an error:', error);
+				// Only execute callbacks if component is mounted
+				if (isMounted) {
+					// onChange callback
+					if (onChangeRef.current) {
+						try {
+							onChangeRef.current(clampedValue);
+						} catch (error) {
+							if (isMounted) {
+								console.warn('useCounter: onChange callback threw an error:', error);
+							}
+						}
 					}
-				}
 
-				// onMin callback
-				if (onMinRef.current && min !== undefined && clampedValue <= min) {
-					try {
-						onMinRef.current(clampedValue);
-					} catch (error) {
-						console.warn('useCounter: onMin callback threw an error:', error);
+					// onMin callback
+					if (onMinRef.current && min !== undefined && clampedValue <= min) {
+						try {
+							onMinRef.current(clampedValue);
+						} catch (error) {
+							if (isMounted) {
+								console.warn('useCounter: onMin callback threw an error:', error);
+							}
+						}
 					}
-				}
 
-				// onMax callback
-				if (onMaxRef.current && max !== undefined && clampedValue >= max) {
-					try {
-						onMaxRef.current(clampedValue);
-					} catch (error) {
-						console.warn('useCounter: onMax callback threw an error:', error);
+					// onMax callback
+					if (onMaxRef.current && max !== undefined && clampedValue >= max) {
+						try {
+							onMaxRef.current(clampedValue);
+						} catch (error) {
+							if (isMounted) {
+								console.warn('useCounter: onMax callback threw an error:', error);
+							}
+						}
 					}
 				}
 			}
 		},
-		[value, clampValue, min, max],
+		[value, clampValue, min, max, isMounted],
 	);
 
 	/**

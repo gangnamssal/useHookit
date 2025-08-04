@@ -1,4 +1,5 @@
 import { useCallback, useRef, useEffect, useState } from 'react';
+import { useIsMounted } from '../lifecycle/useIsMounted';
 
 interface UseLongPressOptions {
 	/** Minimum time to recognize as long press (milliseconds) */
@@ -122,17 +123,19 @@ export function useLongPress({
 	shouldPreventDefault = true,
 	moveThreshold = 10,
 }: UseLongPressOptions = {}): UseLongPressReturn {
+	const isMounted = useIsMounted();
+
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const [isLongPressing, setIsLongPressing] = useState(false);
 	const startPositionRef = useRef<Position | null>(null);
 	const hasMovedRef = useRef(false);
 
 	const clearLongPressTimeout = useCallback(() => {
-		if (timeoutRef.current) {
+		if (timeoutRef.current && isMounted) {
 			clearTimeout(timeoutRef.current);
 			timeoutRef.current = null;
 		}
-	}, []);
+	}, [isMounted]);
 
 	const getEventPosition = useCallback((event: MouseEvent | TouchEvent): Position => {
 		if ('touches' in event) {
@@ -144,6 +147,8 @@ export function useLongPress({
 
 	const startLongPress = useCallback(
 		(event: MouseEvent | TouchEvent) => {
+			if (!isMounted) return;
+
 			if (shouldPreventDefault) {
 				event.preventDefault();
 			}
@@ -161,13 +166,13 @@ export function useLongPress({
 				}
 			} else {
 				timeoutRef.current = setTimeout(() => {
-					if (!hasMovedRef.current) {
+					if (!hasMovedRef.current && isMounted) {
 						onLongPress?.();
 					}
 				}, delay);
 			}
 		},
-		[delay, onLongPress, onLongPressStart, shouldPreventDefault, getEventPosition],
+		[delay, onLongPress, onLongPressStart, shouldPreventDefault, getEventPosition, isMounted],
 	);
 
 	const endLongPress = useCallback(() => {
@@ -186,7 +191,7 @@ export function useLongPress({
 
 	const checkMovement = useCallback(
 		(event: MouseEvent | TouchEvent) => {
-			if (!startPositionRef.current) return;
+			if (!startPositionRef.current || !isMounted) return;
 
 			const currentPosition = getEventPosition(event);
 			const deltaX = Math.abs(currentPosition.x - startPositionRef.current.x);
@@ -197,7 +202,7 @@ export function useLongPress({
 				cancelLongPress();
 			}
 		},
-		[cancelLongPress, getEventPosition, moveThreshold],
+		[cancelLongPress, getEventPosition, moveThreshold, isMounted],
 	);
 
 	// Event handler creation function
@@ -246,6 +251,8 @@ export function useLongPress({
 
 	// Movement detection event listeners
 	useEffect(() => {
+		if (!isMounted) return;
+
 		const handleTouchMove = (event: TouchEvent) => {
 			checkMovement(event);
 		};
@@ -262,7 +269,7 @@ export function useLongPress({
 			document.removeEventListener('mousemove', handleMouseMove);
 			clearLongPressTimeout();
 		};
-	}, [checkMovement, clearLongPressTimeout]);
+	}, [checkMovement, clearLongPressTimeout, isMounted]);
 
 	return {
 		handlers: {

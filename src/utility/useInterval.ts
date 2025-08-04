@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useIsMounted } from '../lifecycle/useIsMounted';
 
 /**
  * A hook that executes a callback at specified intervals (delay in ms).
@@ -29,6 +30,8 @@ import { useEffect, useRef, useState, useCallback } from 'react';
  * @link https://use-hookit.vercel.app/?path=/docs/utility-useinterval--docs
  */
 export function useInterval(callback: () => void, delay: number | null): void {
+	const isMounted = useIsMounted();
+
 	const savedCallback = useRef(callback);
 
 	useEffect(() => {
@@ -36,22 +39,26 @@ export function useInterval(callback: () => void, delay: number | null): void {
 	}, [callback]);
 
 	useEffect(() => {
-		if (delay === null) {
+		if (delay === null || !isMounted) {
 			return;
 		}
 
 		// Warning for negative delay
 		if (delay < 0) {
-			console.warn('useInterval: delay must be non-negative');
+			if (isMounted) {
+				console.warn('useInterval: delay must be non-negative');
+			}
 			return;
 		}
 
 		const id = setInterval(() => {
-			savedCallback.current();
+			if (isMounted) {
+				savedCallback.current();
+			}
 		}, delay);
 
 		return () => clearInterval(id);
-	}, [delay]);
+	}, [delay, isMounted]);
 }
 
 /**
@@ -83,6 +90,8 @@ export function useInterval(callback: () => void, delay: number | null): void {
  * @link https://use-hookit.vercel.app/?path=/docs/utility-useinterval--docs#related-hooks
  */
 export function useTimeout(callback: () => void, delay: number | null): void {
+	const isMounted = useIsMounted();
+
 	const savedCallback = useRef(callback);
 
 	useEffect(() => {
@@ -90,22 +99,26 @@ export function useTimeout(callback: () => void, delay: number | null): void {
 	}, [callback]);
 
 	useEffect(() => {
-		if (delay === null) {
+		if (delay === null || !isMounted) {
 			return;
 		}
 
 		// Warning for negative delay
 		if (delay < 0) {
-			console.warn('useTimeout: delay must be non-negative');
+			if (isMounted) {
+				console.warn('useTimeout: delay must be non-negative');
+			}
 			return;
 		}
 
 		const id = setTimeout(() => {
-			savedCallback.current();
+			if (isMounted) {
+				savedCallback.current();
+			}
 		}, delay);
 
 		return () => clearTimeout(id);
-	}, [delay]);
+	}, [delay, isMounted]);
 }
 
 /**
@@ -162,6 +175,8 @@ export function useControlledInterval(
 	stop: () => void;
 	isRunning: boolean;
 } {
+	const isMounted = useIsMounted();
+
 	const [isRunning, setIsRunning] = useState(false);
 	const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 	const savedCallback = useRef(callback);
@@ -171,29 +186,31 @@ export function useControlledInterval(
 	}, [callback]);
 
 	const start = useCallback(() => {
-		if (delay === null || isRunning) return;
+		if (delay === null || isRunning || !isMounted) return;
 
 		setIsRunning(true);
 		intervalRef.current = setInterval(() => {
-			savedCallback.current();
+			if (isMounted) {
+				savedCallback.current();
+			}
 		}, delay);
-	}, [delay, isRunning]);
+	}, [delay, isRunning, isMounted]);
 
 	const stop = useCallback(() => {
-		if (intervalRef.current) {
+		if (intervalRef.current && isMounted) {
 			clearInterval(intervalRef.current);
 			intervalRef.current = null;
 		}
 		setIsRunning(false);
-	}, []);
+	}, [isMounted]);
 
 	useEffect(() => {
 		return () => {
-			if (intervalRef.current) {
+			if (intervalRef.current && isMounted) {
 				clearInterval(intervalRef.current);
 			}
 		};
-	}, []);
+	}, [isMounted]);
 
 	return { start, stop, isRunning };
 }
@@ -235,6 +252,7 @@ export function useControlledTimeout(
 	stop: () => void;
 	isRunning: boolean;
 } {
+	const isMounted = useIsMounted();
 	const [isRunning, setIsRunning] = useState(false);
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const savedCallback = useRef(callback);
@@ -244,30 +262,32 @@ export function useControlledTimeout(
 	}, [callback]);
 
 	const start = useCallback(() => {
-		if (delay === null || isRunning) return;
+		if (delay === null || isRunning || !isMounted) return;
 
 		setIsRunning(true);
 		timeoutRef.current = setTimeout(() => {
-			savedCallback.current();
-			setIsRunning(false);
+			if (isMounted) {
+				savedCallback.current();
+				setIsRunning(false);
+			}
 		}, delay);
-	}, [delay, isRunning]);
+	}, [delay, isRunning, isMounted]);
 
 	const stop = useCallback(() => {
-		if (timeoutRef.current) {
+		if (timeoutRef.current && isMounted) {
 			clearTimeout(timeoutRef.current);
 			timeoutRef.current = null;
 		}
 		setIsRunning(false);
-	}, []);
+	}, [isMounted]);
 
 	useEffect(() => {
 		return () => {
-			if (timeoutRef.current) {
+			if (timeoutRef.current && isMounted) {
 				clearTimeout(timeoutRef.current);
 			}
 		};
-	}, []);
+	}, [isMounted]);
 
 	return { start, stop, isRunning };
 }

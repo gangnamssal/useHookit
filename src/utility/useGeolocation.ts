@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useIsMounted } from '../lifecycle/useIsMounted';
 
 /**
  * Geolocation position type
@@ -199,6 +200,8 @@ const ERROR_MESSAGES = {
 export function useGeolocation(options: UseGeolocationOptions = {}): UseGeolocationReturn {
 	const { enableHighAccuracy = false, timeout = 10000, maximumAge = 0, watch = false } = options;
 
+	const isMounted = useIsMounted();
+
 	const [position, setPosition] = useState<GeolocationPosition | null>(null);
 	const [error, setError] = useState<GeolocationError | null>(null);
 	const [loading, setLoading] = useState<boolean>(false);
@@ -208,8 +211,8 @@ export function useGeolocation(options: UseGeolocationOptions = {}): UseGeolocat
 
 	// Check if Geolocation API is supported (optimized)
 	const supported = useMemo(
-		() => typeof navigator !== 'undefined' && 'geolocation' in navigator,
-		[],
+		() => isMounted && typeof navigator !== 'undefined' && 'geolocation' in navigator,
+		[isMounted],
 	);
 
 	// Convert browser position to GeolocationPosition format
@@ -243,6 +246,9 @@ export function useGeolocation(options: UseGeolocationOptions = {}): UseGeolocat
 			if (!supported) {
 				throw new Error('Geolocation API is not supported in this browser');
 			}
+			if (!isMounted) {
+				throw new Error('Cannot get location during SSR');
+			}
 			setLoading(true);
 			setError(null);
 
@@ -255,29 +261,38 @@ export function useGeolocation(options: UseGeolocationOptions = {}): UseGeolocat
 				};
 				navigator.geolocation.getCurrentPosition(
 					(browserPosition) => {
-						const converted = convertPosition(browserPosition);
-						setPosition(converted);
-						setLoading(false);
-						resolve(converted);
+						if (isMounted) {
+							const converted = convertPosition(browserPosition);
+							setPosition(converted);
+							setLoading(false);
+							resolve(converted);
+						}
 					},
 					(browserError) => {
-						const converted = convertError(browserError);
-						setError(converted);
-						setLoading(false);
-						reject(converted);
+						if (isMounted) {
+							const converted = convertError(browserError);
+							setError(converted);
+							setLoading(false);
+							reject(converted);
+						}
 					},
 					opts,
 				);
 			});
 		},
-		[supported, enableHighAccuracy, timeout, maximumAge, convertPosition, convertError],
+		[supported, enableHighAccuracy, timeout, maximumAge, convertPosition, convertError, isMounted],
 	);
 
 	// Function to start location watching
 	const startWatching = useCallback(
 		(customOptions?: PositionOptions) => {
 			if (!supported) {
-				console.warn('Geolocation API is not supported in this browser');
+				if (isMounted) {
+					console.warn('Geolocation API is not supported in this browser');
+				}
+				return;
+			}
+			if (!isMounted) {
 				return;
 			}
 			if (isWatchingRef.current) return;
@@ -290,44 +305,48 @@ export function useGeolocation(options: UseGeolocationOptions = {}): UseGeolocat
 			};
 			watchIdRef.current = navigator.geolocation.watchPosition(
 				(browserPosition) => {
-					setPosition(convertPosition(browserPosition));
-					setError(null);
+					if (isMounted) {
+						setPosition(convertPosition(browserPosition));
+						setError(null);
+					}
 				},
 				(browserError) => {
-					setError(convertError(browserError));
+					if (isMounted) {
+						setError(convertError(browserError));
+					}
 				},
 				opts,
 			);
 			isWatchingRef.current = true;
 			setIsWatching(true);
 		},
-		[supported, enableHighAccuracy, timeout, maximumAge, convertPosition, convertError],
+		[supported, enableHighAccuracy, timeout, maximumAge, convertPosition, convertError, isMounted],
 	);
 
 	// Function to stop location watching
 	const stopWatching = useCallback(() => {
-		if (watchIdRef.current !== null) {
+		if (watchIdRef.current !== null && isMounted) {
 			navigator.geolocation.clearWatch(watchIdRef.current);
 			watchIdRef.current = null;
 			isWatchingRef.current = false;
 			setIsWatching(false);
 		}
-	}, []);
+	}, [isMounted]);
 
 	// Auto start/stop watching based on watch option and cleanup on unmount
 	useEffect(() => {
-		if (watch && supported) {
+		if (watch && supported && isMounted) {
 			startWatching();
 		} else if (!watch && isWatchingRef.current) {
 			stopWatching();
 		}
 		return () => {
-			if (watchIdRef.current !== null) {
+			if (watchIdRef.current !== null && isMounted) {
 				navigator.geolocation.clearWatch(watchIdRef.current);
 				watchIdRef.current = null;
 			}
 		};
-	}, [watch, supported, startWatching, stopWatching]);
+	}, [watch, supported, startWatching, stopWatching, isMounted]);
 
 	return {
 		position,

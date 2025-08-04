@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useIsMounted } from '../lifecycle/useIsMounted';
 
 /**
  * Storage hook options type
@@ -33,6 +34,8 @@ export function useStorage<T>(
 	options: UseStorageOptions = {},
 ): [T, (value: T | ((val: T) => T)) => void, () => void] {
 	const { serializer = JSON.stringify, deserializer = JSON.parse } = options;
+
+	const isMounted = useIsMounted();
 
 	/**
 	 * Check environment and storage accessibility
@@ -83,6 +86,10 @@ export function useStorage<T>(
 	 */
 	const setStoredValue = useCallback(
 		(value: T): void => {
+			if (!isMounted) {
+				return;
+			}
+
 			if (!checkEnvironment()) {
 				return;
 			}
@@ -96,13 +103,17 @@ export function useStorage<T>(
 				console.warn(`Error setting ${storageType} key "${key}":`, error);
 			}
 		},
-		[key, serializer, checkEnvironment, storageType],
+		[key, serializer, checkEnvironment, storageType, isMounted],
 	);
 
 	/**
 	 * Function to remove value from storage
 	 */
 	const removeStoredValue = useCallback((): void => {
+		if (!isMounted) {
+			return;
+		}
+
 		if (!checkEnvironment()) {
 			return;
 		}
@@ -113,13 +124,15 @@ export function useStorage<T>(
 		} catch (error) {
 			console.warn(`Error removing ${storageType} key "${key}":`, error);
 		}
-	}, [key, checkEnvironment, storageType]);
+	}, [key, checkEnvironment, storageType, isMounted]);
 
 	// Set initial value
 	const [storedValue, setStoredValueState] = useState<T>(getStoredValue);
 
 	// Handle storage change events
 	useEffect(() => {
+		if (!isMounted) return;
+
 		const handleStorageChange = (e: StorageEvent) => {
 			if (e.key === key && e.newValue !== null) {
 				try {
@@ -133,7 +146,7 @@ export function useStorage<T>(
 
 		window.addEventListener('storage', handleStorageChange);
 		return () => window.removeEventListener('storage', handleStorageChange);
-	}, [key, deserializer, storageType]);
+	}, [key, deserializer, storageType, isMounted]);
 
 	// Function to set value
 	const setValue = useCallback(

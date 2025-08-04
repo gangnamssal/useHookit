@@ -1,4 +1,5 @@
-import { useRef, useCallback, useState, useEffect } from 'react';
+import { useRef, useCallback, useState, useEffect, useMemo } from 'react';
+import { useIsMounted } from '../lifecycle/useIsMounted';
 
 /**
  * A custom hook that throttles a callback function to execute only once during the specified delay(ms).
@@ -37,22 +38,38 @@ import { useRef, useCallback, useState, useEffect } from 'react';
  * @link https://use-hookit.vercel.app/?path=/docs/performance-usethrottle--docs
  */
 export function useThrottle<T extends (...args: any[]) => any>(callback: T, delay: number): T {
+	const isMounted = useIsMounted();
 	const lastRun = useRef<number>(0);
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-	// Validate delay
-	if (delay < 0) {
-		console.warn('useThrottle: delay must be non-negative');
-		return useCallback(
-			((...args: Parameters<T>) => {
-				callback(...args);
-			}) as T,
-			[callback],
-		);
+	// Memoize delay validation for performance
+	const isValidDelay = useMemo(() => {
+		if (delay < 0) {
+			console.warn('useThrottle: delay must be non-negative');
+			return false;
+		}
+		return true;
+	}, [delay]);
+
+	// Return immediate callback for invalid delay
+	const immediateCallback = useCallback(
+		((...args: Parameters<T>) => {
+			callback(...args);
+		}) as T,
+		[callback],
+	);
+
+	if (!isValidDelay) {
+		return immediateCallback;
 	}
 
 	const throttledCallback = useCallback(
 		((...args: Parameters<T>) => {
+			if (!isMounted) {
+				callback(...args);
+				return;
+			}
+
 			const now = Date.now();
 
 			if (lastRun.current && now - lastRun.current < delay) {
@@ -71,7 +88,7 @@ export function useThrottle<T extends (...args: any[]) => any>(callback: T, dela
 				callback(...args);
 			}
 		}) as T,
-		[callback, delay],
+		[callback, delay, isMounted],
 	);
 
 	return throttledCallback;
@@ -123,11 +140,14 @@ export function useThrottle<T extends (...args: any[]) => any>(callback: T, dela
  * @link https://use-hookit.vercel.app/?path=/docs/performance-usethrottle--docs#related-hooks
  */
 export function useThrottleValue<T>(value: T, delay: number): T {
+	const isMounted = useIsMounted();
 	const [throttledValue, setThrottledValue] = useState<T>(value);
 	const lastRun = useRef<number>(0);
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	useEffect(() => {
+		if (!isMounted) return;
+
 		if (delay < 0) {
 			if (typeof console !== 'undefined' && console.warn) {
 				console.warn('useThrottleValue: delay must be non-negative');
@@ -156,7 +176,7 @@ export function useThrottleValue<T>(value: T, delay: number): T {
 				clearTimeout(timeoutRef.current);
 			}
 		};
-	}, [value, delay]);
+	}, [value, delay, isMounted]);
 
-	return throttledValue;
+	return isMounted ? throttledValue : value;
 }

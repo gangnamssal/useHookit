@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useIsMounted } from '../lifecycle/useIsMounted';
 
 interface UseNetworkStatusOptions {
 	/** Initial online status (default: navigator.onLine) */
@@ -117,6 +118,8 @@ export function useNetworkStatus(options: UseNetworkStatusOptions = {}) {
 		showStatusMessage = false,
 	} = options;
 
+	const isMounted = useIsMounted();
+
 	const hasInitialOnline = typeof initialOnline === 'boolean';
 
 	const [isOnline, setIsOnline] = useState(() => {
@@ -132,25 +135,29 @@ export function useNetworkStatus(options: UseNetworkStatusOptions = {}) {
 
 	const updateNetworkStatus = useCallback(
 		(online: boolean) => {
+			if (!isMounted) return;
+
 			const now = new Date();
 			if (online && !isOnline) {
 				setIsOnline(true);
 				setLastOnline(now);
-				if (showStatusMessage) {
+				if (showStatusMessage && isMounted) {
 					console.log('useNetworkStatus: 네트워크 연결됨');
 				}
 			} else if (!online && isOnline) {
 				setIsOnline(false);
 				setLastOffline(now);
-				if (showStatusMessage) {
+				if (showStatusMessage && isMounted) {
 					console.log('useNetworkStatus: 네트워크 연결 끊김');
 				}
 			}
 		},
-		[isOnline, showStatusMessage],
+		[isOnline, showStatusMessage, isMounted],
 	);
 
 	const refreshStatus = useCallback(() => {
+		if (!isMounted) return;
+
 		let actualStatus: boolean;
 		if (hasInitialOnline) {
 			actualStatus = !!initialOnline;
@@ -160,10 +167,10 @@ export function useNetworkStatus(options: UseNetworkStatusOptions = {}) {
 			actualStatus = true;
 		}
 		updateNetworkStatus(actualStatus);
-	}, [hasInitialOnline, initialOnline, updateNetworkStatus]);
+	}, [hasInitialOnline, initialOnline, updateNetworkStatus, isMounted]);
 
 	useEffect(() => {
-		if (typeof window === 'undefined') return;
+		if (typeof window === 'undefined' || !isMounted) return;
 		if (typeof navigator.onLine === 'undefined') return;
 
 		// Initial state synchronization
@@ -173,7 +180,9 @@ export function useNetworkStatus(options: UseNetworkStatusOptions = {}) {
 
 		const handleOnline = () => {
 			try {
-				updateNetworkStatus(true);
+				if (isMounted) {
+					updateNetworkStatus(true);
+				}
 			} catch {
 				// 에러 무시
 			}
@@ -181,7 +190,9 @@ export function useNetworkStatus(options: UseNetworkStatusOptions = {}) {
 
 		const handleOffline = () => {
 			try {
-				updateNetworkStatus(false);
+				if (isMounted) {
+					updateNetworkStatus(false);
+				}
 			} catch {
 				// 에러 무시
 			}
@@ -191,10 +202,12 @@ export function useNetworkStatus(options: UseNetworkStatusOptions = {}) {
 		window.addEventListener('offline', handleOffline);
 
 		return () => {
-			window.removeEventListener('online', handleOnline);
-			window.removeEventListener('offline', handleOffline);
+			if (isMounted) {
+				window.removeEventListener('online', handleOnline);
+				window.removeEventListener('offline', handleOffline);
+			}
 		};
-	}, [updateNetworkStatus, hasInitialOnline]);
+	}, [updateNetworkStatus, hasInitialOnline, isMounted]);
 
 	const statusMessage = isOnline ? onlineMessage : offlineMessage;
 

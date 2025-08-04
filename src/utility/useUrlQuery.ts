@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState, useEffect } from 'react';
+import { useIsMounted } from '../lifecycle/useIsMounted';
 
 interface UseUrlQueryOptions {
 	/**
@@ -180,91 +181,129 @@ export function useUrlQuery<T extends Record<string, any>>(
 		batchUpdates = false,
 	} = options;
 
+	const isMounted = useIsMounted();
+
+	// Memoize initial query keys for performance
+	const initialQueryKeys = useMemo(() => Object.keys(initialQuery), [initialQuery]);
+
 	// Parse query parameters from URL
 	const parseQueryFromUrl = useCallback((): Partial<T> => {
-		if (typeof window === 'undefined') return {};
+		if (!isMounted || typeof window === 'undefined') return {};
 
-		const searchParams = new URLSearchParams(window.location.search);
-		const query: Partial<T> = {};
+		try {
+			const searchParams = new URLSearchParams(window.location.search);
+			const query: Partial<T> = {};
 
-		for (const [key, value] of searchParams.entries()) {
-			if (key in initialQuery) {
-				let parsedValue: any = value;
+			for (const [key, value] of searchParams.entries()) {
+				if (initialQueryKeys.includes(key)) {
+					let parsedValue: any = value;
 
-				// Encoding handling
-				if (encoding === 'decodeURI') {
-					parsedValue = decodeURI(value);
-				} else if (encoding === 'none') {
-					parsedValue = value;
+					// Encoding handling
+					if (encoding === 'decodeURI') {
+						parsedValue = decodeURI(value);
+					} else if (encoding === 'none') {
+						parsedValue = value;
+					} else {
+						// Default to decodeURIComponent
+						parsedValue = decodeURIComponent(value);
+					}
+
+					// Type conversion attempt
+					const originalValue = initialQuery[key as keyof T];
+					if (typeof originalValue === 'number') {
+						parsedValue = Number(parsedValue);
+					} else if (typeof originalValue === 'boolean') {
+						parsedValue = parsedValue === 'true';
+					} else if (Array.isArray(originalValue)) {
+						parsedValue = safeParse(parsedValue, [parsedValue]);
+					}
+
+					query[key as keyof T] = parsedValue;
 				}
-
-				// Type conversion attempt
-				const originalValue = initialQuery[key as keyof T];
-				if (typeof originalValue === 'number') {
-					parsedValue = Number(parsedValue);
-				} else if (typeof originalValue === 'boolean') {
-					parsedValue = parsedValue === 'true';
-				} else if (Array.isArray(originalValue)) {
-					parsedValue = safeParse(parsedValue, [parsedValue]);
-				}
-
-				query[key as keyof T] = parsedValue;
 			}
-		}
 
-		return query;
-	}, [initialQuery, encoding]);
+			return query;
+		} catch (error) {
+			if (isMounted) {
+				console.warn('useUrlQuery: Error parsing URL query parameters:', error);
+			}
+			return {};
+		}
+	}, [initialQueryKeys, encoding, isMounted]);
 
 	// Sync query parameters to URL
 	const syncToUrl = useCallback(
 		(query: T) => {
-			if (typeof window === 'undefined' || !syncWithUrl) return;
+			if (!isMounted || typeof window === 'undefined' || !syncWithUrl) return;
 
-			const searchParams = new URLSearchParams();
+			try {
+				const searchParams = new URLSearchParams();
 
-			Object.entries(query).forEach(([key, value]) => {
-				if (!isEmptyValue(value)) {
-					searchParams.set(key, valueToString(value));
+				Object.entries(query).forEach(([key, value]) => {
+					if (!isEmptyValue(value)) {
+						searchParams.set(key, valueToString(value));
+					}
+				});
+
+				const newUrl = `${window.location.pathname}${
+					searchParams.toString() ? `?${searchParams.toString()}` : ''
+				}${window.location.hash}`;
+
+				if (historyMode === 'replace') {
+					window.history.replaceState(null, '', newUrl);
+				} else {
+					window.history.pushState(null, '', newUrl);
 				}
-			});
-
-			const newUrl = `${window.location.pathname}${
-				searchParams.toString() ? `?${searchParams.toString()}` : ''
-			}${window.location.hash}`;
-
-			if (historyMode === 'replace') {
-				window.history.replaceState(null, '', newUrl);
-			} else {
-				window.history.pushState(null, '', newUrl);
+			} catch (error) {
+				if (isMounted) {
+					console.warn('useUrlQuery: Error syncing to URL:', error);
+				}
 			}
 		},
-		[syncWithUrl, historyMode],
+		[syncWithUrl, historyMode, isMounted],
 	);
 
 	// Initial state setting
-	const [query, setQuery] = useState<T>(() => {
-		const urlQuery = parseQueryFromUrl();
-		return { ...initialQuery, ...urlQuery };
-	});
+	const [query, setQuery] = useState<T>(initialQuery);
+
+	useEffect(() => {
+		if (isMounted && syncWithUrl) {
+			const urlQuery = parseQueryFromUrl();
+			if (Object.keys(urlQuery).length > 0) {
+				setQuery((prev) => ({ ...prev, ...urlQuery }));
+			}
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isMounted, syncWithUrl]);
 
 	// URL change detection
 	useEffect(() => {
-		if (!syncWithUrl) return;
+		if (!syncWithUrl || !isMounted) return;
 
 		const handlePopState = () => {
-			const urlQuery = parseQueryFromUrl();
-			setQuery((prev) => ({ ...prev, ...urlQuery }));
+			if (isMounted) {
+				const urlQuery = parseQueryFromUrl();
+				setQuery((prev) => ({ ...prev, ...urlQuery }));
+			}
 		};
 
 		window.addEventListener('popstate', handlePopState);
-		return () => window.removeEventListener('popstate', handlePopState);
-	}, [syncWithUrl, parseQueryFromUrl]);
+		return () => {
+			if (isMounted) {
+				window.removeEventListener('popstate', handlePopState);
+			}
+		};
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [syncWithUrl, isMounted]);
 
 	// Sync URL when query changes
 	useEffect(() => {
-		if (!syncWithUrl) return;
+		if (!syncWithUrl || !isMounted) return;
 		syncToUrl(query);
-	}, [query, syncToUrl, syncWithUrl]);
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [query, syncWithUrl, isMounted]);
 
 	// Get specific query parameter
 	const get = useCallback(
@@ -331,14 +370,23 @@ export function useUrlQuery<T extends Record<string, any>>(
 	}, [query]);
 
 	const queryString = useMemo(() => {
-		const searchParams = new URLSearchParams();
-		Object.entries(query).forEach(([key, value]) => {
-			if (!isEmptyValue(value)) {
-				searchParams.set(key, valueToString(value));
+		if (!isMounted) return '';
+
+		try {
+			const searchParams = new URLSearchParams();
+			Object.entries(query).forEach(([key, value]) => {
+				if (!isEmptyValue(value)) {
+					searchParams.set(key, valueToString(value));
+				}
+			});
+			return searchParams.toString();
+		} catch (error) {
+			if (isMounted) {
+				console.warn('useUrlQuery: Error generating query string:', error);
 			}
-		});
-		return searchParams.toString();
-	}, [query]);
+			return '';
+		}
+	}, [query, isMounted]);
 
 	return {
 		query,

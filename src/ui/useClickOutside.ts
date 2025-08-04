@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useIsMounted } from '../lifecycle/useIsMounted';
 
 /**
  * A custom hook that executes a callback when clicking outside a specified DOM element.
@@ -50,7 +51,11 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
 	const { enabled = true, eventType = 'mousedown' } = options;
 	const ref = useRef<T>(null);
 
+	const isMounted = useIsMounted();
+
 	useEffect(() => {
+		if (!isMounted) return;
+
 		// Check if document is supported
 		if (!document || !document.addEventListener) {
 			console.warn(
@@ -83,7 +88,7 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
 		} catch (error) {
 			console.error('useClickOutside: Failed to add event listener:', error);
 		}
-	}, [callback, enabled, eventType]);
+	}, [callback, enabled, eventType, isMounted]);
 
 	return ref;
 }
@@ -144,40 +149,30 @@ export function useClickOutsideMultiple<T extends HTMLElement = HTMLElement>(
 ): void {
 	const { enabled = true, eventType = 'mousedown' } = options;
 
+	const isMounted = useIsMounted();
+
 	useEffect(() => {
-		// Check SSR environment
-		if (typeof window === 'undefined') {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useClickOutsideMultiple: window is not available (SSR environment)');
-			}
-			return;
-		}
+		if (!isMounted) return;
 
 		// Check if document is supported
 		if (!document || !document.addEventListener) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn(
-					'useClickOutsideMultiple: document is not available or does not support addEventListener',
-				);
-			}
+			console.warn(
+				'useClickOutsideMultiple: document is not available or does not support addEventListener',
+			);
 			return;
 		}
 
 		// Validate event type
 		if (!['mousedown', 'click', 'touchstart'].includes(eventType)) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn(
-					'useClickOutsideMultiple: eventType must be one of: mousedown, click, touchstart',
-				);
-			}
+			console.warn(
+				'useClickOutsideMultiple: eventType must be one of: mousedown, click, touchstart',
+			);
 			return;
 		}
 
 		// Validate refs array
 		if (!Array.isArray(refs) || refs.length === 0) {
-			if (typeof console !== 'undefined' && console.warn) {
-				console.warn('useClickOutsideMultiple: refs must be a non-empty array');
-			}
+			console.warn('useClickOutsideMultiple: refs must be a non-empty array');
 			return;
 		}
 
@@ -199,9 +194,7 @@ export function useClickOutsideMultiple<T extends HTMLElement = HTMLElement>(
 				document.removeEventListener(eventType, handleClickOutside);
 			};
 		} catch (error) {
-			if (typeof console !== 'undefined' && console.error) {
-				console.error('useClickOutsideMultiple: Failed to add event listener:', error);
-			}
+			console.error('useClickOutsideMultiple: Failed to add event listener:', error);
 		}
-	}, [callback, refs, enabled, eventType]);
+	}, [callback, refs, enabled, eventType, isMounted]);
 }

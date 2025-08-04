@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useIsMounted } from '../lifecycle/useIsMounted';
 
 export interface IntersectionObserverOptions {
 	/** Root element (default: null, browser viewport) */
@@ -107,6 +108,8 @@ export function useIntersectionObserver(
 ): UseIntersectionObserverReturn {
 	const { root = null, rootMargin = '0px', threshold = 0, initialIsIntersecting = false } = options;
 
+	const isMounted = useIsMounted();
+
 	const [state, setState] = useState<{
 		isIntersecting: boolean;
 		intersectionRatio: number;
@@ -140,6 +143,8 @@ export function useIntersectionObserver(
 
 	// Create Observer
 	useEffect(() => {
+		if (!isMounted) return;
+
 		// Check if IntersectionObserver is supported
 		if (!window.IntersectionObserver) {
 			console.warn(
@@ -179,14 +184,14 @@ export function useIntersectionObserver(
 		} catch (error) {
 			console.error('useIntersectionObserver: Failed to create IntersectionObserver:', error);
 		}
-	}, [root, rootMargin, threshold, handleIntersection]);
+	}, [root, rootMargin, threshold, handleIntersection, isMounted]);
 
 	// Ref callback
 	const ref = useCallback(
 		(node: Element | null) => {
 			elementRef.current = node;
 
-			if (observer) {
+			if (observer && isMounted) {
 				// Disconnect existing element observation
 				observer.disconnect();
 
@@ -196,7 +201,7 @@ export function useIntersectionObserver(
 				}
 			}
 		},
-		[observer],
+		[observer, isMounted],
 	);
 
 	return {

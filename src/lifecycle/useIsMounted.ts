@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 /**
  * A custom hook that returns whether the component is mounted.
@@ -39,16 +39,46 @@ export function useIsMounted(): boolean {
 	const [isMounted, setIsMounted] = useState(false);
 
 	useEffect(() => {
-		// 클라이언트에서만 마운트 상태를 true로 설정
 		setIsMounted(true);
 
 		return () => {
-			// 언마운트 시 false로 설정
 			setIsMounted(false);
 		};
 	}, []);
 
 	return isMounted;
+}
+
+/**
+ * Alternative high-performance version using useRef for minimal re-renders.
+ * Use this when you need maximum performance and don't need reactive updates.
+ *
+ * @returns {() => boolean} Function that returns current mount status
+ *
+ * @example
+ * ```tsx
+ * const isMountedRef = useIsMountedRef();
+ *
+ * const fetchData = async () => {
+ *   const data = await api.getData();
+ *   if (isMountedRef()) {
+ *     setData(data);
+ *   }
+ * };
+ * ```
+ */
+export function useIsMountedRef(): () => boolean {
+	const isMountedRef = useRef(false);
+
+	useEffect(() => {
+		isMountedRef.current = true;
+
+		return () => {
+			isMountedRef.current = false;
+		};
+	}, []);
+
+	return useCallback(() => isMountedRef.current, []);
 }
 
 /**
@@ -139,14 +169,14 @@ export function useSafeState<T>(initialValue: T): [T, (value: T | ((val: T) => T
  * @link https://use-hookit.vercel.app/?path=/docs/lifecycle-useismounted--docs#related-hooks
  */
 export function useSafeCallback<T extends (...args: any[]) => any>(callback: T): T {
-	const isMounted = useIsMounted();
+	const isMountedRef = useIsMountedRef();
 
 	return useCallback(
 		((...args: Parameters<T>) => {
-			if (isMounted) {
+			if (isMountedRef()) {
 				return callback(...args);
 			}
 		}) as T,
-		[callback, isMounted],
+		[callback, isMountedRef],
 	);
 }

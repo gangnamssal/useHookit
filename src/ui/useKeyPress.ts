@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useIsMounted } from '../lifecycle/useIsMounted';
 
 /**
  * Configuration options for the useKeyPress hook.
@@ -142,8 +143,8 @@ export function useKeyPress(
 		keyMappings = {},
 	} = options;
 
-	// SSR 환경에서 안전한 초기 상태 설정
-	const [isClient, setIsClient] = useState(false);
+	const isMounted = useIsMounted();
+
 	const [isPressed, setIsPressed] = useState(false);
 	const [keyCode, setKeyCode] = useState<string | null>(null);
 	const [pressedAt, setPressedAt] = useState<number | null>(null);
@@ -155,13 +156,7 @@ export function useKeyPress(
 	const startTimeRef = useRef<number | null>(null);
 	const normalizedKeysRef = useRef<string[]>([]);
 
-	// 브라우저 환경 체크 (하이드레이션 후에만 실행)
-	useEffect(() => {
-		setIsClient(true);
-	}, []);
-
-	// 클라이언트에서만 target 설정
-	const actualTarget = isClient ? target ?? document : null;
+	const actualTarget = isMounted ? target ?? document : null;
 
 	// Normalize key function
 	const normalizeKey = useCallback((key: string): string => {
@@ -187,11 +182,11 @@ export function useKeyPress(
 		setHoldDuration(null);
 		startTimeRef.current = null;
 		pressedKeysRef.current.clear();
-		if (intervalRef.current) {
+		if (intervalRef.current && isMounted) {
 			clearInterval(intervalRef.current);
 			intervalRef.current = null;
 		}
-	}, []);
+	}, [isMounted]);
 
 	// Check if all required keys are pressed
 	const checkAllKeysPressed = useCallback(() => {
@@ -199,27 +194,32 @@ export function useKeyPress(
 	}, []);
 
 	// Activate key (when all keys are pressed)
-	const activateKey = useCallback((keyboardEvent: KeyboardEvent) => {
-		const now = Date.now();
-		setKeyCode(keyboardEvent.key);
-		setPressedAt(now);
-		startTimeRef.current = now;
-		setIsPressed(true);
-		setHoldDuration(0);
+	const activateKey = useCallback(
+		(keyboardEvent: KeyboardEvent) => {
+			if (!isMounted) return;
 
-		// Clear existing interval
-		if (intervalRef.current) {
-			clearInterval(intervalRef.current);
-		}
+			const now = Date.now();
+			setKeyCode(keyboardEvent.key);
+			setPressedAt(now);
+			startTimeRef.current = now;
+			setIsPressed(true);
+			setHoldDuration(0);
 
-		// Start hold duration tracking with captured startTime
-		intervalRef.current = setInterval(() => {
-			if (startTimeRef.current) {
-				const newDuration = Date.now() - startTimeRef.current;
-				setHoldDuration(newDuration);
+			// Clear existing interval
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current);
 			}
-		}, 16); // Update every 100ms for better performance
-	}, []);
+
+			// Start hold duration tracking with captured startTime
+			intervalRef.current = setInterval(() => {
+				if (startTimeRef.current && isMounted) {
+					const newDuration = Date.now() - startTimeRef.current;
+					setHoldDuration(newDuration);
+				}
+			}, 16); // Update every 16ms for better performance
+		},
+		[isMounted],
+	);
 
 	// Deactivate key (when any key is released)
 	const deactivateKey = useCallback(() => {
@@ -231,16 +231,16 @@ export function useKeyPress(
 		setKeyCode(null);
 		setPressedAt(null);
 		startTimeRef.current = null;
-		if (intervalRef.current) {
+		if (intervalRef.current && isMounted) {
 			clearInterval(intervalRef.current);
 			intervalRef.current = null;
 		}
-	}, []);
+	}, [isMounted]);
 
 	// Handle keydown events
 	const handleKeyDown = useCallback(
 		(event: Event) => {
-			if (!enabled) return;
+			if (!enabled || !isMounted) return;
 
 			const keyboardEvent = event as KeyboardEvent;
 			const eventKey = normalizeKey(keyboardEvent.key);
@@ -263,13 +263,21 @@ export function useKeyPress(
 				activateKey(keyboardEvent);
 			}
 		},
-		[enabled, preventDefault, normalizeKey, applyKeyMappings, checkAllKeysPressed, activateKey],
+		[
+			enabled,
+			preventDefault,
+			normalizeKey,
+			applyKeyMappings,
+			checkAllKeysPressed,
+			activateKey,
+			isMounted,
+		],
 	);
 
 	// Handle keyup events
 	const handleKeyUp = useCallback(
 		(event: Event) => {
-			if (!enabled) return;
+			if (!enabled || !isMounted) return;
 
 			const keyboardEvent = event as KeyboardEvent;
 			const eventKey = normalizeKey(keyboardEvent.key);
@@ -287,7 +295,15 @@ export function useKeyPress(
 				deactivateKey();
 			}
 		},
-		[enabled, preventDefault, normalizeKey, applyKeyMappings, checkAllKeysPressed, deactivateKey],
+		[
+			enabled,
+			preventDefault,
+			normalizeKey,
+			applyKeyMappings,
+			checkAllKeysPressed,
+			deactivateKey,
+			isMounted,
+		],
 	);
 
 	// Update normalized keys when key prop changes
@@ -306,9 +322,8 @@ export function useKeyPress(
 		}
 	}, [key, normalizeKey, resetState]);
 
-	// Set up event listeners (클라이언트에서만)
 	useEffect(() => {
-		if (!actualTarget || !isClient) return;
+		if (!actualTarget || !isMounted) return;
 
 		if (keydown) {
 			actualTarget.addEventListener('keydown', handleKeyDown);
@@ -325,17 +340,17 @@ export function useKeyPress(
 				actualTarget.removeEventListener('keyup', handleKeyUp);
 			}
 		};
-	}, [actualTarget, keydown, keyup, handleKeyDown, handleKeyUp, isClient]);
+	}, [actualTarget, keydown, keyup, handleKeyDown, handleKeyUp, isMounted]);
 
 	// Cleanup on unmount
 	useEffect(() => {
 		return () => {
-			if (intervalRef.current) {
+			if (intervalRef.current && isMounted) {
 				clearInterval(intervalRef.current);
 				intervalRef.current = null;
 			}
 		};
-	}, []);
+	}, [isMounted]);
 
 	return {
 		isPressed,

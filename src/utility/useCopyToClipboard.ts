@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useIsMounted } from '../lifecycle/useIsMounted';
 
 /**
  * useCopyToClipboard hook options type
@@ -106,6 +107,8 @@ export function useCopyToClipboard(options: UseCopyToClipboardOptions = {}): {
 } {
 	const { timeout = 2000, successMessage = 'Copied!', errorMessage = 'Copy failed' } = options;
 
+	const isMounted = useIsMounted();
+
 	const [isCopied, setIsCopied] = useState(false);
 	const [isCopying, setIsCopying] = useState(false);
 	const [message, setMessage] = useState('');
@@ -117,23 +120,33 @@ export function useCopyToClipboard(options: UseCopyToClipboardOptions = {}): {
 	 */
 	const copyToClipboard = useCallback(
 		async (text: string): Promise<boolean> => {
+			if (!isMounted) {
+				return false;
+			}
+
 			// Check if navigator.clipboard is supported
 			if (!navigator.clipboard) {
-				console.warn('useCopyToClipboard: navigator.clipboard is not supported in this browser');
+				if (isMounted) {
+					console.warn('useCopyToClipboard: navigator.clipboard is not supported in this browser');
+				}
 				setMessage(errorMessage);
 				return false;
 			}
 
 			// Validate text
 			if (!text || typeof text !== 'string') {
-				console.warn('useCopyToClipboard: text must be a non-empty string');
+				if (isMounted) {
+					console.warn('useCopyToClipboard: text must be a non-empty string');
+				}
 				setMessage(errorMessage);
 				return false;
 			}
 
 			// Validate timeout
 			if (timeout < 0) {
-				console.warn('useCopyToClipboard: timeout must be non-negative');
+				if (isMounted) {
+					console.warn('useCopyToClipboard: timeout must be non-negative');
+				}
 			}
 
 			setIsCopying(true);
@@ -147,14 +160,18 @@ export function useCopyToClipboard(options: UseCopyToClipboardOptions = {}): {
 				// Reset success state after timeout
 				if (timeout > 0) {
 					setTimeout(() => {
-						setIsCopied(false);
-						setMessage('');
+						if (isMounted) {
+							setIsCopied(false);
+							setMessage('');
+						}
 					}, timeout);
 				}
 
 				return true;
 			} catch (error) {
-				console.error('useCopyToClipboard: Failed to copy to clipboard:', error);
+				if (isMounted) {
+					console.error('useCopyToClipboard: Failed to copy to clipboard:', error);
+				}
 				setIsCopied(false);
 				setMessage(errorMessage);
 				return false;
@@ -162,7 +179,7 @@ export function useCopyToClipboard(options: UseCopyToClipboardOptions = {}): {
 				setIsCopying(false);
 			}
 		},
-		[timeout, successMessage, errorMessage],
+		[timeout, successMessage, errorMessage, isMounted],
 	);
 
 	/**

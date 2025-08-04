@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useIsMounted, useIsMountedRef } from '../lifecycle/useIsMounted';
 
 /**
  * A custom hook that delays and returns a value by a specified time (delay).
@@ -49,14 +50,19 @@ import { useState, useEffect, useRef } from 'react';
  * @link https://use-hookit.vercel.app/?path=/docs/performance-usedebounce--docs
  */
 export function useDebounce<T>(value: T, delay: number): T {
+	const isMounted = useIsMounted();
+
 	const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
 	useEffect(() => {
+		if (!isMounted) return;
+
 		if (delay < 0) {
 			console.warn('useDebounce: delay must be non-negative');
 			setDebouncedValue(value);
 			return;
 		}
+
 		const handler = setTimeout(() => {
 			setDebouncedValue(value);
 		}, delay);
@@ -64,9 +70,62 @@ export function useDebounce<T>(value: T, delay: number): T {
 		return () => {
 			clearTimeout(handler);
 		};
-	}, [value, delay]);
+	}, [value, delay, isMounted]);
 
-	return debouncedValue;
+	return isMounted ? debouncedValue : value;
+}
+
+/**
+ * High-performance version of useDebounce using useRef for minimal re-renders.
+ * Use this when you don't need reactive updates and want maximum performance.
+ *
+ * @template T - Type of the value to debounce
+ * @param {T} value - Value to debounce
+ * @param {number} delay - Debounce delay time (ms)
+ * @param {(value: T) => void} callback - Callback to execute with debounced value
+ *
+ * @example
+ * ```tsx
+ * useDebounceCallback(searchTerm, 300, (debouncedTerm) => {
+ *   performSearch(debouncedTerm);
+ * });
+ * ```
+ */
+export function useDebounceRef<T>(value: T, delay: number, callback: (value: T) => void): void {
+	const isMountedRef = useIsMountedRef();
+	const callbackRef = useRef(callback);
+	const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+
+	// Update callback ref
+	useEffect(() => {
+		callbackRef.current = callback;
+	}, [callback]);
+
+	useEffect(() => {
+		if (!isMountedRef()) return;
+
+		if (delay < 0) {
+			console.warn('useDebounceRef: delay must be non-negative');
+			callbackRef.current(value);
+			return;
+		}
+
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+		}
+
+		timeoutRef.current = setTimeout(() => {
+			if (isMountedRef()) {
+				callbackRef.current(value);
+			}
+		}, delay);
+
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
+	}, [value, delay, isMountedRef]);
 }
 
 /**
@@ -114,6 +173,7 @@ export function useDebounceCallback<T extends (...args: any[]) => any>(
 	callback: T,
 	delay: number,
 ): T {
+	const isMounted = useIsMounted();
 	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	// Validate delay on hook initialization
@@ -124,6 +184,11 @@ export function useDebounceCallback<T extends (...args: any[]) => any>(
 	}, [delay]);
 
 	const debouncedCallback = ((...args: Parameters<T>) => {
+		if (!isMounted) {
+			callback(...args);
+			return;
+		}
+
 		if (delay < 0) {
 			callback(...args);
 			return;

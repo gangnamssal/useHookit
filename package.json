@@ -64,6 +64,7 @@
 		"publish:lib": "pnpm build && npm publish --access public",
 		"publish:dry": "pnpm build && npm publish --dry-run",
 		"test": "vitest run --environment jsdom --globals",
+		"test:watch": "vitest run --watch --environment jsdom --globals ",
 		"storybook": "pnpm --filter ./storybook storybook",
 		"build-storybook": "pnpm --filter ./storybook build-storybook",
 		"release:patch": "npm version patch && git push origin main --tags",

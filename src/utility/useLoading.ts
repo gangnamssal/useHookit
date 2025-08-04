@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useIsMounted } from '../lifecycle/useIsMounted';
 
 interface UseLoadingOptions {
 	/** Initial loading state (default: false) */
@@ -173,15 +174,22 @@ export function useLoading(options: UseLoadingOptions = {}): {
 } {
 	const { initialLoading = false, delay = 0, minLoadingTime = 0, onLoadingChange } = options;
 
+	// useIsMounted 훅을 활용하여 SSR 안정성 확보
+	const isMounted = useIsMounted();
+
 	// Warning for negative values
 	useEffect(() => {
 		if (delay < 0) {
-			console.warn('useLoading: delay must be non-negative');
+			if (isMounted) {
+				console.warn('useLoading: delay must be non-negative');
+			}
 		}
 		if (minLoadingTime < 0) {
-			console.warn('useLoading: minLoadingTime must be non-negative');
+			if (isMounted) {
+				console.warn('useLoading: minLoadingTime must be non-negative');
+			}
 		}
-	}, [delay, minLoadingTime]);
+	}, [delay, minLoadingTime, isMounted]);
 
 	const [isLoading, setIsLoading] = useState(initialLoading);
 	const [state, setState] = useState<LoadingState>({
@@ -200,6 +208,8 @@ export function useLoading(options: UseLoadingOptions = {}): {
 	 */
 	const setLoadingState = useCallback(
 		(loading: boolean) => {
+			if (!isMounted) return;
+
 			const now = new Date();
 
 			if (loading) {
@@ -228,29 +238,37 @@ export function useLoading(options: UseLoadingOptions = {}): {
 			}
 
 			setIsLoading(loading);
-			onLoadingChange?.(loading);
+			if (isMounted && onLoadingChange) {
+				onLoadingChange(loading);
+			}
 		},
-		[onLoadingChange],
+		[onLoadingChange, isMounted],
 	);
 
 	/**
 	 * Function to start loading
 	 */
 	const startLoading = useCallback(() => {
+		if (!isMounted) return;
+
 		// If delay is set
 		if (delay > 0) {
 			delayTimerRef.current = setTimeout(() => {
-				setLoadingState(true);
+				if (isMounted) {
+					setLoadingState(true);
+				}
 			}, delay);
 		} else {
 			setLoadingState(true);
 		}
-	}, [delay, setLoadingState]);
+	}, [delay, setLoadingState, isMounted]);
 
 	/**
 	 * Function to stop loading
 	 */
 	const stopLoading = useCallback(() => {
+		if (!isMounted) return;
+
 		// Clear delay timer if exists
 		if (delayTimerRef.current) {
 			clearTimeout(delayTimerRef.current);
@@ -266,14 +284,16 @@ export function useLoading(options: UseLoadingOptions = {}): {
 
 			if (remaining > 0) {
 				minLoadingTimerRef.current = setTimeout(() => {
-					setLoadingState(false);
+					if (isMounted) {
+						setLoadingState(false);
+					}
 				}, remaining);
 				return;
 			}
 		}
 
 		setLoadingState(false);
-	}, [minLoadingTime, setLoadingState]);
+	}, [minLoadingTime, setLoadingState, isMounted]);
 
 	/**
 	 * Function to toggle loading state
@@ -291,6 +311,10 @@ export function useLoading(options: UseLoadingOptions = {}): {
 	 */
 	const withLoading = useCallback(
 		async <T>(promise: Promise<T>): Promise<T> => {
+			if (!isMounted) {
+				return promise;
+			}
+
 			// Clear delay timer if exists
 			if (delayTimerRef.current) {
 				clearTimeout(delayTimerRef.current);
@@ -311,7 +335,9 @@ export function useLoading(options: UseLoadingOptions = {}): {
 
 					if (remaining > 0) {
 						minLoadingTimerRef.current = setTimeout(() => {
-							setLoadingState(false);
+							if (isMounted) {
+								setLoadingState(false);
+							}
 						}, remaining);
 					} else {
 						setLoadingState(false);
@@ -321,7 +347,7 @@ export function useLoading(options: UseLoadingOptions = {}): {
 				}
 			}
 		},
-		[setLoadingState, minLoadingTime],
+		[setLoadingState, minLoadingTime, isMounted],
 	);
 
 	/**
@@ -337,14 +363,14 @@ export function useLoading(options: UseLoadingOptions = {}): {
 	// Clean up timers on component unmount
 	useEffect(() => {
 		return () => {
-			if (delayTimerRef.current) {
+			if (delayTimerRef.current && isMounted) {
 				clearTimeout(delayTimerRef.current);
 			}
-			if (minLoadingTimerRef.current) {
+			if (minLoadingTimerRef.current && isMounted) {
 				clearTimeout(minLoadingTimerRef.current);
 			}
 		};
-	}, []);
+	}, [isMounted]);
 
 	return {
 		isLoading,

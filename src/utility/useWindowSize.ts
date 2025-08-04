@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { useIsMounted } from '../lifecycle/useIsMounted';
 
 export interface WindowSize {
 	/** Window width */
@@ -86,26 +87,22 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize & 
 		listenerOptions = { passive: true },
 	} = options;
 
-	// SSR 환경에서 안전한 초기 상태 설정
-	const [isClient, setIsClient] = useState(false);
+	const isMounted = useIsMounted();
 	const [windowSize, setWindowSize] = useState<WindowSize>(initialSize);
 
 	const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-	// 브라우저 환경 체크 (하이드레이션 후에만 실행)
 	useEffect(() => {
-		setIsClient(true);
+		if (isMounted) {
+			setWindowSize({
+				width: window.innerWidth,
+				height: window.innerHeight,
+			});
+		}
+	}, [isMounted]);
 
-		// 클라이언트에서 실제 윈도우 크기로 업데이트
-		setWindowSize({
-			width: window.innerWidth,
-			height: window.innerHeight,
-		});
-	}, []);
-
-	// 브레이크포인트 계산을 메모이제이션 (클라이언트에서만 계산)
 	const breakpoints = useMemo(() => {
-		if (!isClient) {
+		if (!isMounted) {
 			// SSR에서는 기본값 반환
 			return {
 				isMobile: false,
@@ -124,19 +121,20 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize & 
 			isLargeScreen: width >= 1440,
 			orientation: (width > height ? 'landscape' : 'portrait') as 'portrait' | 'landscape',
 		};
-	}, [windowSize.width, windowSize.height, isClient]);
+	}, [windowSize.width, windowSize.height, isMounted]);
 
 	useEffect(() => {
-		// SSR 환경 체크
-		if (typeof window === 'undefined' || !isClient) {
+		if (!isMounted || typeof window === 'undefined') {
 			return;
 		}
 
 		const updateWindowSize = () => {
-			setWindowSize({
-				width: window.innerWidth,
-				height: window.innerHeight,
-			});
+			if (isMounted) {
+				setWindowSize({
+					width: window.innerWidth,
+					height: window.innerHeight,
+				});
+			}
 		};
 
 		const debouncedUpdate = () => {
@@ -144,7 +142,11 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize & 
 				clearTimeout(debounceTimerRef.current);
 			}
 
-			debounceTimerRef.current = setTimeout(updateWindowSize, debounceMs);
+			debounceTimerRef.current = setTimeout(() => {
+				if (isMounted) {
+					updateWindowSize();
+				}
+			}, debounceMs);
 		};
 
 		const handleResize = debounceMs > 0 ? debouncedUpdate : updateWindowSize;
@@ -152,12 +154,14 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize & 
 		window.addEventListener('resize', handleResize, listenerOptions);
 
 		return () => {
-			window.removeEventListener('resize', handleResize, listenerOptions);
-			if (debounceTimerRef.current) {
+			if (isMounted) {
+				window.removeEventListener('resize', handleResize, listenerOptions);
+			}
+			if (debounceTimerRef.current && isMounted) {
 				clearTimeout(debounceTimerRef.current);
 			}
 		};
-	}, [debounceMs, listenerOptions, isClient]);
+	}, [debounceMs, listenerOptions, isMounted]);
 
 	return {
 		...windowSize,

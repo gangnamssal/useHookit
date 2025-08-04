@@ -1,4 +1,5 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { useIsMounted } from '../lifecycle/useIsMounted';
 
 interface UseBooleanOptions {
 	/** Initial boolean value (default: false) */
@@ -54,28 +55,37 @@ export function useBoolean(options: UseBooleanOptions = {}): {
 } {
 	const { initialValue = false, onChange } = options;
 
+	const isMounted = useIsMounted();
+
 	const [value, setValueState] = useState(initialValue);
 	const onChangeRef = useRef(onChange);
 
-	// Update onChange ref
-	onChangeRef.current = onChange;
+	// Update onChange ref efficiently
+	useEffect(() => {
+		onChangeRef.current = onChange;
+	}, [onChange]);
 
 	/**
 	 * Common function to update value
 	 */
-	const updateValue = useCallback((newValue: boolean) => {
-		setValueState(newValue);
+	const updateValue = useCallback(
+		(newValue: boolean) => {
+			setValueState(newValue);
 
-		// Only call if onChange callback exists
-		if (onChangeRef.current) {
-			try {
-				onChangeRef.current(newValue);
-			} catch (error) {
-				// Hook continues to work even if onChange callback throws an error
-				console.warn('useBoolean: onChange callback threw an error:', error);
+			// Only call if onChange callback exists and component is mounted
+			if (onChangeRef.current && isMounted) {
+				try {
+					onChangeRef.current(newValue);
+				} catch (error) {
+					// Hook continues to work even if onChange callback throws an error
+					if (isMounted) {
+						console.warn('useBoolean: onChange callback threw an error:', error);
+					}
+				}
 			}
-		}
-	}, []);
+		},
+		[isMounted],
+	);
 
 	/**
 	 * Function to toggle value

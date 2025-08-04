@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useIsMounted } from '../lifecycle/useIsMounted';
 
 /**
  * Scroll position interface
@@ -85,6 +86,8 @@ const DEFAULT_THROTTLE = 16;
 export function useScrollPosition(options: UseScrollPositionOptions = {}) {
 	const { element, throttle = DEFAULT_THROTTLE, onChange, enabled = true } = options;
 
+	const isMounted = useIsMounted();
+
 	const [position, setPosition] = useState<ScrollPosition>({ x: 0, y: 0 });
 	const [isScrolling, setIsScrolling] = useState(false);
 
@@ -98,10 +101,15 @@ export function useScrollPosition(options: UseScrollPositionOptions = {}) {
 	}, [onChange]);
 
 	// Memoize scroll target to avoid unnecessary re-renders
-	const scrollTarget = useMemo(() => element || window, [element]);
+	const scrollTarget = useMemo(() => {
+		if (!isMounted) return null;
+		return element || window;
+	}, [element, isMounted]);
 
 	// Get scroll position from element or window
 	const getScrollPosition = useCallback((): ScrollPosition => {
+		if (!isMounted) return { x: 0, y: 0 };
+
 		try {
 			if (element) {
 				return {
@@ -115,14 +123,16 @@ export function useScrollPosition(options: UseScrollPositionOptions = {}) {
 				y: window.pageYOffset || document.documentElement.scrollTop,
 			};
 		} catch (error) {
-			console.warn('useScrollPosition: Error getting scroll position:', error);
+			if (isMounted) {
+				console.warn('useScrollPosition: Error getting scroll position:', error);
+			}
 			return { x: 0, y: 0 };
 		}
-	}, [element]);
+	}, [element, isMounted]);
 
 	// Handle scroll event with throttling
 	const handleScroll = useCallback(() => {
-		if (!enabled) return;
+		if (!enabled || !isMounted) return;
 
 		const now = Date.now();
 		if (now - lastScrollTime.current < throttle) return;
@@ -140,7 +150,9 @@ export function useScrollPosition(options: UseScrollPositionOptions = {}) {
 
 		// Set scrolling to false after scroll ends
 		scrollTimeoutRef.current = setTimeout(() => {
-			setIsScrolling(false);
+			if (isMounted) {
+				setIsScrolling(false);
+			}
 		}, SCROLL_END_DELAY);
 
 		// Call onChange callback if provided
@@ -148,14 +160,16 @@ export function useScrollPosition(options: UseScrollPositionOptions = {}) {
 			try {
 				onChangeRef.current(newPosition);
 			} catch (error) {
-				console.warn('useScrollPosition: Error in onChange callback:', error);
+				if (isMounted) {
+					console.warn('useScrollPosition: Error in onChange callback:', error);
+				}
 			}
 		}
-	}, [enabled, throttle, getScrollPosition]);
+	}, [enabled, throttle, getScrollPosition, isMounted]);
 
 	// Set up scroll event listener
 	useEffect(() => {
-		if (!enabled) return;
+		if (!enabled || !isMounted || !scrollTarget) return;
 
 		const initialPosition = getScrollPosition();
 		setPosition(initialPosition);
@@ -163,16 +177,20 @@ export function useScrollPosition(options: UseScrollPositionOptions = {}) {
 		scrollTarget.addEventListener('scroll', handleScroll, { passive: true });
 
 		return () => {
-			scrollTarget.removeEventListener('scroll', handleScroll);
-			if (scrollTimeoutRef.current) {
+			if (isMounted && scrollTarget) {
+				scrollTarget.removeEventListener('scroll', handleScroll);
+			}
+			if (scrollTimeoutRef.current && isMounted) {
 				clearTimeout(scrollTimeoutRef.current);
 			}
 		};
-	}, [scrollTarget, enabled, handleScroll, getScrollPosition]);
+	}, [scrollTarget, enabled, handleScroll, getScrollPosition, isMounted]);
 
 	// Scroll to position utility function
 	const scrollTo = useCallback(
 		(x: number, y: number, behavior: ScrollBehavior = 'smooth') => {
+			if (!isMounted) return;
+
 			try {
 				if (element) {
 					element.scrollTo({ left: x, top: y, behavior });
@@ -180,10 +198,12 @@ export function useScrollPosition(options: UseScrollPositionOptions = {}) {
 					window.scrollTo({ left: x, top: y, behavior });
 				}
 			} catch (error) {
-				console.warn('useScrollPosition: Error scrolling to position:', error);
+				if (isMounted) {
+					console.warn('useScrollPosition: Error scrolling to position:', error);
+				}
 			}
 		},
-		[element],
+		[element, isMounted],
 	);
 
 	// Scroll to top utility function
@@ -197,6 +217,8 @@ export function useScrollPosition(options: UseScrollPositionOptions = {}) {
 	// Scroll to bottom utility function
 	const scrollToBottom = useCallback(
 		(behavior: ScrollBehavior = 'smooth') => {
+			if (!isMounted) return;
+
 			try {
 				if (element) {
 					const maxScrollTop = element.scrollHeight - element.clientHeight;
@@ -214,15 +236,19 @@ export function useScrollPosition(options: UseScrollPositionOptions = {}) {
 					});
 				}
 			} catch (error) {
-				console.warn('useScrollPosition: Error scrolling to bottom:', error);
+				if (isMounted) {
+					console.warn('useScrollPosition: Error scrolling to bottom:', error);
+				}
 			}
 		},
-		[element],
+		[element, isMounted],
 	);
 
 	// Scroll to left utility function
 	const scrollToLeft = useCallback(
 		(behavior: ScrollBehavior = 'smooth') => {
+			if (!isMounted) return;
+
 			try {
 				if (element) {
 					element.scrollTo({
@@ -234,15 +260,19 @@ export function useScrollPosition(options: UseScrollPositionOptions = {}) {
 					scrollTo(0, position.y, behavior);
 				}
 			} catch (error) {
-				console.warn('useScrollPosition: Error scrolling to left:', error);
+				if (isMounted) {
+					console.warn('useScrollPosition: Error scrolling to left:', error);
+				}
 			}
 		},
-		[element, position.y, scrollTo],
+		[element, position.y, scrollTo, isMounted],
 	);
 
 	// Scroll to right utility function
 	const scrollToRight = useCallback(
 		(behavior: ScrollBehavior = 'smooth') => {
+			if (!isMounted) return;
+
 			try {
 				if (element) {
 					const maxScrollLeft = element.scrollWidth - element.clientWidth;
@@ -260,10 +290,12 @@ export function useScrollPosition(options: UseScrollPositionOptions = {}) {
 					});
 				}
 			} catch (error) {
-				console.warn('useScrollPosition: Error scrolling to right:', error);
+				if (isMounted) {
+					console.warn('useScrollPosition: Error scrolling to right:', error);
+				}
 			}
 		},
-		[element, position.y],
+		[element, position.y, isMounted],
 	);
 
 	return {

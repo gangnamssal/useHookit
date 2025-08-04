@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useIsMounted } from '../lifecycle/useIsMounted';
 
 type EventTarget = Window | Document | HTMLElement | Element | null | undefined;
 type EventListenerOptions = boolean | AddEventListenerOptions;
@@ -56,12 +57,16 @@ export function useEventListener<T extends EventTarget>(
 ): void {
 	const savedHandler = useRef(handler);
 
+	const isMounted = useIsMounted();
+
 	// Keep ref up to date when handler changes
 	useEffect(() => {
 		savedHandler.current = handler;
 	}, [handler]);
 
 	useEffect(() => {
+		if (!isMounted) return;
+
 		// Input validation
 		if (!eventName || typeof eventName !== 'string') {
 			console.warn('useEventListener: eventName must be a non-empty string');
@@ -94,7 +99,7 @@ export function useEventListener<T extends EventTarget>(
 		return () => {
 			targetElement.removeEventListener(eventName, eventListener, options);
 		};
-	}, [eventName, element, options]);
+	}, [eventName, element, options, isMounted]);
 }
 
 /**

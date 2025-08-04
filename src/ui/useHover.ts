@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState, useEffect, useMemo } from 'react';
+import { useIsMounted } from '../lifecycle/useIsMounted';
 
 interface UseHoverOptions {
 	/** Callback when hover starts */
@@ -121,17 +122,19 @@ export function useHover<T extends HTMLElement = HTMLElement>(
 		enabled = true,
 	} = options;
 
+	const isMounted = useIsMounted();
+
 	const [isHovered, setIsHovered] = useState(false);
 	const ref = useRef<T>(null);
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	// Clear timeout function
 	const clearHoverTimeout = useCallback(() => {
-		if (timeoutRef.current) {
+		if (timeoutRef.current && isMounted) {
 			window.clearTimeout(timeoutRef.current);
 			timeoutRef.current = null;
 		}
-	}, []);
+	}, [isMounted]);
 
 	// Update hover state function
 	const updateHoverState = useCallback(
@@ -149,7 +152,7 @@ export function useHover<T extends HTMLElement = HTMLElement>(
 
 	// Handle hover start
 	const handleHoverStart = useCallback(() => {
-		if (!enabled) return;
+		if (!enabled || !isMounted) return;
 
 		clearHoverTimeout();
 
@@ -160,11 +163,11 @@ export function useHover<T extends HTMLElement = HTMLElement>(
 		} else {
 			updateHoverState(true);
 		}
-	}, [enabled, delay, clearHoverTimeout, updateHoverState]);
+	}, [enabled, delay, clearHoverTimeout, updateHoverState, isMounted]);
 
 	// Handle hover end
 	const handleHoverEnd = useCallback(() => {
-		if (!enabled) return;
+		if (!enabled || !isMounted) return;
 
 		clearHoverTimeout();
 
@@ -175,7 +178,7 @@ export function useHover<T extends HTMLElement = HTMLElement>(
 		} else {
 			updateHoverState(false);
 		}
-	}, [enabled, delayEnd, clearHoverTimeout, updateHoverState]);
+	}, [enabled, delayEnd, clearHoverTimeout, updateHoverState, isMounted]);
 
 	// Clean up timeout on component unmount
 	useEffect(() => {

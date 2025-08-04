@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useIsMounted } from '../lifecycle/useIsMounted';
 
 /**
  * A custom hook that returns whether a given media query string matches the current environment.
@@ -31,18 +32,25 @@ import { useState, useEffect } from 'react';
  * @link https://use-hookit.vercel.app/?path=/docs/utility-usemediaquery--docs
  */
 export function useMediaQuery(query: string): boolean {
+	const isMounted = useIsMounted();
 	const [matches, setMatches] = useState(false);
 
 	useEffect(() => {
+		if (!isMounted) return;
+
 		// Check if matchMedia is supported
 		if (!window.matchMedia) {
-			console.warn('useMediaQuery: matchMedia is not supported in this browser');
+			if (isMounted) {
+				console.warn('useMediaQuery: matchMedia is not supported in this browser');
+			}
 			return;
 		}
 
 		// Validate query
 		if (!query || typeof query !== 'string') {
-			console.warn('useMediaQuery: query must be a non-empty string');
+			if (isMounted) {
+				console.warn('useMediaQuery: query must be a non-empty string');
+			}
 			return;
 		}
 
@@ -51,17 +59,23 @@ export function useMediaQuery(query: string): boolean {
 			setMatches(media.matches);
 
 			const listener = (event: MediaQueryListEvent) => {
-				setMatches(event.matches);
+				if (isMounted) {
+					setMatches(event.matches);
+				}
 			};
 
 			media.addEventListener('change', listener);
 			return () => {
-				media.removeEventListener('change', listener);
+				if (isMounted) {
+					media.removeEventListener('change', listener);
+				}
 			};
 		} catch (error) {
-			console.error('useMediaQuery: Failed to create media query:', error);
+			if (isMounted) {
+				console.error('useMediaQuery: Failed to create media query:', error);
+			}
 		}
-	}, [query]);
+	}, [query, isMounted]);
 
 	return matches;
 }

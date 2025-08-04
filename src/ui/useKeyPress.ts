@@ -134,7 +134,7 @@ export function useKeyPress(
 	options: UseKeyPressOptions = {},
 ): UseKeyPressReturn {
 	const {
-		target = document,
+		target,
 		preventDefault = false,
 		enabled = true,
 		keydown = true,
@@ -142,6 +142,8 @@ export function useKeyPress(
 		keyMappings = {},
 	} = options;
 
+	// SSR 환경에서 안전한 초기 상태 설정
+	const [isClient, setIsClient] = useState(false);
 	const [isPressed, setIsPressed] = useState(false);
 	const [keyCode, setKeyCode] = useState<string | null>(null);
 	const [pressedAt, setPressedAt] = useState<number | null>(null);
@@ -152,6 +154,14 @@ export function useKeyPress(
 	const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 	const startTimeRef = useRef<number | null>(null);
 	const normalizedKeysRef = useRef<string[]>([]);
+
+	// 브라우저 환경 체크 (하이드레이션 후에만 실행)
+	useEffect(() => {
+		setIsClient(true);
+	}, []);
+
+	// 클라이언트에서만 target 설정
+	const actualTarget = isClient ? target ?? document : null;
 
 	// Normalize key function
 	const normalizeKey = useCallback((key: string): string => {
@@ -296,26 +306,26 @@ export function useKeyPress(
 		}
 	}, [key, normalizeKey, resetState]);
 
-	// Set up event listeners
+	// Set up event listeners (클라이언트에서만)
 	useEffect(() => {
-		if (!target) return;
+		if (!actualTarget || !isClient) return;
 
 		if (keydown) {
-			target.addEventListener('keydown', handleKeyDown);
+			actualTarget.addEventListener('keydown', handleKeyDown);
 		}
 		if (keyup) {
-			target.addEventListener('keyup', handleKeyUp);
+			actualTarget.addEventListener('keyup', handleKeyUp);
 		}
 
 		return () => {
 			if (keydown) {
-				target.removeEventListener('keydown', handleKeyDown);
+				actualTarget.removeEventListener('keydown', handleKeyDown);
 			}
 			if (keyup) {
-				target.removeEventListener('keyup', handleKeyUp);
+				actualTarget.removeEventListener('keyup', handleKeyUp);
 			}
 		};
-	}, [target, keydown, keyup, handleKeyDown, handleKeyUp]);
+	}, [actualTarget, keydown, keyup, handleKeyDown, handleKeyUp, isClient]);
 
 	// Cleanup on unmount
 	useEffect(() => {

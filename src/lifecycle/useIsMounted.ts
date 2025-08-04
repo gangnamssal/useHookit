@@ -42,7 +42,7 @@ export function useIsMounted(): boolean {
 	useEffect(() => {
 		// 클라이언트에서만 마운트 상태를 true로 설정
 		setIsMounted(true);
-		
+
 		return () => {
 			// 언마운트 시 false로 설정
 			setIsMounted(false);
@@ -94,11 +94,14 @@ export function useSafeState<T>(initialValue: T): [T, (value: T | ((val: T) => T
 	const [state, setState] = useState<T>(initialValue);
 	const isMounted = useIsMounted();
 
-	const safeSetState = useCallback((value: T | ((val: T) => T)) => {
-		if (isMounted) {
-			setState(value);
-		}
-	}, [isMounted]);
+	const safeSetState = useCallback(
+		(value: T | ((val: T) => T)) => {
+			if (isMounted) {
+				setState(value);
+			}
+		},
+		[isMounted],
+	);
 
 	return [state, safeSetState];
 }

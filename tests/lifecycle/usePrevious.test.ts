@@ -1,8 +1,12 @@
 import { renderHook } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { usePrevious } from '../../src/lifecycle/usePrevious';
 
 describe('usePrevious', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
 	it('기본 사용법 - 첫 번째 렌더링에서는 undefined를 반환한다', () => {
 		const { result } = renderHook(() => usePrevious('initial'));
 
@@ -331,5 +335,75 @@ describe('usePrevious', () => {
 
 		rerender({ value: sameObject });
 		expect(result.current).toEqual(sameObject);
+	});
+
+	it('클라이언트에서 하이드레이션 후 이전 값 추적을 시작한다', () => {
+		const { result, rerender } = renderHook(({ value }) => usePrevious(value), {
+			initialProps: { value: 'first' },
+		});
+
+		// 클라이언트에서는 첫 번째 렌더링에서 undefined를 반환
+		expect(result.current).toBeUndefined();
+
+		// 값이 변경되면 이전 값을 반환
+		rerender({ value: 'second' });
+		expect(result.current).toBe('first');
+	});
+
+	it('컴포넌트 리렌더링 시에도 올바르게 동작한다', () => {
+		const { result, rerender } = renderHook(
+			({ value }) => usePrevious(value, { initialValue: 'initial' }),
+			{
+				initialProps: { value: 'first' },
+			},
+		);
+
+		// 초기 렌더링
+		expect(result.current).toBe('initial');
+
+		// 값 변경
+		rerender({ value: 'second' });
+		expect(result.current).toBe('first');
+
+		// 리렌더링 (같은 값) - 이전 값이 유지되어야 함
+		rerender({ value: 'second' });
+		expect(result.current).toBe('second');
+
+		// 값 변경
+		rerender({ value: 'third' });
+		expect(result.current).toBe('second');
+	});
+
+	it('복잡한 객체의 동작을 검증한다', () => {
+		const initialObj = { name: 'Initial', data: [] };
+		const { result, rerender } = renderHook(
+			({ value }) => usePrevious(value, { initialValue: initialObj }),
+			{
+				initialProps: { value: { name: 'John', data: [1, 2] } },
+			},
+		);
+
+		// 초기값을 반환
+		expect(result.current).toBe(initialObj);
+
+		// 컴포넌트 리렌더링
+		rerender({ value: { name: 'Jane', data: [3, 4] } });
+
+		// 이전 값을 반환
+		expect(result.current).toEqual({ name: 'John', data: [1, 2] });
+	});
+
+	it('SSR 호환성을 위한 안전한 초기 상태를 제공한다', () => {
+		const { result } = renderHook(() => usePrevious('current', { initialValue: 'safe' }));
+
+		// SSR 환경에서도 안전한 초기값을 반환
+		expect(result.current).toBe('safe');
+	});
+
+	it('초기값이 없는 경우 SSR에서도 안전하게 동작한다', () => {
+		const { result } = renderHook(() => usePrevious('current'));
+
+		// SSR 환경에서도 안전하게 undefined를 반환
+		expect(result.current).toBeUndefined();
 	});
 });

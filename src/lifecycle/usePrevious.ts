@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
 interface UsePreviousOptions<T> {
 	initialValue?: T;
@@ -58,11 +58,19 @@ interface UsePreviousOptions<T> {
 export function usePrevious<T>(value: T, options: UsePreviousOptions<T> = {}): T | undefined {
 	const { initialValue } = options;
 
+	const [isClient, setIsClient] = useState(false);
+
 	const ref = useRef<T | undefined>(initialValue);
 
 	useEffect(() => {
-		ref.current = value;
-	}, [value]);
+		setIsClient(true);
+	}, []);
 
-	return ref.current;
+	if (!isClient) {
+		return initialValue;
+	}
+
+	const previousValue = ref.current;
+	ref.current = value;
+	return previousValue;
 }

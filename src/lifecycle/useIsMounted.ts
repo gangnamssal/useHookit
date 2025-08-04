@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback } from 'react';
 
 /**
  * A custom hook that returns whether the component is mounted.
- * SSR 환경에서 안전하게 동작하며, 서버 사이드에서는 false를 반환합니다.
  *
  * @returns {boolean} Returns true if the component is mounted, false otherwise
  *
@@ -54,7 +53,6 @@ export function useIsMounted(): boolean {
 
 /**
  * A custom hook that allows safe setState calls only when the component is mounted.
- * SSR 환경에서 안전하게 동작합니다.
  *
  * @template T - Type of the state
  *
@@ -108,7 +106,6 @@ export function useSafeState<T>(initialValue: T): [T, (value: T | ((val: T) => T
 
 /**
  * A custom hook that ensures callbacks only work when the component is mounted.
- * SSR 환경에서 안전하게 동작합니다.
  *
  * @template T - Type of the callback function
  *

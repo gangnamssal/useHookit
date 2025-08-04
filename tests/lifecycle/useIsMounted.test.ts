@@ -15,23 +15,43 @@ describe('useIsMounted', () => {
 	it('초기 렌더링 시 false를 반환하고 마운트 후 true를 반환한다', () => {
 		// 초기 렌더링 시에는 false를 반환해야 함
 		const { result } = renderHook(() => useIsMounted());
-		
+
 		// useEffect가 실행된 후 true를 반환해야 함
 		expect(result.current).toBe(true);
 	});
 
 	it('언마운트 시 false를 반환한다', () => {
 		const { result, unmount } = renderHook(() => useIsMounted());
-		
+
 		// 마운트 상태 확인
 		expect(result.current).toBe(true);
-		
+
 		// 언마운트
 		unmount();
-		
+
 		// 언마운트 후에는 false를 반환해야 함
 		// 하지만 renderHook이 언마운트된 후에는 result에 접근할 수 없으므로
 		// 이 테스트는 실제로는 의미가 없음 (언마운트 후 컴포넌트가 존재하지 않음)
+	});
+
+	it('클라이언트에서 하이드레이션 후 true를 반환한다', () => {
+		const { result } = renderHook(() => useIsMounted());
+
+		// useEffect가 실행된 후 true를 반환해야 함
+		expect(result.current).toBe(true);
+	});
+
+	it('컴포넌트 리렌더링 시에도 올바르게 동작한다', () => {
+		const { result, rerender } = renderHook(() => useIsMounted());
+
+		// 초기 렌더링
+		expect(result.current).toBe(true);
+
+		// 리렌더링
+		rerender();
+
+		// 리렌더링 후에도 true를 유지해야 함
+		expect(result.current).toBe(true);
 	});
 });
 
@@ -92,12 +112,31 @@ describe('useSafeState', () => {
 	it('useCallback으로 메모이제이션이 적용된다', () => {
 		const { result, rerender } = renderHook(() => useSafeState('initial'));
 		const firstSetState = result.current[1];
-		
+
 		rerender();
 		const secondSetState = result.current[1];
-		
+
 		// useCallback으로 메모이제이션되어 같은 참조를 가져야 함
 		expect(firstSetState).toBe(secondSetState);
+	});
+
+	it('컴포넌트 리렌더링 시에도 정상적으로 동작한다', () => {
+		const { result, rerender } = renderHook(() => useSafeState('initial'));
+
+		// 초기 상태 확인
+		expect(result.current[0]).toBe('initial');
+
+		// 상태 업데이트
+		act(() => {
+			result.current[1]('updated');
+		});
+		expect(result.current[0]).toBe('updated');
+
+		// 리렌더링
+		rerender();
+
+		// 리렌더링 후에도 상태가 유지되어야 함
+		expect(result.current[0]).toBe('updated');
 	});
 });
 
@@ -188,11 +227,32 @@ describe('useSafeCallback', () => {
 		const mockCallback = vi.fn();
 		const { result, rerender } = renderHook(() => useSafeCallback(mockCallback));
 		const firstCallback = result.current;
-		
+
 		rerender();
 		const secondCallback = result.current;
-		
+
 		// useCallback으로 메모이제이션되어 같은 참조를 가져야 함
 		expect(firstCallback).toBe(secondCallback);
+	});
+
+	it('컴포넌트 리렌더링 시에도 콜백이 정상적으로 동작한다', () => {
+		const spy = vi.fn();
+		const { result, rerender } = renderHook(() => useSafeCallback(spy));
+
+		// 초기 콜백 실행
+		act(() => {
+			result.current('test1');
+		});
+		expect(spy).toHaveBeenCalledWith('test1');
+
+		// 리렌더링
+		rerender();
+
+		// 리렌더링 후에도 콜백이 정상적으로 동작
+		act(() => {
+			result.current('test2');
+		});
+		expect(spy).toHaveBeenCalledWith('test2');
+		expect(spy).toHaveBeenCalledTimes(2);
 	});
 });

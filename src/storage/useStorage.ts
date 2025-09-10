@@ -64,24 +64,6 @@ export function useStorage<T>(
 	}, [storageType]);
 
 	/**
-	 * Function to read value from storage
-	 */
-	const getStoredValue = useCallback((): T => {
-		if (!checkEnvironment()) {
-			return initialValue;
-		}
-
-		try {
-			const storage = storageType === 'localStorage' ? window.localStorage : window.sessionStorage;
-			const item = storage.getItem(key);
-			return item ? deserializer(item) : initialValue;
-		} catch (error) {
-			console.warn(`Error reading ${storageType} key "${key}":`, error);
-			return initialValue;
-		}
-	}, [key, initialValue, deserializer, checkEnvironment, storageType]);
-
-	/**
 	 * Function to save value to storage
 	 */
 	const setStoredValue = useCallback(
@@ -126,8 +108,27 @@ export function useStorage<T>(
 		}
 	}, [key, checkEnvironment, storageType, isMounted]);
 
-	// Set initial value
-	const [storedValue, setStoredValueState] = useState<T>(getStoredValue);
+	// Set initial value - use initialValue for SSR, then update with stored value on client
+	const [storedValue, setStoredValueState] = useState<T>(initialValue);
+
+	// Load stored value on client side mount
+	useEffect(() => {
+		if (!isMounted) return;
+
+		// Directly read from storage to avoid dependency issues
+		if (typeof window === 'undefined') return;
+
+		const storage = storageType === 'localStorage' ? window.localStorage : window.sessionStorage;
+		if (!storage) return;
+
+		try {
+			const item = storage.getItem(key);
+			const storedValue = item ? deserializer(item) : initialValue;
+			setStoredValueState(storedValue);
+		} catch (error) {
+			console.warn(`Error reading ${storageType} key "${key}":`, error);
+		}
+	}, [isMounted, key, initialValue, deserializer, storageType]);
 
 	// Handle storage change events
 	useEffect(() => {
